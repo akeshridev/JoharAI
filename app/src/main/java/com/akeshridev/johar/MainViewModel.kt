@@ -64,13 +64,22 @@ class MainViewModel(
 
     fun testOnDeviceLlm() {
         viewModelScope.launch(Dispatchers.IO) {
-            localModelStore.ensureDirectory()
-            val status = localModelStore.status()
+            val status = try {
+                localModelStore.ensureBundledModel()
+            } catch (throwable: Throwable) {
+                Log.e(
+                    LLM_TAG,
+                    "MODEL_PREP_FAILED error=${throwable::class.java.simpleName}: ${throwable.message}",
+                    throwable,
+                )
+                return@launch
+            }
+
             if (!status.isAvailable) {
                 Log.w(
                     LLM_TAG,
-                    "MODEL_MISSING expectedPath=${status.path} " +
-                        "Place a compatible .litertlm model there, then run this test again.",
+                    "BUNDLED_MODEL_MISSING asset=models/${LocalModelStore.DEFAULT_MODEL_FILE_NAME} " +
+                        "Add the .litertlm file under app/src/main/assets/models/ and rebuild the app.",
                 )
                 return@launch
             }
