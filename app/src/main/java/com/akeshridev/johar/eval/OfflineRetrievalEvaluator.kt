@@ -26,10 +26,11 @@ class OfflineRetrievalEvaluator(
         val names = hits.map { it.name }
         val expected = case.expected.map(::normalizeName).toSet()
         val normalizedHits = names.map(::normalizeName)
+        val noAnswerCorrect = case.expectNoAnswer && names.isEmpty()
         return RetrievalEvalResult(
             case = case,
-            hitAt1 = normalizedHits.take(1).any(expected::contains),
-            hitAt3 = normalizedHits.take(3).any(expected::contains),
+            hitAt1 = if (case.expectNoAnswer) noAnswerCorrect else normalizedHits.take(1).any(expected::contains),
+            hitAt3 = if (case.expectNoAnswer) noAnswerCorrect else normalizedHits.take(3).any(expected::contains),
             actual = names,
         )
     }
@@ -45,16 +46,19 @@ class OfflineRetrievalEvaluator(
 
     private fun parseCase(line: String): RetrievalEvalCase {
         val json = JSONObject(line)
-        val expectedJson = json.getJSONArray("expected")
+        val expectedJson = json.optJSONArray("expected")
         val expected = buildList {
-            for (index in 0 until expectedJson.length()) {
-                add(expectedJson.getString(index))
+            if (expectedJson != null) {
+                for (index in 0 until expectedJson.length()) {
+                    add(expectedJson.getString(index))
+                }
             }
         }
         return RetrievalEvalCase(
             query = json.getString("query"),
             expected = expected,
             category = json.optString("category").takeIf(String::isNotBlank),
+            expectNoAnswer = json.optBoolean("expectNoAnswer", false),
         )
     }
 
@@ -71,6 +75,7 @@ data class RetrievalEvalCase(
     val query: String,
     val expected: List<String>,
     val category: String?,
+    val expectNoAnswer: Boolean = false,
 )
 
 data class RetrievalEvalResult(
