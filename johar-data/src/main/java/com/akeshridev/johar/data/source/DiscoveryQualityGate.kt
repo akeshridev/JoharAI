@@ -30,7 +30,7 @@ internal object DiscoveryQualityGate {
             DiscoveryCategory.LOCAL_BAZAR ->
                 inferredType in MARKET_TYPES && MARKET_TERMS.any(title::contains)
             DiscoveryCategory.PLACES ->
-                inferredType in PLACE_TYPES && isPlaceLikeTitle(title)
+                inferredType in PLACE_TYPES && isPlaceLike(title, descriptionText)
             DiscoveryCategory.WEATHER -> false
         }
         if (!categorySupported) return false
@@ -45,9 +45,10 @@ internal object DiscoveryQualityGate {
         GENERIC_TITLE_PREFIXES.any(title::startsWith) ||
             NON_V1_TITLE_TERMS.any(title::contains)
 
-    private fun isPlaceLikeTitle(title: String): Boolean =
+    private fun isPlaceLike(title: String, description: String): Boolean =
         JHARKHAND_LOCALITY_TERMS.any(title::contains) ||
-            PLACE_TITLE_TERMS.any(title::contains)
+            PLACE_TITLE_TERMS.any(title::contains) ||
+            PLACE_DESCRIPTION_PATTERNS.any(description::contains)
 
     private fun hasJharkhandEvidence(title: String, description: String): Boolean {
         if ("jharkhand" in title) return true
@@ -112,6 +113,20 @@ internal object DiscoveryQualityGate {
     private val PLACE_TITLE_TERMS = listOf(
         "waterfall", "falls", "national park", "wildlife sanctuary", "forest reserve", "dam", "hill", "lake",
         "temple", "village", "town", "city", "district", "river", "railway station", "airport",
+    )
+    private val PLACE_DESCRIPTION_PATTERNS = listOf(
+        "is a city in ",
+        "is a town in ",
+        "is a village in ",
+        "is a census town in ",
+        "is a hill station in ",
+        "is a waterfall in ",
+        "is a river in ",
+        "is a lake in ",
+        "is a dam in ",
+        "is a temple in ",
+        "is a national park in ",
+        "is a wildlife sanctuary in ",
     )
 
     private val GENERIC_TITLE_PREFIXES = listOf(
