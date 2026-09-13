@@ -30,28 +30,44 @@ class OfflineKnowledgeRetriever(
                 val facts = dao.factsForEntity(entity.id)
                 val relationshipLocations = relationshipLocationTokens(entity)
                 val packType = packType(entity)
+                val locationMatch = locationMatch(
+                    entity = entity,
+                    locationTokens = locationTokens,
+                    relationshipLocations = relationshipLocations,
+                )
                 val score = score(
                     entity = entity,
                     packType = packType,
                     facts = facts,
                     queryTokens = queryTokens,
                     locationTokens = locationTokens,
-                    relationshipLocations = relationshipLocations,
+                    locationMatch = locationMatch,
                     preferredTypes = preferredTypes,
                     preferredPackTypes = preferredPackTypes,
                     asksStateFact = asksStateFact,
                 )
-                OfflineKnowledgeHit(
-                    entityId = entity.id,
-                    name = entity.name,
-                    type = entity.type,
-                    packType = packType,
-                    description = entity.description,
-                    score = score,
-                    facts = rankFacts(facts, normalizedQuery, queryTokens),
+                ScoredEntity(
+                    hit = OfflineKnowledgeHit(
+                        entityId = entity.id,
+                        name = entity.name,
+                        type = entity.type,
+                        packType = packType,
+                        description = entity.description,
+                        score = score,
+                        facts = rankFacts(facts, normalizedQuery, queryTokens),
+                    ),
+                    locationMatch = locationMatch,
                 )
             }
-            .filter { it.score > 0 }
+            .filter { candidate ->
+                candidate.hit.score > 0 &&
+                    passesExplicitLocationConstraint(
+                        candidate = candidate,
+                        locationTokens = locationTokens,
+                        preferredPackTypes = preferredPackTypes,
+                    )
+            }
+            .map(ScoredEntity::hit)
             .sortedWith(
                 compareByDescending<OfflineKnowledgeHit> { it.score }
                     .thenBy { it.name },
@@ -60,13 +76,41 @@ class OfflineKnowledgeRetriever(
             .toList()
     }
 
+    private fun passesExplicitLocationConstraint(
+        candidate: ScoredEntity,
+        locationTokens: Set<String>,
+        preferredPackTypes: Set<String>,
+    ): Boolean {
+        if (locationTokens.isEmpty() || preferredPackTypes.isEmpty()) return true
+        return candidate.locationMatch && candidate.hit.packType in preferredPackTypes
+    }
+
+    private fun locationMatch(
+        entity: KnowledgeEntityRow,
+        locationTokens: Set<String>,
+        relationshipLocations: Set<String>,
+    ): Boolean {
+        if (locationTokens.isEmpty()) return true
+
+        if (relationshipLocations.isNotEmpty()) {
+            return locationTokens.any(relationshipLocations::contains)
+        }
+
+        val nameTokens = meaningfulTokens(normalizeText(entity.name))
+        val descriptionTokens = meaningfulTokens(normalizeText(entity.description.orEmpty()))
+        val aliasTokens = meaningfulTokens(normalizeText(entity.aliasesJson))
+        return locationTokens.any { token ->
+            token in nameTokens || token in descriptionTokens || token in aliasTokens
+        }
+    }
+
     private fun score(
         entity: KnowledgeEntityRow,
         packType: String?,
         facts: List<SourceFactRow>,
         queryTokens: Set<String>,
         locationTokens: Set<String>,
-        relationshipLocations: Set<String>,
+        locationMatch: Boolean,
         preferredTypes: Set<String>,
         preferredPackTypes: Set<String>,
         asksStateFact: Boolean,
@@ -119,19 +163,14 @@ class OfflineKnowledgeRetriever(
         }
 
         if (locationTokens.isNotEmpty()) {
-            val directLocationMatch = locationTokens.any { token ->
-                token in nameTokens || token in descriptionTokens || token in aliasTokens
-            }
-            val relationshipLocationMatch = locationTokens.any(relationshipLocations::contains)
-
-            if (directLocationMatch || relationshipLocationMatch) {
+            if (locationMatch) {
                 score += when {
                     packType != null && packType in preferredPackTypes -> 30
                     preferredTypes.contains(entity.type) -> 20
                     else -> 10
                 }
             } else if (preferredPackTypes.isNotEmpty()) {
-                score -= 6
+                score -= 24
             }
         }
 
@@ -268,6 +307,11 @@ class OfflineKnowledgeRetriever(
     private data class RankedFact(
         val fact: SourceFactRow,
         val score: Int,
+    )
+
+    private data class ScoredEntity(
+        val hit: OfflineKnowledgeHit,
+        val locationMatch: Boolean,
     )
 
     companion object {
