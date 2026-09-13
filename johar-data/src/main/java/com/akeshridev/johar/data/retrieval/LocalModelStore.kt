@@ -2,12 +2,14 @@ package com.akeshridev.johar.data.retrieval
 
 import android.content.Context
 import java.io.File
+import java.net.HttpURLConnection
+import java.net.URL
 
 /**
- * Owns the on-device LLM file location and can materialize a model bundled in APK assets.
+ * Owns the on-device LLM file location and model delivery.
  *
- * LiteRT-LM consumes a filesystem path, so a bundled model is copied once from assets to
- * app-private storage on first use and reused afterwards.
+ * LiteRT-LM consumes a filesystem path, so the model is downloaded once into
+ * app-private storage and reused on subsequent launches.
  */
 class LocalModelStore(
     context: Context,
@@ -29,34 +31,59 @@ class LocalModelStore(
 
     fun ensureDirectory(): File = modelFile.parentFile!!.also(File::mkdirs)
 
-    fun ensureBundledModel(): LocalModelStatus {
+    fun downloadIfMissing(
+        modelUrl: String = DEFAULT_MODEL_URL,
+        onProgress: (downloadedBytes: Long, totalBytes: Long) -> Unit = { _, _ -> },
+    ): LocalModelStatus {
         val existing = status()
         if (existing.isAvailable) return existing
 
         ensureDirectory()
-        val assetPath = "$BUNDLED_ASSET_DIRECTORY/$modelFileName"
         val target = modelFile
-        val temporary = File(target.parentFile, "${target.name}.tmp")
+        val temporary = File(target.parentFile, "${target.name}.download")
+        temporary.delete()
 
+        var connection: HttpURLConnection? = null
         try {
-            appContext.assets.open(assetPath).use { input ->
+            connection = (URL(modelUrl).openConnection() as HttpURLConnection).apply {
+                connectTimeout = 30_000
+                readTimeout = 60_000
+                instanceFollowRedirects = true
+                requestMethod = "GET"
+                setRequestProperty("User-Agent", "JoharAI/0.1")
+            }
+            connection.connect()
+
+            val responseCode = connection.responseCode
+            check(responseCode in 200..299) {
+                "Model download failed with HTTP $responseCode"
+            }
+
+            val totalBytes = connection.contentLengthLong.coerceAtLeast(-1L)
+            var downloadedBytes = 0L
+            connection.inputStream.buffered().use { input ->
                 temporary.outputStream().buffered().use { output ->
-                    input.copyTo(output)
+                    val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                    while (true) {
+                        val read = input.read(buffer)
+                        if (read < 0) break
+                        output.write(buffer, 0, read)
+                        downloadedBytes += read
+                        onProgress(downloadedBytes, totalBytes)
+                    }
                 }
             }
-            if (temporary.length() <= 0L) {
-                temporary.delete()
-                return status()
-            }
+
+            check(temporary.length() > 0L) { "Downloaded model is empty" }
             if (target.exists()) target.delete()
             check(temporary.renameTo(target)) {
-                "Unable to move bundled model into ${target.absolutePath}"
+                "Unable to move downloaded model into ${target.absolutePath}"
             }
-        } catch (_: java.io.FileNotFoundException) {
-            temporary.delete()
         } catch (throwable: Throwable) {
             temporary.delete()
             throw throwable
+        } finally {
+            connection?.disconnect()
         }
 
         return status()
@@ -64,8 +91,10 @@ class LocalModelStore(
 
     companion object {
         const val MODEL_DIRECTORY = "models"
-        const val BUNDLED_ASSET_DIRECTORY = "models"
         const val DEFAULT_MODEL_FILE_NAME = "johar-qwen2.5-1.5b.litertlm"
+        const val DEFAULT_MODEL_URL =
+            "https://huggingface.co/litert-community/Qwen2.5-1.5B-Instruct/resolve/main/" +
+                "Qwen2.5-1.5B-Instruct_multi-prefill-seq_q8_ekv4096.litertlm?download=true"
     }
 }
 
