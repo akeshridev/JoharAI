@@ -37,11 +37,15 @@ class WorkManagerSourceCrawlScheduler(
             immediateRequest,
         )
 
+        // The manual enqueue above is today's bootstrap/refresh. Delay the first periodic
+        // execution so WorkManager does not immediately run a second statewide crawl in
+        // parallel and duplicate source traffic.
         val periodicRequest = PeriodicWorkRequest.Builder(
             SourceCrawlWorker::class.java,
             REFRESH_INTERVAL_HOURS,
             TimeUnit.HOURS,
         )
+            .setInitialDelay(REFRESH_INTERVAL_HOURS, TimeUnit.HOURS)
             .setConstraints(constraints)
             .setInputData(inputData(CrawlTarget.JHARKHAND))
             .build()
