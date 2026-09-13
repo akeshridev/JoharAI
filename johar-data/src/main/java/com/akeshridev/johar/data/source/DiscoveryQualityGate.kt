@@ -33,7 +33,7 @@ internal object DiscoveryQualityGate {
         }
         if (!categorySupported) return false
 
-        return hasJharkhandEvidence(text) || isJharkhandSpecificKeyword(keyword)
+        return hasJharkhandEvidence(text)
     }
 
     fun looksLikeUnresolvedSourceId(name: String): Boolean =
@@ -41,11 +41,6 @@ internal object DiscoveryQualityGate {
 
     private fun hasJharkhandEvidence(text: String): Boolean =
         JHARKHAND_TERMS.any(text::contains)
-
-    private fun isJharkhandSpecificKeyword(keyword: CrawlKeyword): Boolean {
-        val term = normalizeText(keyword.term)
-        return JHARKHAND_TERMS.any(term::contains)
-    }
 
     private val EMERGENCY_TYPES = setOf(
         EntityType.HOSPITAL,
