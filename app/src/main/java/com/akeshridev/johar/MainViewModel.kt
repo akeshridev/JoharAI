@@ -32,14 +32,11 @@ class MainViewModel(
                 val hits = context.hits
                 Log.i(TAG, "query=\"$query\" hits=${hits.size}")
                 hits.forEachIndexed { index, hit ->
-                    val factSummary = hit.facts
-                        .take(3)
-                        .joinToString(" | ") { fact -> "${fact.field}=${fact.value}" }
+                    val factSummary = hit.facts.take(3).joinToString(" | ") { "${it.field}=${it.value}" }
                     Log.i(
                         TAG,
                         "  #${index + 1} score=${hit.score} name=${hit.name} type=${hit.type} " +
-                            "packType=${hit.packType.orEmpty()} description=${hit.description.orEmpty()} " +
-                            "facts=[$factSummary]",
+                            "packType=${hit.packType.orEmpty()} description=${hit.description.orEmpty()} facts=[$factSummary]",
                     )
                 }
                 Log.i(TAG, "RAG_CONTEXT_BEGIN query=\"$query\"")
@@ -55,8 +52,7 @@ class MainViewModel(
                 val answer = answerGenerator.answer(query)
                 Log.i(
                     ANSWER_TAG,
-                    "query=\"$query\" mode=${answer.mode} answer=\"${answer.text}\" " +
-                        "evidence=${answer.evidence.map { it.name }}",
+                    "query=\"$query\" mode=${answer.mode} answer=\"${answer.text}\" evidence=${answer.evidence.map { it.name }}",
                 )
             }
         }
@@ -65,22 +61,22 @@ class MainViewModel(
     fun testOnDeviceLlm() {
         viewModelScope.launch(Dispatchers.IO) {
             val status = try {
-                localModelStore.ensureBundledModel()
+                val current = localModelStore.status()
+                if (current.isAvailable) {
+                    current
+                } else {
+                    Log.i(LLM_TAG, "MODEL_DOWNLOAD_START")
+                    localModelStore.downloadIfMissing().also {
+                        Log.i(LLM_TAG, "MODEL_DOWNLOAD_COMPLETE path=${it.path} sizeBytes=${it.sizeBytes}")
+                    }
+                }
             } catch (throwable: Throwable) {
-                Log.e(
-                    LLM_TAG,
-                    "MODEL_PREP_FAILED error=${throwable::class.java.simpleName}: ${throwable.message}",
-                    throwable,
-                )
+                Log.e(LLM_TAG, "MODEL_DOWNLOAD_FAILED: ${throwable.message}", throwable)
                 return@launch
             }
 
             if (!status.isAvailable) {
-                Log.w(
-                    LLM_TAG,
-                    "BUNDLED_MODEL_MISSING asset=models/${LocalModelStore.DEFAULT_MODEL_FILE_NAME} " +
-                        "Add the .litertlm file under app/src/main/assets/models/ and rebuild the app.",
-                )
+                Log.w(LLM_TAG, "MODEL_NOT_AVAILABLE path=${status.path}")
                 return@launch
             }
 
@@ -88,8 +84,7 @@ class MainViewModel(
             val context = ragContextBuilder.build(query)
             Log.i(
                 LLM_TAG,
-                "MODEL_READY path=${status.path} sizeBytes=${status.sizeBytes} " +
-                    "query=\"$query\" evidence=${context.hits.map { it.name }}",
+                "MODEL_READY path=${status.path} sizeBytes=${status.sizeBytes} query=\"$query\" evidence=${context.hits.map { it.name }}",
             )
 
             val synthesizer = LiteRtLmAnswerSynthesizer(status.path)
@@ -97,16 +92,12 @@ class MainViewModel(
             try {
                 val answer = synthesizer.synthesize(context)
                 val latencyMs = SystemClock.elapsedRealtime() - startedAt
-                Log.i(
-                    LLM_TAG,
-                    "SUCCESS latencyMs=$latencyMs query=\"$query\" answer=\"$answer\"",
-                )
+                Log.i(LLM_TAG, "SUCCESS latencyMs=$latencyMs query=\"$query\" answer=\"$answer\"")
             } catch (throwable: Throwable) {
                 val latencyMs = SystemClock.elapsedRealtime() - startedAt
                 Log.e(
                     LLM_TAG,
-                    "FAILED latencyMs=$latencyMs path=${status.path} " +
-                        "error=${throwable::class.java.simpleName}: ${throwable.message}",
+                    "FAILED latencyMs=$latencyMs path=${status.path} error=${throwable::class.java.simpleName}: ${throwable.message}",
                     throwable,
                 )
             } finally {
@@ -165,7 +156,6 @@ class MainViewModel(
         private const val EVAL_TAG = "JoharEval"
         private const val ANSWER_TAG = "JoharAnswer"
         private const val LLM_TAG = "JoharLLM"
-
         private const val LLM_TEST_QUERY = "Rugra Jharkhand me special kyun hai?"
 
         private fun formatPercent(value: Double): String = "%.1f%%".format(value * 100.0)
