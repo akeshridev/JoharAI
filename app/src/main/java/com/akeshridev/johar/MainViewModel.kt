@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.akeshridev.johar.data.retrieval.OfflineKnowledgeRetriever
+import com.akeshridev.johar.data.retrieval.OfflineRagContextBuilder
 import com.akeshridev.johar.domain.crawl.ScheduleSourceCrawlUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -14,10 +15,13 @@ class MainViewModel(
     private val offlineKnowledgeRetriever: OfflineKnowledgeRetriever,
 ) : ViewModel() {
 
+    private val ragContextBuilder = OfflineRagContextBuilder(offlineKnowledgeRetriever)
+
     fun testOfflineRetrieval() {
         viewModelScope.launch(Dispatchers.IO) {
             TEST_QUERIES.forEach { query ->
-                val hits = offlineKnowledgeRetriever.retrieve(query)
+                val context = ragContextBuilder.build(query)
+                val hits = context.hits
                 Log.i(TAG, "query=\"$query\" hits=${hits.size}")
                 hits.forEachIndexed { index, hit ->
                     val factSummary = hit.facts
@@ -30,6 +34,9 @@ class MainViewModel(
                             "facts=[$factSummary]",
                     )
                 }
+                Log.i(TAG, "RAG_CONTEXT_BEGIN query=\"$query\"")
+                Log.i(TAG, context.prompt)
+                Log.i(TAG, "RAG_CONTEXT_END query=\"$query\"")
             }
         }
     }
