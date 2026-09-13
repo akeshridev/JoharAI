@@ -36,6 +36,14 @@ Important:
 - Preserve provenance/evidence for every extracted fact.
 - Extract only facts explicitly supported by the source. Missing information stays unknown/null.
 
+## Module router
+
+### `johar-domain`
+Pure Kotlin/JVM knowledge model and domain rules. Current owner of `SourceFact`, knowledge-domain enums, typed fact values, fact state/type, and freshness. No Android, UI, network, parser, database, model-runtime, or serialization implementation. Read `johar-domain/AGENTS.md` before changing it.
+
+### `app`
+Android runtime/bootstrap host only while model development is active. UI is frozen. Do not place domain/data/model logic here.
+
 ## Architecture direction
 Follow the principles demonstrated in `akeshridev/AIFriendlyAppArchitecture`:
 
