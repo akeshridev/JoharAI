@@ -33,91 +33,89 @@ Knowledge domains:
 ## Current model goal
 Design a generic local knowledge database that can later be packed with source-backed data for any canonical entity, starting with Dassam Falls.
 
-The model must support exhaustive category coverage without hardcoding place-specific fields or URLs. Each knowledge domain should be able to hold all discovered source-backed facts relevant to that category while remaining extensible as new fields appear.
-
-The model must separate:
-- canonical entities
-- source documents/snapshots
-- source facts/claims
-- provenance/evidence
-- relationships between entities
-- media assets/references
-- category/field definitions used to organize knowledge
-- future canonical/resolved facts
-- future derived recommendations
+Keep the core model basic and scalable:
+- Entity
+- Fact
+- Relationship
+- Source
+- Media
 
 Do not collapse these into one giant Dassam record.
 
 ## Discovery direction
-Entity-specific URLs/IDs should not be hardcoded into the knowledge model. Eventual discovery starts from a canonical entity request (name, aliases, region/country) and source adapters resolve dynamic IDs/URLs from open sources. Source adapters/endpoints may be configured; place-specific data is discovered.
+Entity-specific URLs/IDs should not be hardcoded into the knowledge model. Eventual discovery starts from an entity plus category/search context, and source adapters resolve dynamic IDs/URLs from open sources.
+
+Search terms should be data-driven rather than hardcoded in crawler code.
+
+Maintain a crawl keyword/category table containing terms the crawler can pick from. A crawl task uses entity + category + keyword context, for example:
+- entity: Dassam Falls
+- category: FOOD
+- keyword: local food
+
+Do not crawl a bare keyword globally without entity/location context.
+
+## Self-expanding discovery
+The keyword/category table is not static.
+
+During periodic refresh/discovery:
+- existing keywords drive source discovery;
+- newly discovered useful entities, aliases, topics, and category terms may produce new keyword rows;
+- new keywords are normalized/deduplicated before being added;
+- each keyword should retain why/how it was discovered and its category/entity context;
+- low-value or repeatedly unproductive keywords may later be deprioritized or disabled;
+- the crawler periodically revisits both existing knowledge and newly discovered keywords.
+
+This creates a controlled discovery loop:
+
+Entity/category keywords -> crawl -> facts/relationships/media -> discover new terms/entities -> keyword table -> future crawl.
 
 ## Category completeness
 For every canonical entity, the packed knowledge DB should be able to represent all discovered data across every applicable knowledge domain, not a fixed minimal subset.
 
-Examples include:
-- Tourism: description, highlights, best time, suggested duration, attractions, activities.
-- Family & Accessibility: walking effort, stairs, wheelchair access, elderly/kid suitability, rest areas.
-- Safety & Emergency: hazards, restrictions, emergency contacts, nearby medical/police entities.
-- History & Culture: origin, historical claims, local names/stories, cultural significance.
-- Food: dishes, vendors/restaurants, nearby food entities, availability.
-- Travel & Logistics: routes, distances, transport, parking, entry fee, hours.
-- Weather & Season: seasonal behavior, monsoon/heat/fog context, water-flow context.
-- Facilities: toilets, water, shops, changing areas, connectivity, rest areas.
-- Geography: coordinates, administrative areas, rivers, terrain, elevation/height, nearby entities.
-
 The field model must remain extensible so newly discovered source-backed attributes can be added without redesigning the whole database.
 
 ## Media direction
-Media references may be captured in the packed knowledge model whenever available, even while runtime ingestion is frozen.
-
-Supported examples:
+Media references may be captured whenever available:
 - direct/static image URLs
 - Wikimedia Commons media URLs and thumbnails
 - YouTube/video page URLs and preview/thumbnail URLs
 - source-page image/video links
 
-Store references and metadata, not binary image/video payloads, at this stage. Preserve source/provenance and licensing/attribution when available. The existence of a public URL does not imply reuse rights.
+Store references and metadata by default, not binary image/video payloads. Preserve source/provenance and licensing/attribution when available.
 
-## Local data budget
-Johar may use up to approximately 1 GB of local knowledge data when useful.
+## Local storage budget
+Target up to approximately 1.5 GB total local storage when useful. This is a total storage budget, not a Room database target or APK-size target.
 
-Treat this as a local-data budget, not an APK-size target:
-- Prefer a compact prepacked/downloadable knowledge database rather than bundling the full budget inside the APK.
-- Facts, entities, relationships, provenance, source snapshots, indexes, and metadata may be stored locally.
-- Media should default to URL/reference metadata; binary image/video caching is a separate future concern and must be bounded explicitly.
-- Preserve enough raw/source data to allow reprocessing and model iteration, but avoid blindly mirroring entire upstream datasets when only a useful subset is needed.
-- Storage size should not drive the domain model; the model remains simple: Entity, Fact, Relationship, Source, Media.
+Room should primarily contain structured knowledge, source metadata, freshness state, keyword/category discovery state, and indexes. Large raw snapshots or future media caches should be bounded separately.
+
+Periodic refresh should update/replace stale knowledge rather than grow append-only forever.
 
 ## Module router
 
 ### `johar-domain`
-Primary active module. Pure Kotlin/JVM knowledge model and domain rules. Owns entity/fact/provenance/relationship/media/category concepts and storage-independent contracts. No Android, UI, network, parser, Room, WorkManager, or LLM implementation. Read `johar-domain/AGENTS.md` before changing it.
+Primary active module. Pure Kotlin/JVM knowledge model and domain rules. Owns entity/fact/provenance/relationship/media/category/discovery concepts and storage-independent contracts. No Android, UI, network, parser, Room, WorkManager, or LLM implementation.
 
 ### `johar-data`
-Currently frozen except when needed to validate the model against Room constraints later. Existing crawler/Room code is a harness, not the design authority. The domain model drives persistence shape, not the reverse.
+Currently frozen except when needed to validate the model against persistence constraints later. Existing crawler/Room code is a harness, not the design authority.
 
 ### `app`
-Frozen developer harness only. No product UI work.
+Frozen developer harness only.
 
 ## Architecture rules
-Follow the principles demonstrated in `akeshridev/AIFriendlyAppArchitecture`:
 - Single responsibility.
 - Strict one-way dependencies.
-- Domain model must remain framework-free.
-- Persistence shapes must map to/from the domain model; Room annotations never enter domain types.
-- Prefer small explicit concepts over a giant catch-all model.
+- Domain model remains framework-free.
+- Persistence maps to/from domain concepts.
+- Prefer simple explicit concepts over giant catch-all objects.
 - Never bypass provenance or entity boundaries for convenience.
 
 ## Model correctness
-- Every sourced claim must retain provenance.
+- Every sourced claim retains provenance.
 - Unknown is not false, zero, or empty text.
-- Conflicting claims from different sources must coexist.
+- Conflicting claims from different sources coexist.
 - Source facts are not canonical truth.
-- Canonical/resolved knowledge is a later layer derived from source facts.
-- Nearby places, hospitals, foods, villages, rivers, etc. should be modeled as entities/relationships when appropriate, not flattened into arbitrary strings.
-- Source-specific wording/evidence must remain available even if a normalized value is also stored.
-- Media references should remain independent from binary storage/download concerns.
-- The model should support a prepacked local DB later, but must not be coupled to Room.
+- Relationships should represent real-world linked entities when appropriate.
+- Media references stay separate from binary storage concerns.
 
 ## Engineering constraints
 - Package root: `com.akeshridev.johar`
@@ -129,9 +127,7 @@ Follow the principles demonstrated in `akeshridev/AIFriendlyAppArchitecture`:
 ## Token discipline
 - Use tokens economically.
 - Read only files needed for the current model decision.
-- Do not scan the whole repo unless necessary.
 - Keep explanations short unless explicitly asked.
-- Make only changes needed for the current request.
 - Avoid speculative implementation work.
 
 ## Collaboration style
