@@ -20,6 +20,10 @@ class OfflineKnowledgeRetriever(context: Context) {
         val preferredTypes = preferredTypes(normalizedQuery)
         val preferredPackTypes = preferredPackTypes(normalizedQuery)
         val asksStateFact = containsAny(normalizedQuery, "state animal", "state bird", "state tree", "state flower")
+        val hasSupportedIntent = preferredTypes.isNotEmpty() || preferredPackTypes.isNotEmpty() || asksStateFact
+        val hasNamedEntityMatch = entities.any { queryContainsEntityName(normalizedQuery, it.name) }
+
+        if (!hasSupportedIntent && !hasNamedEntityMatch) return emptyList()
 
         return entities.asSequence()
             .map { entity ->
@@ -99,7 +103,8 @@ class OfflineKnowledgeRetriever(context: Context) {
         preferredPackTypes: Set<String>,
         asksStateFact: Boolean,
     ): Int {
-        val nameTokens = tokens(normalizeText(entity.name))
+        val normalizedName = normalizeText(entity.name)
+        val nameTokens = tokens(normalizedName)
         val descriptionTokens = tokens(normalizeText(entity.description.orEmpty()))
         val aliasTokens = tokens(normalizeText(entity.aliasesJson))
         val factTokens = tokens(normalizeText(facts.joinToString(" ") {
@@ -114,6 +119,7 @@ class OfflineKnowledgeRetriever(context: Context) {
         score += queryTokens.intersect(factTokens).size * 5
         if (queryTokens.isNotEmpty() && nameTokens.containsAll(queryTokens)) score += 20
         if (nameTokens.size >= 2 && queryTokens.containsAll(nameTokens)) score += 28
+        if (queryContainsEntityName(queryTokens.joinToString(" "), normalizedName)) score += 36
         if (entity.type in preferredTypes) score += 18
         else if (preferredTypes.isNotEmpty() && entity.type in GENERIC_LOCATION_TYPES) score -= 8
 
@@ -165,7 +171,7 @@ class OfflineKnowledgeRetriever(context: Context) {
     private fun preferredTypes(query: String): Set<String> = buildSet {
         if (containsAny(query, "rugra", "food", "dish", "cuisine", "khana")) add("FOOD")
         if (containsAny(query, "festival", "parab", "mela")) add("FESTIVAL")
-        if (containsAny(query, "temple", "mandir", "dham", "pilgrimage")) add("TOURIST_ATTRACTION")
+        if (containsAny(query, "temple", "mandir", "dham", "pilgrimage", "religious place", "spiritual place")) add("TOURIST_ATTRACTION")
         if (containsAny(query, "waterfall", "falls", "jharna")) add("NATURAL_FEATURE")
         if (query.contains("river")) add("RIVER")
         if (query.contains("city")) add("CITY")
@@ -173,8 +179,8 @@ class OfflineKnowledgeRetriever(context: Context) {
     }
 
     private fun preferredPackTypes(query: String): Set<String> = buildSet {
-        if (containsAny(query, "temple", "mandir", "dham")) add("TEMPLE")
-        if (query.contains("pilgrimage")) add("PILGRIMAGE")
+        if (containsAny(query, "temple", "mandir", "dham", "religious place", "spiritual place")) add("TEMPLE")
+        if (containsAny(query, "pilgrimage", "religious place", "spiritual place")) add("PILGRIMAGE")
         if (containsAny(query, "waterfall", "falls", "jharna")) add("WATERFALL")
         if (containsAny(query, "dam", "reservoir")) add("DAM")
         if (query.contains("lake")) add("LAKE")
@@ -185,9 +191,21 @@ class OfflineKnowledgeRetriever(context: Context) {
 
     private fun normalizeQueryAliases(query: String): String = query
         .replace("rajya pashu", "state animal")
+        .replace("rajya jaanwar", "state animal")
         .replace("rajya pakshi", "state bird")
         .replace("rajya vriksh", "state tree")
         .replace("rajya phool", "state flower")
+        .replace("gautamdhara waterfall", "jonha falls")
+        .replace("jonha waterfall", "jonha falls")
+        .replace("hundru waterfall", "hundru falls")
+        .replace("sita waterfall", "sita falls")
+        .replace("dassam waterfall", "dassam falls")
+
+    private fun queryContainsEntityName(query: String, entityName: String): Boolean {
+        val normalizedEntityName = normalizeText(entityName)
+        if (normalizedEntityName.length < 4) return false
+        return " $query ".contains(" $normalizedEntityName ")
+    }
 
     private fun packType(entity: KnowledgeEntityRow): String? = runCatching {
         JSONObject(entity.externalRefsJson).optString("joharPackType").takeIf(String::isNotBlank)
