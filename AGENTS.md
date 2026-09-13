@@ -31,148 +31,130 @@ Prioritize seven everyday Jharkhand knowledge areas:
 6. Weather
 7. Local bazar / haat / market knowledge
 
-These are user-facing knowledge areas, not separate app screens. Everything is accessed through the same chat surface.
+These organize discovery and presentation; they are not separate screens or rigid database silos.
 
-Examples:
-- Places: waterfalls, temples, villages, towns, picnic spots, routes, facilities, safety.
-- Food: local foods, ingredients, seasonality, preparation, where commonly found, and where a user may find/buy a food item locally.
-- Festivals: meaning, dates/seasons, rituals, locations, participation context.
-- Culture: traditions, language terms, stories, dance, music, crafts, community practices.
-- Emergency information: hospitals, police, emergency contacts, hazards, closures, safety guidance.
-- Weather: current/seasonal conditions and locally useful weather context.
-- Local bazar: haat/bazar names, location, market day/time when known, common goods, local produce, nearby services, and related locality information.
-
-Johar should support immediate local-discovery questions such as:
+Johar should eventually answer questions such as:
+- "Dassam Falls kaise jayega?"
+- "Rugra kab milta hai?"
+- "Sarhul kya hai?"
 - "bazar near me"
 - "pork kaha milega?"
 - "nearby haat kab lagta hai?"
-- short local terms or partial queries whose meaning can be resolved from location/conversation context
+- short local terms whose meaning can be resolved from conversation/location context
 
-Near-me and availability-style answers are location-sensitive and freshness-sensitive. The model should represent location, locality relationships, opening/market schedule, product/food availability claims, provenance, and freshness without pretending stale data is live.
-
-Do not treat these seven areas as rigid schema silos. They organize discovery and presentation while Entity, Fact, Relationship, Source, and Media remain the underlying model.
+Near-me and availability answers are location-sensitive and freshness-sensitive. Static shop/market metadata can identify a likely seller; it must never be presented as live inventory unless a fresh source explicitly supports that claim.
 
 ## V1 scope — DATA + PRESENTATION ONLY
-For V1, focus only on:
+Focus only on:
 1. Data — discover, crawl, refresh, model, store, retrieve, and source Jharkhand knowledge.
-2. Presentation — turn retrieved knowledge into clear conversational answers on the single chat screen, with rich inline answer components when useful.
+2. Presentation — turn retrieved knowledge into simple conversational answers on one chat screen, with inline cards/media/source cues when useful.
 
-Do not expand V1 into additional product/platform work unless explicitly requested.
-
-Out of scope for V1 unless explicitly changed:
-- multiple screens or navigation
+Out of scope unless explicitly changed:
+- multiple screens/navigation
 - browse/category/detail pages
-- accounts/social/community features
+- accounts/social/community
 - backend/platform expansion
-- unrelated Android infrastructure work
+- unrelated Android infrastructure
 - speculative features not required to collect or present knowledge
 
 ## Product interaction invariant
-Johar has one primary product surface: a single chat screen.
+Johar has one primary product surface: a single chat screen. Rich components such as entity cards, facts, images/video, source chips, warnings, and follow-up prompts live inside chat; they are not destinations.
 
-Users ask naturally in chat; Johar resolves entities/intents and returns conversational answers.
-
-Rich UI is allowed only inside the conversation when useful, for example:
-- entity cards
-- compact fact cards
-- images/video previews
-- source/evidence chips
-- safety warnings
-- suggested follow-up prompts
-
-These are answer components, not separate product destinations.
-
-## Current focus — MODEL / DATA FOUNDATION
-Current implementation work should prioritize the knowledge model and packed/local data foundation before presentation runtime.
-
-The existing crawl/Room thin slice may remain as a test harness. Expand runtime pieces only when they directly serve V1 data collection, refresh, storage, retrieval, or presentation.
-
-## Current V0 boundary
-Dassam Falls is the first validation entity, not a special-case product boundary.
-
-Knowledge domains currently include:
-1. Tourism
-2. Family & Accessibility
-3. Safety & Emergency
-4. History & Culture
-5. Food
-6. Travel & Logistics
-7. Weather & Season Context
-8. Facilities
-9. Geography
-
-The model must be able to grow to other Jharkhand entity types such as foods, festivals, places, rivers, villages, institutions, bazaars/haats, and other useful local knowledge without redesigning the core schema.
-
-## Current model goal
-Design a generic local knowledge database that can later be packed with source-backed data for any canonical entity, starting with Dassam Falls.
-
-Keep the core model basic and scalable:
+## Core knowledge model
+Keep five concepts basic and extensible:
 - Entity
 - Fact
 - Relationship
 - Source
 - Media
 
-Do not collapse these into one giant Dassam record.
+`EntityType` answers what a thing is. `KnowledgeDomain` answers what kind of fact is stored about it.
 
-## Discovery direction
-Entity-specific URLs/IDs should not be hardcoded into the knowledge model. Discovery starts from an entity plus category/search context, and source adapters resolve dynamic IDs/URLs from open sources.
+Examples:
+- Dassam Falls -> `TOURIST_ATTRACTION`
+- Rugra -> `FOOD`
+- Sarhul -> `FESTIVAL`
+- a haat/bazar -> `MARKET`
 
-Search terms should be data-driven rather than hardcoded in crawler code.
+Facts remain extensible source-backed key/value records. Relationships connect real entities. Media remains separate from binary storage.
 
-Maintain a crawl keyword/category table containing terms the crawler can pick from. A crawl task uses entity + category + keyword context, for example:
-- entity: Dassam Falls
-- category: FOOD
-- keyword: local food
+## Current crawler implementation
+The V1 crawler is active in `johar-data`; it is no longer only a single Dassam HTML harness.
 
-Do not crawl a bare keyword globally without entity/location context.
+Bootstrap targets:
+- `JHARKHAND` — statewide discovery root and default developer crawl target.
+- `DASSAM_FALLS` — focused validation entity.
 
-## Self-expanding discovery
-The keyword/category table is not static.
+Crawling is dynamic and source-driven. Do not hardcode entity-specific source URLs, Wikidata Q IDs, OSM IDs, or Commons category IDs. Source identifiers are resolved at runtime and persisted in entity external references.
 
-During periodic refresh/discovery:
-- existing keywords drive source discovery;
-- newly discovered useful entities, aliases, topics, and category terms may produce new keyword rows;
-- new keywords are normalized/deduplicated before being added;
-- each keyword should retain why/how it was discovered and its category/entity context;
-- low-value or repeatedly unproductive keywords may later be deprioritized or disabled;
-- the crawler periodically revisits both existing knowledge and newly discovered keywords.
+Current open-source adapters:
+- Wikidata — identity, aliases, coordinates, generic claims, graph links, image references.
+- OpenStreetMap / Overpass — places, local services, nearby entities, hospitals/police, markets/shops, travel infrastructure, bounded statewide discovery.
+- Wikipedia — background/history/culture/food/festival/place text and discovery.
+- Wikivoyage — travel/practical text and discovery.
+- Wikimedia Commons — image/video references and attribution/license metadata.
+- Open-Meteo — current and short-forecast weather facts for coordinate-bearing place entities.
 
-This creates a controlled discovery loop:
+Do not use the public Nominatim service as a periodic/bulk statewide crawler. If it is introduced later, obey its current usage policy or use an appropriate/self-hosted alternative.
 
-Entity/category keywords -> crawl -> facts/relationships/media -> discover new terms/entities -> keyword table -> future crawl.
+## Persistent self-expanding discovery
+The discovery loop is:
 
-## Category completeness
-For every canonical entity, the packed knowledge DB should be able to represent all discovered data across every applicable knowledge domain, not a fixed minimal subset.
+`root entity + category keywords -> bounded discovery -> entities/facts/relationships/media -> discovered entity keywords -> later crawl`
 
-The field model must remain extensible so newly discovered source-backed attributes can be added without redesigning the whole database.
+The keyword table is data-driven and self-expanding. New useful aliases/entities become later crawl work after normalization/deduplication.
 
-## Media direction
-Media references may be captured whenever available:
-- direct/static image URLs
-- Wikimedia Commons media URLs and thumbnails
-- YouTube/video page URLs and preview/thumbnail URLs
-- source-page image/video links
+Current Room tables include:
+- `knowledge_entities`
+- `source_facts`
+- `entity_relationships`
+- `media_assets`
+- `crawl_keywords`
+- `crawled_sources`
 
-Store references and metadata by default, not binary image/video payloads. Preserve source/provenance and licensing/attribution when available.
+The crawler persists queue/freshness state, processes bounded batches, and continues in later runs instead of attempting to download all of Jharkhand at once.
 
-## Local storage budget
-Target up to approximately 1.5 GB total local storage when useful. This is a total storage budget, not a Room database target or APK-size target.
+Current WorkManager behavior:
+- developer/manual trigger starts an immediate crawl;
+- the first trigger also ensures a unique 24-hour statewide periodic refresh;
+- network-connected + battery-not-low constraints apply;
+- source failures are isolated so successful sources still persist;
+- entity and keyword queues resume from Room on later runs.
 
-Room should primarily contain structured knowledge, source metadata, freshness state, keyword/category discovery state, and indexes. Large raw snapshots or future media caches should be bounded separately.
+## Crawl vocabulary
+Initial statewide discovery covers useful concepts for:
+- places/waterfalls/picnic spots/villages/rivers
+- traditional/local/seasonal foods
+- festivals/tribal festivals
+- culture/tribal culture/dance/crafts
+- hospitals/police
+- haat/bazar/weekly markets/local markets
+- butcher/meat/pork-oriented shop discovery
 
-Periodic refresh should update/replace stale knowledge rather than grow append-only forever.
+This seed vocabulary is not intended to enumerate all knowledge. The crawler expands it from discovered entities/aliases.
+
+## Refresh and storage
+Target up to approximately 1.5 GB total local storage when useful. This is neither a Room-only target nor APK size.
+
+Rules:
+- refresh/replace stale source-scoped knowledge rather than append forever;
+- keep raw source snapshots separately and bounded;
+- store media URLs/metadata by default, not binary image/video payloads;
+- retain source URL, publisher, retrieval time, evidence, and media attribution/license metadata;
+- conflicting source claims may coexist;
+- unknown is not false/zero/empty;
+- source facts are not canonical truth;
+- static market/shop metadata does not prove current stock/availability.
 
 ## Module router
-
 ### `johar-domain`
-Primary active module. Pure Kotlin/JVM knowledge model and domain rules. Owns entity/fact/provenance/relationship/media/category/discovery concepts and storage-independent contracts.
+Pure Kotlin/JVM model and storage-independent contracts. No Android, HTTP, Room, WorkManager, UI, or concrete source logic.
 
 ### `johar-data`
-Owns V1 data work: source discovery/crawling, refresh, extraction, persistence, retrieval, and mapping. Existing crawler/Room code is a harness until evolved deliberately around the domain model.
+Owns source adapters, discovery/crawl orchestration, refresh, persistence, and WorkManager scheduling.
 
 ### `app`
-Single-screen presentation/composition root only. No navigation architecture.
+Thin composition/developer harness today; V1 product remains one chat screen with no navigation architecture.
 
 ## Architecture rules
 - Single responsibility.
@@ -181,26 +163,13 @@ Single-screen presentation/composition root only. No navigation architecture.
 - Persistence maps to/from domain concepts.
 - Prefer simple explicit concepts over giant catch-all objects.
 - Never bypass provenance or entity boundaries for convenience.
-
-## Model correctness
-- Every sourced claim retains provenance.
-- Unknown is not false, zero, or empty text.
-- Conflicting claims from different sources coexist.
-- Source facts are not canonical truth.
-- Relationships should represent real-world linked entities when appropriate.
-- Media references stay separate from binary storage concerns.
+- Keep fetching, parsing, storage, discovery, and scheduling independently replaceable.
 
 ## Engineering constraints
 - Package root: `com.akeshridev.johar`
 - Kotlin first.
 - Android-only V1; no backend unless explicitly requested.
-- Use free/open sources for core dataset.
-
-## Token discipline
-- Use tokens economically.
-- Read only files needed for the current decision.
-- Keep explanations short unless explicitly asked.
-- Avoid speculative implementation work.
+- Use free/open sources for the core dataset.
 
 ## Collaboration style
-Work in small increments. Lock one concept at a time, update the relevant `AGENTS.md`, then implement only that concept.
+Work in small increments. Update the relevant `AGENTS.md` whenever architecture/focus changes. Keep explanations compact unless the user asks for depth.
