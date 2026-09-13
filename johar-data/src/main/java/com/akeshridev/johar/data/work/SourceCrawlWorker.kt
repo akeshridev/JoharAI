@@ -12,6 +12,7 @@ import com.akeshridev.johar.data.source.CommonsMediaSourceAdapter
 import com.akeshridev.johar.data.source.MediaWikiTextSourceAdapter
 import com.akeshridev.johar.data.source.OpenMeteoSourceAdapter
 import com.akeshridev.johar.data.source.OverpassSourceAdapter
+import com.akeshridev.johar.data.source.OverpassSpecializedDiscoveryAdapter
 import com.akeshridev.johar.data.source.WikidataSourceAdapter
 import com.akeshridev.johar.domain.crawl.CrawlTarget
 import com.akeshridev.johar.domain.crawl.DiscoveryCategory
@@ -32,6 +33,7 @@ class SourceCrawlWorker(
             val fetcher = JsoupHttpTextFetcher()
             val wikidata = WikidataSourceAdapter(fetcher)
             val overpass = OverpassSourceAdapter(fetcher)
+            val specializedOverpass = OverpassSpecializedDiscoveryAdapter(fetcher)
             val wikipedia = MediaWikiTextSourceAdapter(
                 id = "wikipedia",
                 host = "en.wikipedia.org",
@@ -77,6 +79,7 @@ class SourceCrawlWorker(
                     weather,
                 ),
                 discoveryAdapters = listOf(
+                    specializedOverpass,
                     overpass,
                     wikidata,
                     wikipedia,
