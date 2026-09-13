@@ -11,7 +11,7 @@ class OfflineKnowledgeRetriever(context: Context) {
     private val dao = JoharDatabaseProvider.get(context.applicationContext).knowledgeDao()
 
     fun retrieve(query: String, limit: Int = 5): List<OfflineKnowledgeHit> {
-        val normalizedQuery = normalizeText(query)
+        val normalizedQuery = normalizeQueryAliases(normalizeText(query))
         val queryTokens = tokens(normalizedQuery)
         val entities = dao.allEnabledEntities()
         val locationTokens = findLocationTokens(queryTokens, entities)
@@ -113,6 +113,7 @@ class OfflineKnowledgeRetriever(context: Context) {
         score += queryTokens.intersect(descriptionTokens).size * 4
         score += queryTokens.intersect(factTokens).size * 5
         if (queryTokens.isNotEmpty() && nameTokens.containsAll(queryTokens)) score += 20
+        if (nameTokens.size >= 2 && queryTokens.containsAll(nameTokens)) score += 28
         if (entity.type in preferredTypes) score += 18
         else if (preferredTypes.isNotEmpty() && entity.type in GENERIC_LOCATION_TYPES) score -= 8
 
@@ -181,6 +182,12 @@ class OfflineKnowledgeRetriever(context: Context) {
         if (containsAny(query, "wildlife", "sanctuary")) add("WILDLIFE_SANCTUARY")
         if (query.contains("tiger reserve")) add("TIGER_RESERVE")
     }
+
+    private fun normalizeQueryAliases(query: String): String = query
+        .replace("rajya pashu", "state animal")
+        .replace("rajya pakshi", "state bird")
+        .replace("rajya vriksh", "state tree")
+        .replace("rajya phool", "state flower")
 
     private fun packType(entity: KnowledgeEntityRow): String? = runCatching {
         JSONObject(entity.externalRefsJson).optString("joharPackType").takeIf(String::isNotBlank)
