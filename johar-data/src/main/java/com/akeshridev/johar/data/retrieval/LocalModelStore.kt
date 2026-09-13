@@ -4,11 +4,10 @@ import android.content.Context
 import java.io.File
 
 /**
- * Owns the local on-device LLM file location without coupling model delivery to inference.
+ * Owns the on-device LLM file location and can materialize a model bundled in APK assets.
  *
- * Large models are intentionally stored in app-private files instead of APK assets.
- * A future downloader can write atomically to [modelFile] and the inference layer does
- * not need to change.
+ * LiteRT-LM consumes a filesystem path, so a bundled model is copied once from assets to
+ * app-private storage on first use and reused afterwards.
  */
 class LocalModelStore(
     context: Context,
@@ -30,8 +29,42 @@ class LocalModelStore(
 
     fun ensureDirectory(): File = modelFile.parentFile!!.also(File::mkdirs)
 
+    fun ensureBundledModel(): LocalModelStatus {
+        val existing = status()
+        if (existing.isAvailable) return existing
+
+        ensureDirectory()
+        val assetPath = "$BUNDLED_ASSET_DIRECTORY/$modelFileName"
+        val target = modelFile
+        val temporary = File(target.parentFile, "${target.name}.tmp")
+
+        try {
+            appContext.assets.open(assetPath).use { input ->
+                temporary.outputStream().buffered().use { output ->
+                    input.copyTo(output)
+                }
+            }
+            if (temporary.length() <= 0L) {
+                temporary.delete()
+                return status()
+            }
+            if (target.exists()) target.delete()
+            check(temporary.renameTo(target)) {
+                "Unable to move bundled model into ${target.absolutePath}"
+            }
+        } catch (_: java.io.FileNotFoundException) {
+            temporary.delete()
+        } catch (throwable: Throwable) {
+            temporary.delete()
+            throw throwable
+        }
+
+        return status()
+    }
+
     companion object {
         const val MODEL_DIRECTORY = "models"
+        const val BUNDLED_ASSET_DIRECTORY = "models"
         const val DEFAULT_MODEL_FILE_NAME = "johar-qwen2.5-1.5b.litertlm"
     }
 }
