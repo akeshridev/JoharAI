@@ -28,12 +28,13 @@ internal object CrawlBootstrap {
         seed(rootEntityId, DiscoveryCategory.EMERGENCY, "hospitals in Jharkhand")
         seed(rootEntityId, DiscoveryCategory.EMERGENCY, "police stations in Jharkhand")
 
-        seed(rootEntityId, DiscoveryCategory.WEATHER, "weather in Jharkhand")
-
         seed(rootEntityId, DiscoveryCategory.LOCAL_BAZAR, "haat in Jharkhand")
         seed(rootEntityId, DiscoveryCategory.LOCAL_BAZAR, "bazar in Jharkhand")
         seed(rootEntityId, DiscoveryCategory.LOCAL_BAZAR, "weekly markets in Jharkhand")
         seed(rootEntityId, DiscoveryCategory.LOCAL_BAZAR, "local markets in Jharkhand")
+        seed(rootEntityId, DiscoveryCategory.LOCAL_BAZAR, "butcher shops in Jharkhand")
+        seed(rootEntityId, DiscoveryCategory.LOCAL_BAZAR, "meat shops in Jharkhand")
+        seed(rootEntityId, DiscoveryCategory.LOCAL_BAZAR, "pork shops in Jharkhand")
     }
 
     fun keywordsFor(entity: KnowledgeEntity): List<CrawlKeyword> {
@@ -43,12 +44,10 @@ internal object CrawlBootstrap {
             EntityType.CULTURAL_PRACTICE -> DiscoveryCategory.CULTURE
             EntityType.MARKET,
             EntityType.SHOP,
-            EntityType.RESTAURANT,
-            -> DiscoveryCategory.LOCAL_BAZAR
+            EntityType.RESTAURANT -> DiscoveryCategory.LOCAL_BAZAR
             EntityType.HOSPITAL,
             EntityType.POLICE_STATION,
-            EntityType.EMERGENCY_SERVICE,
-            -> DiscoveryCategory.EMERGENCY
+            EntityType.EMERGENCY_SERVICE -> DiscoveryCategory.EMERGENCY
             else -> DiscoveryCategory.PLACES
         }
 
