@@ -18,7 +18,7 @@ class KnowledgePackLoader(
     private val dao = database.knowledgeDao()
 
     fun load(): KnowledgePackLoadResult {
-        val root = appContext.assets.open(ASSET_PATH).bufferedReader().use { JSONObject(it.readText()) }
+        val root = KnowledgePackAssetReader.read(appContext)
         val version = root.getJSONObject("manifest").getString("packVersion")
         val sources = parseSources(root.getJSONArray("sources"))
         val entities = root.getJSONArray("entities")
@@ -259,7 +259,6 @@ class KnowledgePackLoader(
     )
 
     companion object {
-        private const val ASSET_PATH = "johar/johar-knowledge-2026.09-mega-v1.2.json"
         private const val PACK_SOURCE_ID = "johar-pack"
         private const val PACK_SOURCE_URL = "asset://johar/knowledge-pack"
         private const val PACK_PUBLISHER = "Johar Knowledge Pack"
