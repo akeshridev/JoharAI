@@ -3,7 +3,8 @@ package com.akeshridev.johar
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -12,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import com.akeshridev.johar.di.JoharGraph
 
@@ -21,7 +23,10 @@ class MainActivity : ComponentActivity() {
     private val viewModel by lazy {
         ViewModelProvider(
             this,
-            MainViewModel.Factory(graph.scheduleSourceCrawlUseCase),
+            MainViewModel.Factory(
+                scheduleSourceCrawl = graph.scheduleSourceCrawlUseCase,
+                loadKnowledgePack = graph::loadKnowledgePack,
+            ),
         )[MainViewModel::class.java]
     }
 
@@ -29,21 +34,31 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme {
-                CrawlTrigger(onCrawlClick = viewModel::crawlKnowledge)
+                DeveloperHarness(
+                    onLoadPackClick = viewModel::loadKnowledgePack,
+                    onCrawlClick = viewModel::crawlKnowledge,
+                )
             }
         }
     }
 }
 
 @Composable
-private fun CrawlTrigger(onCrawlClick: () -> Unit) {
+private fun DeveloperHarness(
+    onLoadPackClick: () -> Unit,
+    onCrawlClick: () -> Unit,
+) {
     Surface(modifier = Modifier.fillMaxSize()) {
-        Box(
+        Column(
             modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center,
+            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            Button(onClick = onLoadPackClick) {
+                Text("Load Mega Knowledge Pack → Room")
+            }
             Button(onClick = onCrawlClick) {
-                Text("Crawl Jharkhand → Room + Logcat")
+                Text("Crawl Live Jharkhand → Room + Logcat")
             }
         }
     }
