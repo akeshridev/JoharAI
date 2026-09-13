@@ -21,8 +21,9 @@ The model must represent these concepts separately:
 3. Source fact/claim — one source-backed claim about an entity.
 4. Evidence/provenance — exact support for the claim.
 5. Entity relationship — e.g. waterfall LOCATED_NEAR village, waterfall FED_BY river.
-6. Canonical/resolved fact — future selected/normalized knowledge derived from source claims.
-7. Derived recommendation — future conclusions such as suitable-for-elderly; never mix these with source facts.
+6. Media asset — image/video associated with a canonical entity, with source, attribution, license and optional thumbnail/preview metadata.
+7. Canonical/resolved fact — future selected/normalized knowledge derived from source claims.
+8. Derived recommendation — future conclusions such as suitable-for-elderly; never mix these with source facts.
 
 `SourceFact` is an initial model and may be refactored as these concepts become explicit.
 
@@ -33,6 +34,9 @@ The model must represent these concepts separately:
 - Unknown must remain explicit; never silently convert unknown to false/zero/empty text.
 - Prefer typed/normalized values while retaining source wording/evidence.
 - If a value is itself a real-world thing (river, village, hospital, food place, attraction), prefer an entity reference/relationship over a plain string when useful.
+- Media is a first-class entity, not just a raw URL string on a place.
+- Media must retain source URL and, when available, creator/attribution, license, license URL, MIME type, dimensions/duration and preview/thumbnail URL.
+- Do not assume media is reusable merely because it is publicly reachable; licensing/attribution metadata must be preserved when available.
 - Avoid a giant DassamFalls data class containing every domain.
 - Avoid Room-driven modeling; persistence maps to the model later.
 - Add fields/types only when they serve a real knowledge requirement.
