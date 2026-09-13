@@ -68,16 +68,22 @@ class SourceCrawlWorker(
                 sourceDao = database.crawledSourceDao(),
             )
 
+            // A statewide run can discover many entities quickly. Running one or two public
+            // Overpass requests for every entity causes 429/504 failures and is unfriendly to
+            // the shared service. Keep OSM as bounded discovery statewide; use full OSM entity
+            // enrichment only for focused developer/entity crawls.
+            val entityAdapters = buildList {
+                add(wikidata)
+                if (target != CrawlTarget.JHARKHAND) add(overpass)
+                add(wikipedia)
+                add(wikivoyage)
+                add(commons)
+                add(weather)
+            }
+
             val stats = SourceCrawler(
                 store = store,
-                sourceAdapters = listOf(
-                    wikidata,
-                    overpass,
-                    wikipedia,
-                    wikivoyage,
-                    commons,
-                    weather,
-                ),
+                sourceAdapters = entityAdapters,
                 discoveryAdapters = listOf(
                     specializedOverpass,
                     overpass,
