@@ -1,0 +1,41 @@
+package com.akeshridev.johar.domain.entity
+
+data class KnowledgeEntity(
+    val id: String,
+    val name: String,
+    val type: EntityType,
+    val description: String? = null,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
+    val region: String? = null,
+    val country: String? = null,
+    val aliases: List<String> = emptyList(),
+    val externalRefs: Map<String, String> = emptyMap(),
+)
+
+enum class EntityType {
+    PLACE,
+    TOURIST_ATTRACTION,
+    NATURAL_FEATURE,
+    FOOD,
+    FESTIVAL,
+    CULTURAL_PRACTICE,
+    MARKET,
+    SHOP,
+    RESTAURANT,
+    HOSPITAL,
+    POLICE_STATION,
+    EMERGENCY_SERVICE,
+    VILLAGE,
+    TOWN,
+    CITY,
+    DISTRICT,
+    REGION,
+    RIVER,
+    AIRPORT,
+    RAILWAY_STATION,
+    BUS_STAND,
+    FACILITY,
+    ORGANIZATION,
+    OTHER,
+}
