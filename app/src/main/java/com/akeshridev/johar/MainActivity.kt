@@ -16,16 +16,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import com.akeshridev.johar.di.JoharGraph
+import com.akeshridev.johar.eval.OfflineRetrievalEvaluator
 
 class MainActivity : ComponentActivity() {
     private val graph by lazy { JoharGraph(applicationContext) }
 
     private val viewModel by lazy {
+        val evaluator = OfflineRetrievalEvaluator(
+            context = applicationContext,
+            retriever = graph.offlineKnowledgeRetriever,
+        )
         ViewModelProvider(
             this,
             MainViewModel.Factory(
                 scheduleSourceCrawl = graph.scheduleSourceCrawlUseCase,
                 offlineKnowledgeRetriever = graph.offlineKnowledgeRetriever,
+                offlineRetrievalEvaluator = evaluator,
             ),
         )[MainViewModel::class.java]
     }
@@ -36,6 +42,7 @@ class MainActivity : ComponentActivity() {
             MaterialTheme {
                 DeveloperHarness(
                     onTestOfflineClick = viewModel::testOfflineRetrieval,
+                    onRunEvalClick = viewModel::runOfflineRetrievalEval,
                     onCrawlClick = viewModel::crawlKnowledge,
                 )
             }
@@ -46,6 +53,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun DeveloperHarness(
     onTestOfflineClick: () -> Unit,
+    onRunEvalClick: () -> Unit,
     onCrawlClick: () -> Unit,
 ) {
     Surface(modifier = Modifier.fillMaxSize()) {
@@ -56,6 +64,9 @@ private fun DeveloperHarness(
         ) {
             Button(onClick = onTestOfflineClick) {
                 Text("Test Offline RAG Retrieval → Logcat")
+            }
+            Button(onClick = onRunEvalClick) {
+                Text("Run Retrieval Eval → Logcat")
             }
             Button(onClick = onCrawlClick) {
                 Text("Crawl Live Jharkhand → Room + Logcat")
