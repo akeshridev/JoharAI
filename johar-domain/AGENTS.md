@@ -16,13 +16,25 @@ Pure Kotlin/JVM model module for Johar's knowledge system. This is the primary a
 Keep the knowledge model basic, clear, and scalable. Dassam Falls is the first dataset, not a special-case schema.
 
 Use five core concepts:
-1. Entity — a real thing such as Dassam Falls, a river, village, hospital, restaurant, or station.
+1. Entity — a real thing such as Dassam Falls, Rugra, Sarhul, a river, village, hospital, restaurant, or station.
 2. Fact — one source-backed attribute about an entity, grouped into one of the existing knowledge domains.
 3. Relationship — a typed connection between two entities.
 4. Source — where a fact/media item came from, including provenance/evidence.
 5. Media — image/video references related to an entity.
 
 Do not introduce additional abstraction layers until real data requires them.
+
+## Entity type vs knowledge domain
+Entity type answers **what the thing is**. Knowledge domain answers **what kind of fact we are storing about that thing**.
+
+Examples:
+- Dassam Falls -> EntityType.PLACE / TOURIST_ATTRACTION
+- Rugra -> EntityType.FOOD
+- Sarhul -> EntityType.FESTIVAL
+
+The same entity may have facts in multiple knowledge domains. For example Dassam Falls can have Tourism, Geography, Safety, Facilities, and Travel facts. Rugra can have Food plus History/Culture facts. Sarhul can have History/Culture plus Tourism/Travel facts.
+
+Do not use `KnowledgeDomain` to classify the entity itself.
 
 ## Model rules
 - Every fact keeps provenance/evidence.
