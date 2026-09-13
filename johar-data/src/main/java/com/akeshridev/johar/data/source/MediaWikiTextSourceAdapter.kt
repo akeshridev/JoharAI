@@ -122,16 +122,20 @@ internal class MediaWikiTextSourceAdapter(
                 val pageId = result.optLong("pageid")
                 val title = result.optString("title")
                 if (pageId <= 0 || title.isBlank()) continue
+                val description = result.optString("snippet")
+                    .replace(Regex("<[^>]+>"), " ")
+                    .replace(Regex("\\s+"), " ")
+                    .trim()
+                    .takeIf(String::isNotBlank)
+                val inferredType = inferType(title, description, keyword.category)
+                if (!DiscoveryQualityGate.accept(keyword, title, description, inferredType)) continue
+
                 add(
                     KnowledgeEntity(
                         id = "$id:$pageId",
                         name = title,
-                        type = typeFor(keyword.category),
-                        description = result.optString("snippet")
-                            .replace(Regex("<[^>]+>"), " ")
-                            .replace(Regex("\\s+"), " ")
-                            .trim()
-                            .takeIf(String::isNotBlank),
+                        type = inferredType,
+                        description = description,
                         region = "Jharkhand",
                         country = "India",
                         externalRefs = mapOf(referenceKey to pageId.toString()),
@@ -172,6 +176,25 @@ internal class MediaWikiTextSourceAdapter(
             }
         }
         return bestId
+    }
+
+    private fun inferType(title: String, description: String?, fallbackCategory: DiscoveryCategory): EntityType {
+        val text = normalizeText(listOfNotNull(title, description).joinToString(" "))
+        return when {
+            "waterfall" in text || " falls" in " $text" -> EntityType.TOURIST_ATTRACTION
+            "festival" in text || "mela" in text || "puja" in text -> EntityType.FESTIVAL
+            listOf("food", "dish", "cuisine", "snack", "sweet", "recipe").any(text::contains) -> EntityType.FOOD
+            listOf("market", "bazar", "bazaar", "haat", "mandi").any(text::contains) -> EntityType.MARKET
+            "hospital" in text || "clinic" in text -> EntityType.HOSPITAL
+            "police" in text -> EntityType.POLICE_STATION
+            "river" in text -> EntityType.RIVER
+            "village" in text -> EntityType.VILLAGE
+            "town" in text -> EntityType.TOWN
+            "city" in text -> EntityType.CITY
+            "district" in text -> EntityType.DISTRICT
+            listOf("dance", "music", "language", "tribe", "tribal", "folk", "art", "craft", "painting", "culture").any(text::contains) -> EntityType.CULTURAL_PRACTICE
+            else -> typeFor(fallbackCategory)
+        }
     }
 
     private fun searchUrl(query: String, limit: Int): String =
