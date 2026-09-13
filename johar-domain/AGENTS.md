@@ -3,7 +3,7 @@
 Read the root `AGENTS.md` first.
 
 ## Scope
-Pure Kotlin/JVM model module for Johar's knowledge system. It owns domain types, contracts, and use cases only.
+Pure Kotlin/JVM model module for Johar's knowledge system. This is the primary active module while MODEL ONLY is in effect.
 
 ## Hard boundaries
 - No Android imports.
@@ -12,21 +12,33 @@ Pure Kotlin/JVM model module for Johar's knowledge system. It owns domain types,
 - No concrete data-source implementations.
 - Keep models independent from how data is fetched, extracted, stored, or displayed.
 
-## Current capabilities
-1. Source-level fact model for the Dassam Falls v0 ingestion pipeline.
-2. Crawl scheduling contract used by presentation without exposing WorkManager/data implementation.
+## Current goal
+Design the knowledge model that will later back a prepacked local database for Dassam Falls.
 
-`SourceFact` represents one fact extracted from one source URL and retains provenance/evidence. It is not the canonical merged Dassam record.
+The model must represent these concepts separately:
+1. Canonical entity — e.g. Dassam Falls, Kanchi River, Taimara village, Ranchi Railway Station.
+2. Source document/snapshot — one retrieved source with publisher, URL and retrieval metadata.
+3. Source fact/claim — one source-backed claim about an entity.
+4. Evidence/provenance — exact support for the claim.
+5. Entity relationship — e.g. waterfall LOCATED_NEAR village, waterfall FED_BY river.
+6. Canonical/resolved fact — future selected/normalized knowledge derived from source claims.
+7. Derived recommendation — future conclusions such as suitable-for-elderly; never mix these with source facts.
 
-`CrawlTarget` identifies a canonical crawl target. `SourceCrawlScheduler` is the domain-facing scheduling contract. `ScheduleSourceCrawlUseCase` is the presentation entry point.
+`SourceFact` is an initial model and may be refactored as these concepts become explicit.
 
 ## Model rules
-- A source fact must preserve source URL, publisher, retrieval time, domain, field, value, and evidence.
-- Do not invent facts for missing source content.
+- Every source claim must preserve provenance.
+- A source fact is not canonical truth.
+- Conflicting source claims must be representable simultaneously.
 - Unknown must remain explicit; never silently convert unknown to false/zero/empty text.
-- Keep source facts separate from future derived recommendations/conclusions.
-- Domain crawl targets must not contain source URLs or WorkManager details.
-- Extend the model only when a real source/use case requires it; avoid speculative fields.
+- Prefer typed/normalized values while retaining source wording/evidence.
+- If a value is itself a real-world thing (river, village, hospital, food place, attraction), prefer an entity reference/relationship over a plain string when useful.
+- Avoid a giant DassamFalls data class containing every domain.
+- Avoid Room-driven modeling; persistence maps to the model later.
+- Add fields/types only when they serve a real knowledge requirement.
+
+## Frozen capabilities
+Existing crawl scheduling types may remain for the current harness, but do not expand runtime ingestion contracts while MODEL ONLY is active unless explicitly requested.
 
 ## Working rule
-When this module's responsibility or model contract changes, update this `AGENTS.md` in the same step.
+For each model decision: update this file if the boundary/rule changes, then implement that single concept.
