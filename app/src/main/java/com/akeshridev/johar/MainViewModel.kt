@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.akeshridev.johar.data.retrieval.DeterministicJoharAnswerGenerator
 import com.akeshridev.johar.data.retrieval.OfflineKnowledgeRetriever
 import com.akeshridev.johar.data.retrieval.OfflineRagContextBuilder
 import com.akeshridev.johar.domain.crawl.ScheduleSourceCrawlUseCase
@@ -18,6 +19,7 @@ class MainViewModel(
 ) : ViewModel() {
 
     private val ragContextBuilder = OfflineRagContextBuilder(offlineKnowledgeRetriever)
+    private val answerGenerator = DeterministicJoharAnswerGenerator(offlineKnowledgeRetriever)
 
     fun testOfflineRetrieval() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -39,6 +41,19 @@ class MainViewModel(
                 Log.i(TAG, "RAG_CONTEXT_BEGIN query=\"$query\"")
                 Log.i(TAG, context.prompt)
                 Log.i(TAG, "RAG_CONTEXT_END query=\"$query\"")
+            }
+        }
+    }
+
+    fun testDeterministicAnswers() {
+        viewModelScope.launch(Dispatchers.IO) {
+            ANSWER_TEST_QUERIES.forEach { query ->
+                val answer = answerGenerator.answer(query)
+                Log.i(
+                    ANSWER_TAG,
+                    "query=\"$query\" mode=${answer.mode} answer=\"${answer.text}\" " +
+                        "evidence=${answer.evidence.map { it.name }}",
+                )
             }
         }
     }
@@ -89,6 +104,7 @@ class MainViewModel(
     companion object {
         private const val TAG = "JoharRAG"
         private const val EVAL_TAG = "JoharEval"
+        private const val ANSWER_TAG = "JoharAnswer"
 
         private fun formatPercent(value: Double): String = "%.1f%%".format(value * 100.0)
 
@@ -97,6 +113,14 @@ class MainViewModel(
             "Jharkhand ka state animal?",
             "Deoghar me temple?",
             "Ranchi ke paas waterfall?",
+        )
+
+        private val ANSWER_TEST_QUERIES = listOf(
+            "Rugra kya hai?",
+            "Jharkhand ka state animal?",
+            "Deoghar me temple?",
+            "Ranchi ke paas waterfall?",
+            "What is the capital of Australia?",
         )
     }
 }
