@@ -176,4 +176,15 @@ interface KnowledgeDao {
 
     @Query("SELECT COUNT(*) FROM crawl_keywords WHERE enabled = 1")
     fun enabledKeywordCount(): Int
+
+    @Query(
+        """
+        SELECT type, COUNT(*) AS count
+        FROM knowledge_entities
+        WHERE enabled = 1
+        GROUP BY type
+        ORDER BY count DESC, type ASC
+        """,
+    )
+    fun entityCountsByType(): List<EntityTypeCountRow>
 }
