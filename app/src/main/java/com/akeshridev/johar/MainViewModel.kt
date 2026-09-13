@@ -7,12 +7,14 @@ import androidx.lifecycle.viewModelScope
 import com.akeshridev.johar.data.retrieval.OfflineKnowledgeRetriever
 import com.akeshridev.johar.data.retrieval.OfflineRagContextBuilder
 import com.akeshridev.johar.domain.crawl.ScheduleSourceCrawlUseCase
+import com.akeshridev.johar.eval.OfflineRetrievalEvaluator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainViewModel(
     private val scheduleSourceCrawl: ScheduleSourceCrawlUseCase,
     private val offlineKnowledgeRetriever: OfflineKnowledgeRetriever,
+    private val offlineRetrievalEvaluator: OfflineRetrievalEvaluator,
 ) : ViewModel() {
 
     private val ragContextBuilder = OfflineRagContextBuilder(offlineKnowledgeRetriever)
@@ -41,6 +43,29 @@ class MainViewModel(
         }
     }
 
+    fun runOfflineRetrievalEval() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val report = offlineRetrievalEvaluator.run()
+            Log.i(
+                EVAL_TAG,
+                "SUMMARY total=${report.total} recall@1=${formatPercent(report.recallAt1)} " +
+                    "recall@3=${formatPercent(report.recallAt3)} failures@3=${report.failuresAt3.size}",
+            )
+            report.results.forEachIndexed { index, result ->
+                val status = when {
+                    result.hitAt1 -> "PASS@1"
+                    result.hitAt3 -> "PASS@3"
+                    else -> "FAIL"
+                }
+                Log.i(
+                    EVAL_TAG,
+                    "#${index + 1} $status category=${result.case.category.orEmpty()} " +
+                        "query=\"${result.case.query}\" expected=${result.case.expected} actual=${result.actual}",
+                )
+            }
+        }
+    }
+
     fun crawlKnowledge() {
         scheduleSourceCrawl()
     }
@@ -48,16 +73,24 @@ class MainViewModel(
     class Factory(
         private val scheduleSourceCrawl: ScheduleSourceCrawlUseCase,
         private val offlineKnowledgeRetriever: OfflineKnowledgeRetriever,
+        private val offlineRetrievalEvaluator: OfflineRetrievalEvaluator,
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             require(modelClass.isAssignableFrom(MainViewModel::class.java))
             @Suppress("UNCHECKED_CAST")
-            return MainViewModel(scheduleSourceCrawl, offlineKnowledgeRetriever) as T
+            return MainViewModel(
+                scheduleSourceCrawl = scheduleSourceCrawl,
+                offlineKnowledgeRetriever = offlineKnowledgeRetriever,
+                offlineRetrievalEvaluator = offlineRetrievalEvaluator,
+            ) as T
         }
     }
 
     companion object {
         private const val TAG = "JoharRAG"
+        private const val EVAL_TAG = "JoharEval"
+
+        private fun formatPercent(value: Double): String = "%.1f%%".format(value * 100.0)
 
         private val TEST_QUERIES = listOf(
             "Rugra kya hai?",
