@@ -37,6 +37,15 @@ Keep statewide discovery batches deliberately small. The persistent queue is exp
 
 Do not use the public Nominatim service as a periodic/bulk statewide crawler. If Nominatim is introduced later, its public-use policy, rate limit, caching, identification, and bulk restrictions must be respected or a suitable/self-hosted service must be used.
 
+## Discovery quality invariants
+- A bootstrap/discovery category is a search intent, not an entity type. Never label every result of a FOOD search as `FOOD`, every CULTURE result as `CULTURAL_PRACTICE`, or every LOCAL_BAZAR result as `MARKET` without source evidence.
+- Broad MediaWiki/Wikidata search results must pass semantic category validation before persistence.
+- Broad text-search candidates must contain candidate-side evidence tying them to Jharkhand or a Jharkhand locality; the query phrase itself (for example, "food in Jharkhand") is not relevance evidence.
+- Prefer rejecting an ambiguous candidate over polluting the canonical knowledge database. Coverage can grow later; bad canonical entities are expensive to unwind.
+- Do not persist unresolved source identifiers such as bare Wikidata `Q12345` values as user-facing `KnowledgeEntity` rows. Keep them as source references/relationship targets until a human-readable label and usable type are resolved.
+- Structured/high-precision source results such as explicit OSM hospital/market tags may use their source semantics directly, but must still avoid unsupported inventory/availability claims.
+- Keep regression tests for real crawl failures so examples such as a city becoming FOOD, a city becoming MARKET, or a state becoming RIVER cannot silently return.
+
 ## Persistent discovery loop
 The crawler is resumable and self-expanding:
 
