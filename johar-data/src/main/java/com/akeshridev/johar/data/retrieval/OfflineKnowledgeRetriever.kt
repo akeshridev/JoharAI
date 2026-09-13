@@ -5,6 +5,7 @@ import com.akeshridev.johar.data.crawl.normalizeText
 import com.akeshridev.johar.data.local.JoharDatabaseProvider
 import com.akeshridev.johar.data.local.KnowledgeEntityRow
 import com.akeshridev.johar.data.local.SourceFactRow
+import org.json.JSONObject
 
 class OfflineKnowledgeRetriever(
     context: Context,
@@ -18,6 +19,7 @@ class OfflineKnowledgeRetriever(
         val normalizedQuery = normalizeText(query)
         val queryTokens = meaningfulTokens(normalizedQuery)
         val preferredTypes = preferredTypes(normalizedQuery)
+        val preferredPackTypes = preferredPackTypes(normalizedQuery)
         val entities = dao.allEnabledEntities()
         val locationTokens = findLocationTokens(queryTokens, entities)
         val asksStateFact = asksStateFact(normalizedQuery)
@@ -27,19 +29,23 @@ class OfflineKnowledgeRetriever(
             .map { entity ->
                 val facts = dao.factsForEntity(entity.id)
                 val relationshipLocations = relationshipLocationTokens(entity)
+                val packType = packType(entity)
                 val score = score(
                     entity = entity,
+                    packType = packType,
                     facts = facts,
                     queryTokens = queryTokens,
                     locationTokens = locationTokens,
                     relationshipLocations = relationshipLocations,
                     preferredTypes = preferredTypes,
+                    preferredPackTypes = preferredPackTypes,
                     asksStateFact = asksStateFact,
                 )
                 OfflineKnowledgeHit(
                     entityId = entity.id,
                     name = entity.name,
                     type = entity.type,
+                    packType = packType,
                     description = entity.description,
                     score = score,
                     facts = rankFacts(facts, normalizedQuery, queryTokens),
@@ -56,11 +62,13 @@ class OfflineKnowledgeRetriever(
 
     private fun score(
         entity: KnowledgeEntityRow,
+        packType: String?,
         facts: List<SourceFactRow>,
         queryTokens: Set<String>,
         locationTokens: Set<String>,
         relationshipLocations: Set<String>,
         preferredTypes: Set<String>,
+        preferredPackTypes: Set<String>,
         asksStateFact: Boolean,
     ): Int {
         val name = normalizeText(entity.name)
@@ -92,9 +100,17 @@ class OfflineKnowledgeRetriever(
 
         if (preferredTypes.isNotEmpty()) {
             if (preferredTypes.contains(entity.type)) {
-                score += 24
+                score += 18
             } else if (entity.type in GENERIC_LOCATION_TYPES) {
                 score -= 8
+            }
+        }
+
+        if (preferredPackTypes.isNotEmpty()) {
+            when {
+                packType != null && packType in preferredPackTypes -> score += 36
+                packType != null && packType in CONTRASTING_PACK_TYPES -> score -= 18
+                else -> Unit
             }
         }
 
@@ -109,7 +125,13 @@ class OfflineKnowledgeRetriever(
             val relationshipLocationMatch = locationTokens.any(relationshipLocations::contains)
 
             if (directLocationMatch || relationshipLocationMatch) {
-                score += if (preferredTypes.contains(entity.type)) 24 else 10
+                score += when {
+                    packType != null && packType in preferredPackTypes -> 30
+                    preferredTypes.contains(entity.type) -> 20
+                    else -> 10
+                }
+            } else if (preferredPackTypes.isNotEmpty()) {
+                score -= 6
             }
         }
 
@@ -160,13 +182,19 @@ class OfflineKnowledgeRetriever(
                 var score = queryTokens.intersect(fieldTokens).size * 12
                 score += queryTokens.intersect(valueTokens).size * 3
                 score += semanticFactBoost(normalizedQuery, fieldText)
-                fact to score
+                RankedFact(fact, score)
             }
-            .sortedByDescending { (_, score) -> score }
+            .sortedByDescending(RankedFact::score)
 
-        val relevant = ranked.filter { (_, score) -> score > 0 }
+        val relevant = ranked.filter { it.score > 0 }
         val selected = if (relevant.isNotEmpty()) relevant else ranked.take(3)
-        return selected.take(5).map { (fact, _) -> toHitFact(fact) }
+
+        return selected
+            .asSequence()
+            .map { rankedFact -> toHitFact(rankedFact.fact) }
+            .distinctBy { fact -> normalizeText("${fact.field}:${fact.value}") }
+            .take(5)
+            .toList()
     }
 
     private fun semanticFactBoost(query: String, field: String): Int = when {
@@ -197,6 +225,23 @@ class OfflineKnowledgeRetriever(
         if (containsAny(query, "district")) add("DISTRICT")
     }
 
+    private fun preferredPackTypes(query: String): Set<String> = buildSet {
+        if (containsAny(query, "temple", "mandir", "dham")) add("TEMPLE")
+        if (containsAny(query, "pilgrimage")) add("PILGRIMAGE")
+        if (containsAny(query, "waterfall", "falls", "jharna")) add("WATERFALL")
+        if (containsAny(query, "dam", "reservoir")) add("DAM")
+        if (containsAny(query, "lake")) add("LAKE")
+        if (containsAny(query, "forest")) add("FOREST")
+        if (containsAny(query, "wildlife", "sanctuary")) add("WILDLIFE_SANCTUARY")
+        if (containsAny(query, "tiger reserve")) add("TIGER_RESERVE")
+    }
+
+    private fun packType(entity: KnowledgeEntityRow): String? = runCatching {
+        JSONObject(entity.externalRefsJson)
+            .optString("joharPackType")
+            .takeIf(String::isNotBlank)
+    }.getOrNull()
+
     private fun containsAny(text: String, vararg terms: String): Boolean =
         terms.any { text.contains(it) }
 
@@ -220,8 +265,18 @@ class OfflineKnowledgeRetriever(
         sourceUrl = fact.sourceUrl,
     )
 
+    private data class RankedFact(
+        val fact: SourceFactRow,
+        val score: Int,
+    )
+
     companion object {
         private val GENERIC_LOCATION_TYPES = setOf("CITY", "TOWN", "DISTRICT", "REGION", "PLACE")
+        private val CONTRASTING_PACK_TYPES = setOf(
+            "DAM", "LAKE", "WATERFALL", "TEMPLE", "PILGRIMAGE", "ASHRAM", "MUSEUM",
+            "HERITAGE_SITE", "VIEWPOINT", "PARK", "FOREST", "WILDLIFE_SANCTUARY",
+            "TIGER_RESERVE", "NATIONAL_PARK",
+        )
 
         private val STOP_WORDS = setOf(
             "what", "is", "are", "the", "a", "an", "of", "in", "near", "nearby",
@@ -235,6 +290,7 @@ data class OfflineKnowledgeHit(
     val entityId: String,
     val name: String,
     val type: String,
+    val packType: String?,
     val description: String?,
     val score: Int,
     val facts: List<OfflineKnowledgeFact>,
