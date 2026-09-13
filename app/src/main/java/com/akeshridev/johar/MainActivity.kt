@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
+import com.akeshridev.johar.data.retrieval.LocalModelStore
 import com.akeshridev.johar.di.JoharGraph
 import com.akeshridev.johar.eval.OfflineRetrievalEvaluator
 
@@ -26,12 +27,14 @@ class MainActivity : ComponentActivity() {
             context = applicationContext,
             retriever = graph.offlineKnowledgeRetriever,
         )
+        val localModelStore = LocalModelStore(applicationContext)
         ViewModelProvider(
             this,
             MainViewModel.Factory(
                 scheduleSourceCrawl = graph.scheduleSourceCrawlUseCase,
                 offlineKnowledgeRetriever = graph.offlineKnowledgeRetriever,
                 offlineRetrievalEvaluator = evaluator,
+                localModelStore = localModelStore,
             ),
         )[MainViewModel::class.java]
     }
@@ -43,6 +46,7 @@ class MainActivity : ComponentActivity() {
                 DeveloperHarness(
                     onTestOfflineClick = viewModel::testOfflineRetrieval,
                     onTestAnswersClick = viewModel::testDeterministicAnswers,
+                    onTestLlmClick = viewModel::testOnDeviceLlm,
                     onRunEvalClick = viewModel::runOfflineRetrievalEval,
                     onCrawlClick = viewModel::crawlKnowledge,
                 )
@@ -55,6 +59,7 @@ class MainActivity : ComponentActivity() {
 private fun DeveloperHarness(
     onTestOfflineClick: () -> Unit,
     onTestAnswersClick: () -> Unit,
+    onTestLlmClick: () -> Unit,
     onRunEvalClick: () -> Unit,
     onCrawlClick: () -> Unit,
 ) {
@@ -69,6 +74,9 @@ private fun DeveloperHarness(
             }
             Button(onClick = onTestAnswersClick) {
                 Text("Test Deterministic Answers → Logcat")
+            }
+            Button(onClick = onTestLlmClick) {
+                Text("Test On-Device LLM → Logcat")
             }
             Button(onClick = onRunEvalClick) {
                 Text("Run Retrieval Eval → Logcat")
