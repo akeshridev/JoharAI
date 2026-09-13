@@ -179,22 +179,37 @@ internal class MediaWikiTextSourceAdapter(
     }
 
     private fun inferType(title: String, description: String?, fallbackCategory: DiscoveryCategory): EntityType {
-        val text = normalizeText(listOfNotNull(title, description).joinToString(" "))
-        return when {
-            "waterfall" in text || " falls" in " $text" -> EntityType.TOURIST_ATTRACTION
-            "festival" in text || "mela" in text || "puja" in text -> EntityType.FESTIVAL
-            listOf("food", "dish", "cuisine", "snack", "sweet", "recipe").any(text::contains) -> EntityType.FOOD
-            listOf("market", "bazar", "bazaar", "haat", "mandi").any(text::contains) -> EntityType.MARKET
-            "hospital" in text || "clinic" in text -> EntityType.HOSPITAL
-            "police" in text -> EntityType.POLICE_STATION
-            "river" in text -> EntityType.RIVER
-            "village" in text -> EntityType.VILLAGE
-            "town" in text -> EntityType.TOWN
-            "city" in text -> EntityType.CITY
-            "district" in text -> EntityType.DISTRICT
-            listOf("dance", "music", "language", "tribe", "tribal", "folk", "art", "craft", "painting", "culture").any(text::contains) -> EntityType.CULTURAL_PRACTICE
-            else -> typeFor(fallbackCategory)
-        }
+        val normalizedTitle = normalizeText(title)
+        val normalizedDescription = normalizeText(description.orEmpty())
+
+        // The title is the strongest identity signal. Search snippets often mention nearby
+        // waterfalls, districts or towns and must not overwrite what the page itself is.
+        typeFromText(normalizedTitle, titleOnly = true)?.let { return it }
+        typeFromText(normalizedDescription, titleOnly = false)?.let { return it }
+        return typeFor(fallbackCategory)
+    }
+
+    private fun typeFromText(text: String, titleOnly: Boolean): EntityType? = when {
+        text.isBlank() -> null
+        "national park" in text || "wildlife sanctuary" in text || "forest reserve" in text -> EntityType.TOURIST_ATTRACTION
+        "waterfall" in text || " falls" in " $text" -> EntityType.TOURIST_ATTRACTION
+        "temple" in text || "dham" in text -> EntityType.TOURIST_ATTRACTION
+        "dam" in text || "lake" in text || "hill" in text -> EntityType.PLACE
+        "railway station" in text -> EntityType.RAILWAY_STATION
+        "airport" in text -> EntityType.AIRPORT
+        "district" in text -> EntityType.DISTRICT
+        "river" in text -> EntityType.RIVER
+        "village" in text -> EntityType.VILLAGE
+        "town" in text -> EntityType.TOWN
+        "city" in text -> EntityType.CITY
+        "festival" in text || "mela" in text || "puja" in text -> EntityType.FESTIVAL
+        listOf("food", "dish", "cuisine", "snack", "sweet", "recipe").any(text::contains) -> EntityType.FOOD
+        listOf("market", "bazar", "bazaar", "haat", "mandi").any(text::contains) -> EntityType.MARKET
+        "hospital" in text || "clinic" in text -> EntityType.HOSPITAL
+        "police" in text -> EntityType.POLICE_STATION
+        listOf("dance", "music", "language", "tribe", "tribal", "folk", "art", "craft", "painting", "culture").any(text::contains) -> EntityType.CULTURAL_PRACTICE
+        !titleOnly && "hill station" in text -> EntityType.PLACE
+        else -> null
     }
 
     private fun searchUrl(query: String, limit: Int): String =
