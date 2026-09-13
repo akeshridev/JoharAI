@@ -26,7 +26,8 @@ class MainViewModel(
                     Log.i(
                         TAG,
                         "  #${index + 1} score=${hit.score} name=${hit.name} type=${hit.type} " +
-                            "description=${hit.description.orEmpty()} facts=[$factSummary]",
+                            "packType=${hit.packType.orEmpty()} description=${hit.description.orEmpty()} " +
+                            "facts=[$factSummary]",
                     )
                 }
             }
