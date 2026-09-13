@@ -23,6 +23,7 @@ Crawling starts from `CrawlSeed` context such as a name + Jharkhand + India. Ada
 ## Current source adapters
 - Wikidata — entity search/resolution, labels, aliases, coordinates, generic source claims, graph relationships, image references.
 - OpenStreetMap / Overpass — dynamic named-entity resolution, nearby facilities/services, places, markets, shops, hospitals, police, travel infrastructure, and bounded statewide category discovery.
+- Specialized Overpass discovery — precise bootstrap queries for dams, hills/lakes, temples, protected areas, heritage, fire/ambulance services, mandi/vegetable/fish markets, and explicitly tagged/named pork sellers.
 - Wikipedia — source-backed background text and entity discovery for places, food, festivals, culture, and related knowledge.
 - Wikivoyage — travel/practical text and travel-oriented place/food discovery.
 - Wikimedia Commons — media references plus creator/attribution/license metadata.
@@ -57,7 +58,11 @@ Crawler vocabulary/discovery supports:
 - Weather context
 - Local bazar / haat / market
 
+Bootstrap vocabulary should aim for useful coverage, not every wording variation. Current vocabulary includes broader place types, local/tribal/seasonal food, fairs, language/music/art, emergency services, and local market subtypes. Discovered entities and aliases expand future crawl context.
+
 Local bazar discovery may include marketplaces, butcher/meat shops, nearby services, and OSM-tagged shops. A discovered shop/market is not evidence of live inventory. Never convert a likely seller into a claim that an item such as pork is currently in stock unless a fresh source explicitly supports that claim.
+
+Item-specific discovery must be evidence-based. For example, a pork query may use explicit OSM `butcher=pork/pig` metadata or a pork/pig name match, but a generic butcher shop must not be labeled as a pork seller just because it is a butcher.
 
 ## Refresh/storage rules
 - Source failures are isolated. One failed adapter must not discard successful data from other adapters.
