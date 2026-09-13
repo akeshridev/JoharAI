@@ -20,6 +20,29 @@ Design data and presentation around these needs:
 
 The product should reduce the amount of reading, typing, navigation, and technical knowledge required to get a useful answer.
 
+## V1 knowledge universe
+Prioritize seven everyday Jharkhand knowledge areas:
+1. Places
+2. Food
+3. Festivals
+4. Culture
+5. Emergency information
+6. Weather
+7. Local bazar / haat / market knowledge
+
+These are user-facing knowledge areas, not separate app screens. Everything is accessed through the same chat surface.
+
+Examples:
+- Places: waterfalls, temples, villages, towns, picnic spots, routes, facilities, safety.
+- Food: local foods, ingredients, seasonality, preparation, where commonly found.
+- Festivals: meaning, dates/seasons, rituals, locations, participation context.
+- Culture: traditions, language terms, stories, dance, music, crafts, community practices.
+- Emergency information: hospitals, police, emergency contacts, hazards, closures, safety guidance.
+- Weather: current/seasonal conditions and locally useful weather context.
+- Local bazar: haat/bazar names, location, market day/time when known, common goods, local produce, nearby services, and related locality information.
+
+Do not treat these seven areas as rigid schema silos. They organize discovery and presentation while Entity, Fact, Relationship, Source, and Media remain the underlying model.
+
 ## V1 scope — DATA + PRESENTATION ONLY
 For V1, focus only on:
 1. Data — discover, crawl, refresh, model, store, retrieve, and source Jharkhand knowledge.
@@ -69,7 +92,7 @@ Knowledge domains currently include:
 8. Facilities
 9. Geography
 
-The model must be able to grow to other Jharkhand entity types such as foods, festivals, places, rivers, villages, institutions, and other useful local knowledge without redesigning the core schema.
+The model must be able to grow to other Jharkhand entity types such as foods, festivals, places, rivers, villages, institutions, bazaars/haats, and other useful local knowledge without redesigning the core schema.
 
 ## Current model goal
 Design a generic local knowledge database that can later be packed with source-backed data for any canonical entity, starting with Dassam Falls.
