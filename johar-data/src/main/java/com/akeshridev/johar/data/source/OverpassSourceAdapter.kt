@@ -24,6 +24,8 @@ internal class OverpassSourceAdapter(
 ) : CrawlSourceAdapter, KeywordDiscoveryAdapter {
     override val id: String = "openstreetmap"
 
+    override fun supports(seed: CrawlSeed): Boolean = seed.entityType != EntityType.REGION
+
     override fun crawl(seed: CrawlSeed): SourceResult? {
         val ownerId = requireNotNull(seed.entityId)
         val resolutionQuery = resolutionQuery(seed)
@@ -63,7 +65,7 @@ internal class OverpassSourceAdapter(
         val media = mutableListOf<MediaAsset>()
         var nearbyRaw = ""
 
-        if (latitude != null && longitude != null && seed.entityType != EntityType.REGION) {
+        if (latitude != null && longitude != null) {
             val nearbyQuery = nearbyQuery(latitude, longitude)
             nearbyRaw = fetch(nearbyQuery)
             val nearbyElements = JSONObject(nearbyRaw).optJSONArray("elements") ?: JSONArray()
@@ -379,10 +381,10 @@ internal class OverpassSourceAdapter(
     }
 
     private fun osmEntityId(element: JSONObject): String =
-        "osm:${element.optString("type")}:${element.optLong("id")}" 
+        "osm:${element.optString("type")}:${element.optLong("id")}"
 
     private fun canonicalUrl(element: JSONObject): String =
-        "https://www.openstreetmap.org/${element.optString("type")}/${element.optLong("id")}" 
+        "https://www.openstreetmap.org/${element.optString("type")}/${element.optLong("id")}"
 
     private fun resolvedRef(element: JSONObject?): Map<String, String> {
         if (element == null) return emptyMap()
