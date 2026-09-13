@@ -5,10 +5,25 @@ Johar AI is an offline-first Android companion for discovering Jharkhand through
 
 Johar should feel like a micro-ChatGPT whose world is Jharkhand.
 
+## V1 scope — DATA + PRESENTATION ONLY
+For V1, focus only on:
+1. Data — discover, crawl, refresh, model, store, retrieve, and source Jharkhand knowledge.
+2. Presentation — turn retrieved knowledge into clear conversational answers on the single chat screen, with rich inline answer components when useful.
+
+Do not expand V1 into additional product/platform work unless explicitly requested.
+
+Out of scope for V1 unless explicitly changed:
+- multiple screens or navigation
+- browse/category/detail pages
+- accounts/social/community features
+- backend/platform expansion
+- unrelated Android infrastructure work
+- speculative features not required to collect or present knowledge
+
 ## Product interaction invariant
 Johar has one primary product surface: a single chat screen.
 
-Do not design separate browse/category/detail/search/navigation screens for places, food, festivals, culture, safety, travel, or other domains. Users ask naturally in chat; Johar resolves entities/intents and returns conversational answers.
+Users ask naturally in chat; Johar resolves entities/intents and returns conversational answers.
 
 Rich UI is allowed only inside the conversation when useful, for example:
 - entity cards
@@ -20,18 +35,10 @@ Rich UI is allowed only inside the conversation when useful, for example:
 
 These are answer components, not separate product destinations.
 
-## Current focus — MODEL ONLY
-Development is now 100% focused on the knowledge model and the shape of the packed local database.
+## Current focus — MODEL / DATA FOUNDATION
+Current implementation work should prioritize the knowledge model and packed/local data foundation before presentation runtime.
 
-Freeze runtime implementation work unless explicitly requested:
-- No new UI/product flows.
-- No crawler expansion.
-- No WorkManager changes.
-- No network/parser work.
-- No LLM integration.
-- No answer-generation work.
-
-The existing crawl/Room thin slice may remain in the repo as a test harness, but do not extend it while MODEL ONLY is active.
+The existing crawl/Room thin slice may remain as a test harness. Expand runtime pieces only when they directly serve V1 data collection, refresh, storage, retrieval, or presentation.
 
 ## Current V0 boundary
 Johar should model only knowledge that helps a person decide whether to visit Dassam Falls, reach it, experience it, understand it, stay safe, and return.
@@ -60,7 +67,7 @@ Keep the core model basic and scalable:
 Do not collapse these into one giant Dassam record.
 
 ## Discovery direction
-Entity-specific URLs/IDs should not be hardcoded into the knowledge model. Eventual discovery starts from an entity plus category/search context, and source adapters resolve dynamic IDs/URLs from open sources.
+Entity-specific URLs/IDs should not be hardcoded into the knowledge model. Discovery starts from an entity plus category/search context, and source adapters resolve dynamic IDs/URLs from open sources.
 
 Search terms should be data-driven rather than hardcoded in crawler code.
 
@@ -110,13 +117,13 @@ Periodic refresh should update/replace stale knowledge rather than grow append-o
 ## Module router
 
 ### `johar-domain`
-Primary active module. Pure Kotlin/JVM knowledge model and domain rules. Owns entity/fact/provenance/relationship/media/category/discovery concepts and storage-independent contracts. No Android, UI, network, parser, Room, WorkManager, or LLM implementation.
+Primary active module. Pure Kotlin/JVM knowledge model and domain rules. Owns entity/fact/provenance/relationship/media/category/discovery concepts and storage-independent contracts.
 
 ### `johar-data`
-Currently frozen except when needed to validate the model against persistence constraints later. Existing crawler/Room code is a harness, not the design authority.
+Owns V1 data work: source discovery/crawling, refresh, extraction, persistence, retrieval, and mapping. Existing crawler/Room code is a harness until evolved deliberately around the domain model.
 
 ### `app`
-Frozen developer harness only.
+Single-screen presentation/composition root only. No navigation architecture.
 
 ## Architecture rules
 - Single responsibility.
@@ -138,14 +145,13 @@ Frozen developer harness only.
 - Package root: `com.akeshridev.johar`
 - Kotlin first.
 - Android-only V1; no backend unless explicitly requested.
-- Use free/open sources for eventual core dataset.
-- No vector search, canonical merge algorithm, or LLM work while MODEL ONLY is active.
+- Use free/open sources for core dataset.
 
 ## Token discipline
 - Use tokens economically.
-- Read only files needed for the current model decision.
+- Read only files needed for the current decision.
 - Keep explanations short unless explicitly asked.
 - Avoid speculative implementation work.
 
 ## Collaboration style
-Work in small increments. Lock one model concept at a time, update the relevant `AGENTS.md`, then implement only that concept.
+Work in small increments. Lock one concept at a time, update the relevant `AGENTS.md`, then implement only that concept.
