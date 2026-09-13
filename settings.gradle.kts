@@ -16,3 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "JoharAI"
 include(":app")
+include(":johar-domain")
