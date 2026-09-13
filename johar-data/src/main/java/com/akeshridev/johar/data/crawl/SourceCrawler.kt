@@ -93,8 +93,8 @@ internal class SourceCrawler(
 
     companion object {
         private const val TAG = "JoharCrawl"
-        private const val MAX_ENTITIES_PER_RUN = 12
-        private const val MAX_KEYWORDS_PER_RUN = 10
+        private const val MAX_ENTITIES_PER_RUN = 6
+        private const val MAX_KEYWORDS_PER_RUN = 6
         private const val MAX_DISCOVERY_DEPTH = 2
         private const val ENTITY_STALE_MILLIS = 24L * 60L * 60L * 1_000L
         private const val KEYWORD_STALE_MILLIS = 30L * 24L * 60L * 60L * 1_000L
