@@ -93,12 +93,7 @@ class SourceCrawlWorker(
                 discoveryAdapters = discoveryAdapters,
             ).crawl(target)
 
-            Log.i(
-                TAG,
-                "Worker success: entities=${stats.entities}, facts=${stats.facts}, " +
-                    "relationships=${stats.relationships}, media=${stats.media}, " +
-                    "keywords=${stats.enabledKeywords}",
-            )
+            CrawlSummaryLogger.print(target, stats, database.knowledgeDao())
             Result.success()
         } catch (error: Exception) {
             Log.e(TAG, "Crawl failed for $target on attempt $runAttemptCount", error)
