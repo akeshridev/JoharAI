@@ -78,6 +78,16 @@ Supported examples:
 
 Store references and metadata, not binary image/video payloads, at this stage. Preserve source/provenance and licensing/attribution when available. The existence of a public URL does not imply reuse rights.
 
+## Local data budget
+Johar may use up to approximately 1 GB of local knowledge data when useful.
+
+Treat this as a local-data budget, not an APK-size target:
+- Prefer a compact prepacked/downloadable knowledge database rather than bundling the full budget inside the APK.
+- Facts, entities, relationships, provenance, source snapshots, indexes, and metadata may be stored locally.
+- Media should default to URL/reference metadata; binary image/video caching is a separate future concern and must be bounded explicitly.
+- Preserve enough raw/source data to allow reprocessing and model iteration, but avoid blindly mirroring entire upstream datasets when only a useful subset is needed.
+- Storage size should not drive the domain model; the model remains simple: Entity, Fact, Relationship, Source, Media.
+
 ## Module router
 
 ### `johar-domain`
