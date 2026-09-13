@@ -22,8 +22,17 @@ interface KnowledgeDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun upsertMedia(media: List<MediaAssetRow>)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun upsertKeywords(keywords: List<CrawlKeywordRow>)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun insertKeywords(keywords: List<CrawlKeywordRow>)
+
+    @Query("DELETE FROM source_facts WHERE entityId = :entityId AND sourceUrl = :sourceUrl")
+    fun deleteFactsForSource(entityId: String, sourceUrl: String)
+
+    @Query("DELETE FROM entity_relationships WHERE fromEntityId = :entityId AND sourceUrl = :sourceUrl")
+    fun deleteRelationshipsForSource(entityId: String, sourceUrl: String)
+
+    @Query("DELETE FROM media_assets WHERE entityId = :entityId AND sourceUrl = :sourceUrl")
+    fun deleteMediaForSource(entityId: String, sourceUrl: String)
 
     @Query("SELECT * FROM knowledge_entities WHERE id = :id LIMIT 1")
     fun getEntity(id: String): KnowledgeEntityRow?
