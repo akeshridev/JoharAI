@@ -165,6 +165,7 @@ internal class KnowledgeStore(
         relationships = knowledgeDao.relationshipCount(),
         media = knowledgeDao.mediaCount(),
         enabledKeywords = knowledgeDao.enabledKeywordCount(),
+        entityTypes = knowledgeDao.entityCountsByType().associate { it.type to it.count },
     )
 
     private fun upsertDiscoveredEntity(
@@ -258,4 +259,5 @@ internal data class CrawlStats(
     val relationships: Int,
     val media: Int,
     val enabledKeywords: Int,
+    val entityTypes: Map<String, Int>,
 )
