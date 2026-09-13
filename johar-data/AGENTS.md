@@ -29,7 +29,11 @@ Crawling starts from `CrawlSeed` context such as a name + Jharkhand + India. Ada
 - Wikimedia Commons — media references plus creator/attribution/license metadata.
 - Open-Meteo — coordinate-based current conditions and short forecast facts for place-like entities.
 
-Do not use public Overpass instances for very broad statewide scans such as all villages, all rivers, generic places, or similarly expensive queries. Broad statewide entity discovery should come from Wikidata/MediaWiki or other suitable sources; OSM should enrich discovered entities individually and handle narrower, selective statewide categories.
+Public Overpass is a shared best-effort source, not Johar's primary statewide backbone. Do not issue one OSM enrichment request per discovered entity during a `JHARKHAND` run. Statewide runs use OSM only for bounded bootstrap discovery; full OSM entity/nearby enrichment is reserved for focused entity crawls or a future dedicated throttled enrichment queue.
+
+Do not use public Overpass instances for very broad statewide scans such as all villages, all rivers, generic places, or similarly expensive queries. Broad statewide entity discovery should come from Wikidata/MediaWiki or other suitable sources; OSM should handle narrower, selective statewide categories.
+
+Keep statewide discovery batches deliberately small. The persistent queue is expected to grow coverage over many periodic runs instead of maximizing requests in one execution. Treat 429, 504, and network timeout responses as source-pressure signals, not reasons to increase retries or concurrency.
 
 Do not use the public Nominatim service as a periodic/bulk statewide crawler. If Nominatim is introduced later, its public-use policy, rate limit, caching, identification, and bulk restrictions must be respected or a suitable/self-hosted service must be used.
 
