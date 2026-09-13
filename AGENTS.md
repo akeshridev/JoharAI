@@ -39,15 +39,27 @@ The model must separate:
 - source facts/claims
 - provenance/evidence
 - relationships between entities
+- media assets/references
 - future canonical/resolved facts
 - future derived recommendations
 
 Do not collapse these into one giant Dassam record.
 
+## Media direction
+Media references may be captured in the packed knowledge model whenever available, even while runtime ingestion is frozen.
+
+Supported examples:
+- direct/static image URLs
+- Wikimedia Commons media URLs and thumbnails
+- YouTube/video page URLs and preview/thumbnail URLs
+- source-page image/video links
+
+Store references and metadata, not binary image/video payloads, at this stage. Preserve source/provenance and licensing/attribution when available. The existence of a public URL does not imply reuse rights.
+
 ## Module router
 
 ### `johar-domain`
-Primary active module. Pure Kotlin/JVM knowledge model and domain rules. Owns entity/fact/provenance/relationship concepts and storage-independent contracts. No Android, UI, network, parser, Room, WorkManager, or LLM implementation. Read `johar-domain/AGENTS.md` before changing it.
+Primary active module. Pure Kotlin/JVM knowledge model and domain rules. Owns entity/fact/provenance/relationship/media concepts and storage-independent contracts. No Android, UI, network, parser, Room, WorkManager, or LLM implementation. Read `johar-domain/AGENTS.md` before changing it.
 
 ### `johar-data`
 Currently frozen except when needed to validate the model against Room constraints later. Existing crawler/Room code is a harness, not the design authority. The domain model drives persistence shape, not the reverse.
@@ -72,6 +84,7 @@ Follow the principles demonstrated in `akeshridev/AIFriendlyAppArchitecture`:
 - Canonical/resolved knowledge is a later layer derived from source facts.
 - Nearby places, hospitals, foods, villages, rivers, etc. should be modeled as entities/relationships when appropriate, not flattened into arbitrary strings.
 - Source-specific wording/evidence must remain available even if a normalized value is also stored.
+- Media references should remain independent from binary storage/download concerns.
 - The model should support a prepacked local DB later, but must not be coupled to Room.
 
 ## Engineering constraints
