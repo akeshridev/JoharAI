@@ -3,23 +3,98 @@
 {"query":"Tell me about Rugra","expected":["Rugra"],"category":"food"}
 {"query":"Jharkhand me Rugra kya hota hai?","expected":["Rugra"],"category":"food"}
 {"query":"Rugra food","expected":["Rugra"],"category":"food"}
+{"query":"Rugra ke bare me batao","expected":["Rugra"],"category":"food"}
+{"query":"Rugra kya khana hai?","expected":["Rugra"],"category":"food"}
+{"query":"What is Rugra food?","expected":["Rugra"],"category":"food"}
+{"query":"Rugra Jharkhand dish","expected":["Rugra"],"category":"food"}
+{"query":"Rugra kaun sa food hai?","expected":["Rugra"],"category":"food"}
+{"query":"Rugra traditional food hai?","expected":["Rugra"],"category":"food"}
+{"query":"Rugra ka matlab food me kya hai?","expected":["Rugra"],"category":"food"}
+{"query":"Rugra local dish","expected":["Rugra"],"category":"food"}
+{"query":"Rugra Jharkhand cuisine","expected":["Rugra"],"category":"food"}
+{"query":"Rugra kya hota hai Jharkhand me?","expected":["Rugra"],"category":"food"}
 {"query":"Jharkhand ka state animal?","expected":["Jharkhand","Asian Elephant"],"category":"state_fact"}
 {"query":"State animal of Jharkhand","expected":["Jharkhand","Asian Elephant"],"category":"state_fact"}
 {"query":"Jharkhand state animal kaun hai?","expected":["Jharkhand","Asian Elephant"],"category":"state_fact"}
 {"query":"Jharkhand ka rajya pashu?","expected":["Jharkhand","Asian Elephant"],"category":"state_fact"}
-{"query":"Asian Elephant Jharkhand ka state animal hai?","expected":["Asian Elephant","Jharkhand"],"category":"state_fact"}
+{"query":"Asian Elephant Jharkhand ka state animal hai?","expected":["Jharkhand","Asian Elephant"],"category":"state_fact"}
+{"query":"Jharkhand ka rajya jaanwar?","expected":["Jharkhand","Asian Elephant"],"category":"state_fact"}
+{"query":"What is Jharkhand state animal?","expected":["Jharkhand","Asian Elephant"],"category":"state_fact"}
+{"query":"Rajya pashu Jharkhand","expected":["Jharkhand","Asian Elephant"],"category":"state_fact"}
+{"query":"Jharkhand ka official animal?","expected":["Jharkhand","Asian Elephant"],"category":"state_fact"}
+{"query":"State pashu of Jharkhand","expected":["Jharkhand","Asian Elephant"],"category":"state_fact"}
 {"query":"Deoghar me temple?","expected":["Naulakha Mandir","Baidyanath Dham"],"category":"temple"}
 {"query":"Deoghar me mandir batao","expected":["Naulakha Mandir","Baidyanath Dham"],"category":"temple"}
 {"query":"Temples in Deoghar","expected":["Naulakha Mandir","Baidyanath Dham"],"category":"temple"}
 {"query":"Deoghar ka famous mandir","expected":["Naulakha Mandir","Baidyanath Dham"],"category":"temple"}
 {"query":"Baidyanath Dham Deoghar","expected":["Baidyanath Dham"],"category":"temple"}
+{"query":"Deoghar mandir list","expected":["Naulakha Mandir","Baidyanath Dham"],"category":"temple"}
+{"query":"Deoghar me kaun kaun mandir hai","expected":["Naulakha Mandir","Baidyanath Dham"],"category":"temple"}
+{"query":"Famous temples near Deoghar","expected":["Naulakha Mandir","Baidyanath Dham"],"category":"temple"}
+{"query":"Deoghar temple recommendation","expected":["Naulakha Mandir","Baidyanath Dham"],"category":"temple"}
+{"query":"Baba Baidyanath Dham","expected":["Baidyanath Dham"],"category":"temple"}
+{"query":"Baidyanath Dham kya hai?","expected":["Baidyanath Dham"],"category":"temple"}
+{"query":"Baidyanath Dham kaha hai?","expected":["Baidyanath Dham"],"category":"temple"}
+{"query":"Naulakha Mandir kaha hai?","expected":["Naulakha Mandir"],"category":"temple"}
+{"query":"Naulakha Mandir Deoghar","expected":["Naulakha Mandir"],"category":"temple"}
+{"query":"Naulakha temple in Deoghar","expected":["Naulakha Mandir"],"category":"temple"}
+{"query":"Deoghar religious place","expected":["Baidyanath Dham","Naulakha Mandir"],"category":"temple"}
+{"query":"Deoghar dham","expected":["Baidyanath Dham"],"category":"temple"}
+{"query":"Temple to visit in Deoghar","expected":["Naulakha Mandir","Baidyanath Dham"],"category":"temple"}
+{"query":"Deoghar ka dham kaunsa hai","expected":["Baidyanath Dham"],"category":"temple"}
+{"query":"Deoghar ka mandir naam batao","expected":["Naulakha Mandir","Baidyanath Dham"],"category":"temple"}
 {"query":"Ranchi ke paas waterfall?","expected":["Hundru Falls","Jonha Falls","Sita Falls"],"category":"waterfall"}
 {"query":"Ranchi nearby waterfalls","expected":["Hundru Falls","Jonha Falls","Sita Falls"],"category":"waterfall"}
 {"query":"Ranchi ke aas paas jharna","expected":["Hundru Falls","Jonha Falls","Sita Falls"],"category":"waterfall"}
 {"query":"Waterfalls near Ranchi","expected":["Hundru Falls","Jonha Falls","Sita Falls"],"category":"waterfall"}
 {"query":"Hundru Falls Ranchi","expected":["Hundru Falls"],"category":"waterfall"}
-{"query":"Naulakha Mandir kaha hai?","expected":["Naulakha Mandir"],"category":"entity"}
-{"query":"Baidyanath Dham kya hai?","expected":["Baidyanath Dham"],"category":"entity"}
-{"query":"Jonha Falls kya hai?","expected":["Jonha Falls"],"category":"entity"}
-{"query":"Sita Falls Ranchi","expected":["Sita Falls"],"category":"entity"}
+{"query":"Jonha Falls Ranchi","expected":["Jonha Falls"],"category":"waterfall"}
+{"query":"Sita Falls Ranchi","expected":["Sita Falls"],"category":"waterfall"}
+{"query":"Ranchi waterfall list","expected":["Hundru Falls","Jonha Falls","Sita Falls"],"category":"waterfall"}
+{"query":"Ranchi me jharna kaha hai","expected":["Hundru Falls","Jonha Falls","Sita Falls"],"category":"waterfall"}
+{"query":"Best waterfall near Ranchi","expected":["Hundru Falls","Jonha Falls","Sita Falls"],"category":"waterfall"}
+{"query":"Ranchi ke famous waterfalls","expected":["Hundru Falls","Jonha Falls","Sita Falls"],"category":"waterfall"}
+{"query":"Jonha Falls kya hai?","expected":["Jonha Falls"],"category":"waterfall"}
+{"query":"Hundru Falls kya hai?","expected":["Hundru Falls"],"category":"waterfall"}
+{"query":"Sita Falls kya hai?","expected":["Sita Falls"],"category":"waterfall"}
+{"query":"Gautamdhara waterfall","expected":["Jonha Falls"],"category":"waterfall"}
+{"query":"Jonha waterfall","expected":["Jonha Falls"],"category":"waterfall"}
+{"query":"Hundru waterfall","expected":["Hundru Falls"],"category":"waterfall"}
+{"query":"Sita waterfall","expected":["Sita Falls"],"category":"waterfall"}
+{"query":"Ranchi side waterfall","expected":["Hundru Falls","Jonha Falls","Sita Falls"],"category":"waterfall"}
+{"query":"Ranchi ke paas falls","expected":["Hundru Falls","Jonha Falls","Sita Falls"],"category":"waterfall"}
+{"query":"Jharkhand Ranchi jharna","expected":["Hundru Falls","Jonha Falls","Sita Falls"],"category":"waterfall"}
+{"query":"Ranchi waterfall tourist place","expected":["Hundru Falls","Jonha Falls","Sita Falls"],"category":"waterfall"}
+{"query":"Jonha Falls kaha hai","expected":["Jonha Falls"],"category":"waterfall"}
+{"query":"Hundru Falls kaha hai","expected":["Hundru Falls"],"category":"waterfall"}
+{"query":"Sita Falls kaha hai","expected":["Sita Falls"],"category":"waterfall"}
 {"query":"Asian Elephant Jharkhand","expected":["Asian Elephant"],"category":"entity"}
+{"query":"Asian Elephant kya hai Jharkhand me","expected":["Asian Elephant"],"category":"entity"}
+{"query":"Jharkhand Asian Koel","expected":["Asian Koel"],"category":"entity"}
+{"query":"Asian Koel Jharkhand","expected":["Asian Koel"],"category":"entity"}
+{"query":"Naulakha Mandir kya hai","expected":["Naulakha Mandir"],"category":"entity"}
+{"query":"Baidyanath Dham temple","expected":["Baidyanath Dham"],"category":"entity"}
+{"query":"Basukinath Dham kya hai","expected":["Basukinath Dham"],"category":"entity"}
+{"query":"Harihar Dham kya hai","expected":["Harihar Dham"],"category":"entity"}
+{"query":"Deori Mandir","expected":["Deori Mandir"],"category":"entity"}
+{"query":"Jagannath Mandir Dhurwa","expected":["Jagannath Mandir Dhurwa"],"category":"entity"}
+{"query":"Lodh Falls kya hai","expected":["Lodh Falls"],"category":"entity"}
+{"query":"Bhatinda Waterfall","expected":["Bhatinda Waterfall"],"category":"entity"}
+{"query":"Dassam Falls Ranchi","expected":["Dassam Falls"],"category":"entity"}
+{"query":"Dassam waterfall","expected":["Dassam Falls"],"category":"entity"}
+{"query":"Chilka Jharkhand food","expected":["Chilka"],"category":"entity"}
+{"query":"Arsa Jharkhand food","expected":["Arsa"],"category":"entity"}
+{"query":"Aloo Bharta Jharkhand","expected":["Aloo Bharta"],"category":"entity"}
+{"query":"Baingan Bharta Jharkhand","expected":["Baingan Bharta"],"category":"entity"}
+{"query":"Jharkhand state museum Hotwar","expected":["State Museum Hotwar"],"category":"entity"}
+{"query":"State Museum Hotwar","expected":["State Museum Hotwar"],"category":"entity"}
+{"query":"Where is Eiffel Tower?","expected":[],"category":"no_answer","expectNoAnswer":true}
+{"query":"Best sushi in Tokyo","expected":[],"category":"no_answer","expectNoAnswer":true}
+{"query":"Who is the president of France?","expected":[],"category":"no_answer","expectNoAnswer":true}
+{"query":"Weather in London tomorrow","expected":[],"category":"no_answer","expectNoAnswer":true}
+{"query":"Population of Mars","expected":[],"category":"no_answer","expectNoAnswer":true}
+{"query":"Golden Gate Bridge location","expected":[],"category":"no_answer","expectNoAnswer":true}
+{"query":"New York subway map","expected":[],"category":"no_answer","expectNoAnswer":true}
+{"query":"Mount Everest height","expected":[],"category":"no_answer","expectNoAnswer":true}
+{"query":"Pizza places in Chicago","expected":[],"category":"no_answer","expectNoAnswer":true}
+{"query":"What is the capital of Australia?","expected":[],"category":"no_answer","expectNoAnswer":true}
