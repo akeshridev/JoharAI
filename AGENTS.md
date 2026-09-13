@@ -10,6 +10,7 @@ Johar must be useful to people across Jharkhand, including users who prefer spea
 
 Design data and presentation around these needs:
 - natural spoken questions should work as well as typed questions;
+- terse, fragmented, misspelled, colloquial, and one-word queries should still be useful when intent can be inferred;
 - answers should use simple, direct language before detail;
 - support Hindi/Hinglish and local-language vocabulary/aliases as the knowledge base grows;
 - prefer short actionable answers, icons, cards, images, audio/voice, and clear choices over dense paragraphs;
@@ -34,12 +35,20 @@ These are user-facing knowledge areas, not separate app screens. Everything is a
 
 Examples:
 - Places: waterfalls, temples, villages, towns, picnic spots, routes, facilities, safety.
-- Food: local foods, ingredients, seasonality, preparation, where commonly found.
+- Food: local foods, ingredients, seasonality, preparation, where commonly found, and where a user may find/buy a food item locally.
 - Festivals: meaning, dates/seasons, rituals, locations, participation context.
 - Culture: traditions, language terms, stories, dance, music, crafts, community practices.
 - Emergency information: hospitals, police, emergency contacts, hazards, closures, safety guidance.
 - Weather: current/seasonal conditions and locally useful weather context.
 - Local bazar: haat/bazar names, location, market day/time when known, common goods, local produce, nearby services, and related locality information.
+
+Johar should support immediate local-discovery questions such as:
+- "bazar near me"
+- "pork kaha milega?"
+- "nearby haat kab lagta hai?"
+- short local terms or partial queries whose meaning can be resolved from location/conversation context
+
+Near-me and availability-style answers are location-sensitive and freshness-sensitive. The model should represent location, locality relationships, opening/market schedule, product/food availability claims, provenance, and freshness without pretending stale data is live.
 
 Do not treat these seven areas as rigid schema silos. They organize discovery and presentation while Entity, Fact, Relationship, Source, and Media remain the underlying model.
 
