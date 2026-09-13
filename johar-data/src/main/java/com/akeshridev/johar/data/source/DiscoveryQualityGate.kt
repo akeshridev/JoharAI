@@ -112,10 +112,12 @@ internal object DiscoveryQualityGate {
     private val GENERIC_TITLE_PREFIXES = listOf(
         "list of ",
         "outline of ",
+        "tourism in ",
     )
 
     private val NON_V1_TITLE_TERMS = listOf(
         "legislative assembly",
+        "jharkhand assembly",
         " assembly election",
         " election",
         "cricket team",
