@@ -38,10 +38,12 @@ Keep statewide discovery batches deliberately small. The persistent queue is exp
 Do not use the public Nominatim service as a periodic/bulk statewide crawler. If Nominatim is introduced later, its public-use policy, rate limit, caching, identification, and bulk restrictions must be respected or a suitable/self-hosted service must be used.
 
 ## Discovery quality invariants
+- V1 optimizes for useful breadth, not perfect classification. Roughly 70–80% useful/accurate discovery is acceptable while the knowledge base grows; reject obvious junk without over-filtering plausible Jharkhand knowledge.
 - A bootstrap/discovery category is a search intent, not an entity type. Never label every result of a FOOD search as `FOOD`, every CULTURE result as `CULTURAL_PRACTICE`, or every LOCAL_BAZAR result as `MARKET` without source evidence.
 - Broad MediaWiki/Wikidata search results must pass semantic category validation before persistence.
+- For MediaWiki discovery, page title is the strongest identity/type signal. Search snippets may support geography/context but must not turn a district into a waterfall, a temple into a district, or a national park into a town.
 - Broad text-search candidates must contain candidate-side evidence tying them to Jharkhand or a Jharkhand locality; the query phrase itself (for example, "food in Jharkhand") is not relevance evidence.
-- Prefer rejecting an ambiguous candidate over polluting the canonical knowledge database. Coverage can grow later; bad canonical entities are expensive to unwind.
+- Reject high-confidence noise such as unrelated regions, list/index pages, election/assembly pages, and unresolved source IDs. Do not chase perfect filtering of every ambiguous candidate in V1.
 - Do not persist unresolved source identifiers such as bare Wikidata `Q12345` values as user-facing `KnowledgeEntity` rows. Keep them as source references/relationship targets until a human-readable label and usable type are resolved.
 - Structured/high-precision source results such as explicit OSM hospital/market tags may use their source semantics directly, but must still avoid unsupported inventory/availability claims.
 - Keep regression tests for real crawl failures so examples such as a city becoming FOOD, a city becoming MARKET, or a state becoming RIVER cannot silently return.
@@ -99,7 +101,7 @@ Item-specific discovery must be evidence-based. For example, a pork query may us
 ## WorkManager
 A manual enqueue performs an immediate crawl and ensures a unique 24-hour statewide periodic refresh exists. Network connectivity and battery-not-low constraints apply. The periodic worker continues persisted stale entity/keyword queues.
 
-Manual unique work uses KEEP semantics: tapping crawl again must not cancel an already-running crawl. Queue progress is persisted in Room and later runs resume it.
+The first periodic refresh is delayed by the refresh interval after manual bootstrap so it does not immediately duplicate the one-time statewide crawl. Manual unique work uses KEEP semantics: tapping crawl again must not cancel an already-running crawl. Queue progress is persisted in Room and later runs resume it.
 
 ## Architecture rules
 - No Compose/ViewModel/UI code here.
