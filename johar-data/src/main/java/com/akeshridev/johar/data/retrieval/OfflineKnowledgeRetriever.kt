@@ -18,19 +18,21 @@ class OfflineKnowledgeRetriever(
         val normalizedQuery = normalizeText(query)
         val queryTokens = meaningfulTokens(normalizedQuery)
         val preferredTypes = preferredTypes(normalizedQuery)
-        val asksStateFact = normalizedQuery.contains("state animal") ||
-            normalizedQuery.contains("state bird") ||
-            normalizedQuery.contains("state tree") ||
-            normalizedQuery.contains("state flower")
+        val entities = dao.allEnabledEntities()
+        val locationTokens = findLocationTokens(queryTokens, entities)
+        val asksStateFact = asksStateFact(normalizedQuery)
 
-        return dao.allEnabledEntities()
+        return entities
             .asSequence()
             .map { entity ->
                 val facts = dao.factsForEntity(entity.id)
+                val relationshipLocations = relationshipLocationTokens(entity)
                 val score = score(
                     entity = entity,
                     facts = facts,
                     queryTokens = queryTokens,
+                    locationTokens = locationTokens,
+                    relationshipLocations = relationshipLocations,
                     preferredTypes = preferredTypes,
                     asksStateFact = asksStateFact,
                 )
@@ -40,7 +42,7 @@ class OfflineKnowledgeRetriever(
                     type = entity.type,
                     description = entity.description,
                     score = score,
-                    facts = facts.map(::toHitFact),
+                    facts = rankFacts(facts, normalizedQuery, queryTokens),
                 )
             }
             .filter { it.score > 0 }
@@ -56,6 +58,8 @@ class OfflineKnowledgeRetriever(
         entity: KnowledgeEntityRow,
         facts: List<SourceFactRow>,
         queryTokens: Set<String>,
+        locationTokens: Set<String>,
+        relationshipLocations: Set<String>,
         preferredTypes: Set<String>,
         asksStateFact: Boolean,
     ): Int {
@@ -65,7 +69,7 @@ class OfflineKnowledgeRetriever(
         val factText = normalizeText(
             facts.joinToString(" ") { fact ->
                 listOfNotNull(
-                    fact.field,
+                    splitFieldName(fact.field),
                     fact.textValue,
                     fact.numberValue?.toString(),
                     fact.booleanValue?.toString(),
@@ -85,26 +89,103 @@ class OfflineKnowledgeRetriever(
         score += queryTokens.intersect(factTokens).size * 5
 
         if (queryTokens.isNotEmpty() && nameTokens.containsAll(queryTokens)) score += 20
-        if (preferredTypes.contains(entity.type)) score += 10
+
+        if (preferredTypes.isNotEmpty()) {
+            if (preferredTypes.contains(entity.type)) {
+                score += 24
+            } else if (entity.type in GENERIC_LOCATION_TYPES) {
+                score -= 8
+            }
+        }
 
         if (asksStateFact && entity.name.equals("Jharkhand", ignoreCase = true)) {
             score += 30
         }
 
-        if (queryTokens.contains("deoghar") &&
-            (description.contains("deoghar") || aliases.contains("deoghar") || name.contains("deoghar"))
-        ) {
-            score += 12
-        }
+        if (locationTokens.isNotEmpty()) {
+            val directLocationMatch = locationTokens.any { token ->
+                token in nameTokens || token in descriptionTokens || token in aliasTokens
+            }
+            val relationshipLocationMatch = locationTokens.any(relationshipLocations::contains)
 
-        if (queryTokens.contains("ranchi") &&
-            (description.contains("ranchi") || aliases.contains("ranchi") || name.contains("ranchi"))
-        ) {
-            score += 12
+            if (directLocationMatch || relationshipLocationMatch) {
+                score += if (preferredTypes.contains(entity.type)) 24 else 10
+            }
         }
 
         return score
     }
+
+    private fun relationshipLocationTokens(entity: KnowledgeEntityRow): Set<String> =
+        dao.relationshipsFromEntity(entity.id)
+            .asSequence()
+            .filter { relationship ->
+                relationship.predicate == "LOCATED_IN_DISTRICT" ||
+                    relationship.predicate == "SUBDIVISION_OF" ||
+                    relationship.predicate == "PART_OF_JHARKHAND"
+            }
+            .mapNotNull { relationship -> dao.getEntity(relationship.toEntityId) }
+            .flatMap { target -> meaningfulTokens(normalizeText(target.name)).asSequence() }
+            .toSet()
+
+    private fun findLocationTokens(
+        queryTokens: Set<String>,
+        entities: List<KnowledgeEntityRow>,
+    ): Set<String> {
+        val knownLocations = entities
+            .asSequence()
+            .filter { it.type in GENERIC_LOCATION_TYPES }
+            .flatMap { entity -> meaningfulTokens(normalizeText(entity.name)).asSequence() }
+            .toSet()
+        return queryTokens.intersect(knownLocations)
+    }
+
+    private fun rankFacts(
+        facts: List<SourceFactRow>,
+        normalizedQuery: String,
+        queryTokens: Set<String>,
+    ): List<OfflineKnowledgeFact> {
+        val ranked = facts
+            .map { fact ->
+                val fieldText = normalizeText(splitFieldName(fact.field))
+                val valueText = normalizeText(
+                    listOfNotNull(
+                        fact.textValue,
+                        fact.numberValue?.toString(),
+                        fact.booleanValue?.toString(),
+                    ).joinToString(" "),
+                )
+                val fieldTokens = meaningfulTokens(fieldText)
+                val valueTokens = meaningfulTokens(valueText)
+                var score = queryTokens.intersect(fieldTokens).size * 12
+                score += queryTokens.intersect(valueTokens).size * 3
+                score += semanticFactBoost(normalizedQuery, fieldText)
+                fact to score
+            }
+            .sortedByDescending { (_, score) -> score }
+
+        val relevant = ranked.filter { (_, score) -> score > 0 }
+        val selected = if (relevant.isNotEmpty()) relevant else ranked.take(3)
+        return selected.take(5).map { (fact, _) -> toHitFact(fact) }
+    }
+
+    private fun semanticFactBoost(query: String, field: String): Int = when {
+        containsAny(query, "state animal") && field.contains("state animal") -> 40
+        containsAny(query, "state bird") && field.contains("state bird") -> 40
+        containsAny(query, "state tree") && field.contains("state tree") -> 40
+        containsAny(query, "state flower") && field.contains("state flower") -> 40
+        containsAny(query, "district", "districts") && field.contains("district") -> 24
+        containsAny(query, "division", "divisions") && field.contains("division") -> 24
+        containsAny(query, "language", "languages") && field.contains("language") -> 24
+        else -> 0
+    }
+
+    private fun asksStateFact(query: String): Boolean =
+        containsAny(query, "state animal", "state bird", "state tree", "state flower")
+
+    private fun splitFieldName(value: String): String = value
+        .replace(Regex("([a-z0-9])([A-Z])"), "$1 $2")
+        .replace('_', ' ')
 
     private fun preferredTypes(query: String): Set<String> = buildSet {
         if (containsAny(query, "rugra", "food", "dish", "cuisine", "khana")) add("FOOD")
@@ -140,6 +221,8 @@ class OfflineKnowledgeRetriever(
     )
 
     companion object {
+        private val GENERIC_LOCATION_TYPES = setOf("CITY", "TOWN", "DISTRICT", "REGION", "PLACE")
+
         private val STOP_WORDS = setOf(
             "what", "is", "are", "the", "a", "an", "of", "in", "near", "nearby",
             "me", "tell", "about", "ka", "ki", "ke", "kya", "hai", "mein", "me",
