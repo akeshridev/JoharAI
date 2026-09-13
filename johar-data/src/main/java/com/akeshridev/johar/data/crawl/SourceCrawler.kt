@@ -69,7 +69,7 @@ internal class SourceCrawler(
     /**
      * Overpass is excellent for targeted/local enrichment, but broad statewide scans such as all
      * villages or rivers can time out on public instances. Let Wikidata/MediaWiki discover those
-     * broad entities; OSM will resolve/enrich each discovered entity later by name/ID/coordinates.
+     * broad entities; OSM can still contribute bounded keyword discovery and focused enrichment.
      */
     private fun shouldSkipDiscovery(adapterId: String, keyword: CrawlKeyword): Boolean {
         if (adapterId != OPENSTREETMAP_ADAPTER_ID) return false
@@ -116,7 +116,7 @@ internal class SourceCrawler(
         private const val BOOTSTRAP_SOURCE = "bootstrap"
         private const val OPENSTREETMAP_ADAPTER_ID = "openstreetmap"
         private const val MAX_ENTITIES_PER_RUN = 6
-        private const val MAX_KEYWORDS_PER_RUN = 6
+        private const val MAX_KEYWORDS_PER_RUN = 3
         private const val MAX_DISCOVERY_DEPTH = 2
         private const val ENTITY_STALE_MILLIS = 24L * 60L * 60L * 1_000L
         private const val KEYWORD_STALE_MILLIS = 30L * 24L * 60L * 60L * 1_000L
