@@ -3,6 +3,7 @@ package com.akeshridev.johar.data.crawl
 import android.util.Log
 import com.akeshridev.johar.data.source.CrawlSourceAdapter
 import com.akeshridev.johar.data.source.KeywordDiscoveryAdapter
+import com.akeshridev.johar.domain.crawl.CrawlKeyword
 import com.akeshridev.johar.domain.crawl.CrawlSeed
 import com.akeshridev.johar.domain.crawl.CrawlTarget
 
@@ -46,6 +47,7 @@ internal class SourceCrawler(
             var successes = 0
             discoveryAdapters.forEach { adapter ->
                 if (!adapter.supports(keyword)) return@forEach
+                if (shouldSkipDiscovery(adapter.id, keyword)) return@forEach
                 supported = true
                 runCatching { adapter.discover(keyword) }
                     .onSuccess { result ->
@@ -62,6 +64,17 @@ internal class SourceCrawler(
                 else -> store.markKeywordFailed(keyword.id)
             }
         }
+    }
+
+    /**
+     * Overpass is excellent for targeted/local enrichment, but broad statewide scans such as all
+     * villages or rivers can time out on public instances. Let Wikidata/MediaWiki discover those
+     * broad entities; OSM will resolve/enrich each discovered entity later by name/ID/coordinates.
+     */
+    private fun shouldSkipDiscovery(adapterId: String, keyword: CrawlKeyword): Boolean {
+        if (adapterId != OPENSTREETMAP_ADAPTER_ID) return false
+        val term = normalizeText(keyword.term)
+        return BROAD_OSM_TERMS.any(term::contains)
     }
 
     private fun crawlPendingEntities(excludingEntityId: String?) {
@@ -101,10 +114,18 @@ internal class SourceCrawler(
     companion object {
         private const val TAG = "JoharCrawl"
         private const val BOOTSTRAP_SOURCE = "bootstrap"
+        private const val OPENSTREETMAP_ADAPTER_ID = "openstreetmap"
         private const val MAX_ENTITIES_PER_RUN = 6
         private const val MAX_KEYWORDS_PER_RUN = 6
         private const val MAX_DISCOVERY_DEPTH = 2
         private const val ENTITY_STALE_MILLIS = 24L * 60L * 60L * 1_000L
         private const val KEYWORD_STALE_MILLIS = 30L * 24L * 60L * 60L * 1_000L
+
+        private val BROAD_OSM_TERMS = listOf(
+            "places in jharkhand",
+            "picnic spots in jharkhand",
+            "villages in jharkhand",
+            "rivers in jharkhand",
+        )
     }
 }
