@@ -24,6 +24,7 @@ internal class KnowledgeStore(
         val entityId = existingByName?.id
             ?: seed.entityId
             ?: stableId("entity", normalizeText(seed.name), seed.region, seed.country)
+        val existingRefs = existingByName?.toCrawlSeed()?.externalRefs.orEmpty()
 
         val entity = KnowledgeEntity(
             id = entityId,
@@ -37,7 +38,7 @@ internal class KnowledgeStore(
             region = seed.region,
             country = seed.country,
             aliases = emptyList(),
-            externalRefs = seed.externalRefs,
+            externalRefs = existingRefs + seed.externalRefs,
         )
         val now = System.currentTimeMillis()
         knowledgeDao.upsertEntity(
@@ -53,11 +54,11 @@ internal class KnowledgeStore(
             entityType = entity.type,
             latitude = entity.latitude,
             longitude = entity.longitude,
-            externalRefs = existingByName?.externalRefsJson
-                ?.let { knowledgeDao.getEntity(entityId)?.toCrawlSeed()?.externalRefs }
-                .orEmpty() + seed.externalRefs,
+            externalRefs = entity.externalRefs,
         )
     }
+
+    fun seed(entityId: String): CrawlSeed? = knowledgeDao.getEntity(entityId)?.toCrawlSeed()
 
     fun insertKeywords(keywords: List<CrawlKeyword>) {
         if (keywords.isNotEmpty()) knowledgeDao.insertKeywords(keywords.map { it.toRow() })
@@ -120,6 +121,10 @@ internal class KnowledgeStore(
     ) {
         val ownerEntityId = keyword.entityId ?: "global:johar"
         val now = System.currentTimeMillis()
+        val parentDepth = keyword.entityId
+            ?.let(knowledgeDao::getEntity)
+            ?.discoveryDepth
+            ?: 0
         persistSnapshot(ownerEntityId, result.sourceUrl, result.publisher, result.rawContent, now)
 
         result.entities.forEach { entity ->
@@ -127,7 +132,7 @@ internal class KnowledgeStore(
             knowledgeDao.upsertEntity(
                 entity.toRow(
                     nowEpochMillis = now,
-                    discoveryDepth = (existing?.discoveryDepth ?: 0) + 1,
+                    discoveryDepth = minOf(existing?.discoveryDepth ?: parentDepth + 1, parentDepth + 1),
                     existing = existing,
                 ),
             )
