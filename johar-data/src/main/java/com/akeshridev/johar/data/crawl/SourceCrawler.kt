@@ -35,6 +35,13 @@ internal class SourceCrawler(
     private fun crawlPendingKeywords() {
         val staleBefore = System.currentTimeMillis() - KEYWORD_STALE_MILLIS
         store.nextKeywordsToCrawl(staleBefore, MAX_KEYWORDS_PER_RUN).forEach { keyword ->
+            // Entity names/aliases are retained as discovered vocabulary, but the entity queue already
+            // resolves them across every source. Re-searching those terms here creates duplicate entities.
+            if (keyword.discoveredFrom != BOOTSTRAP_SOURCE) {
+                store.markKeywordCrawled(keyword.id)
+                return@forEach
+            }
+
             var supported = false
             var successes = 0
             discoveryAdapters.forEach { adapter ->
@@ -93,6 +100,7 @@ internal class SourceCrawler(
 
     companion object {
         private const val TAG = "JoharCrawl"
+        private const val BOOTSTRAP_SOURCE = "bootstrap"
         private const val MAX_ENTITIES_PER_RUN = 6
         private const val MAX_KEYWORDS_PER_RUN = 6
         private const val MAX_DISCOVERY_DEPTH = 2
