@@ -29,9 +29,11 @@ class WorkManagerSourceCrawlScheduler(
             .setInputData(inputData(target))
             .build()
 
+        // Do not cancel a crawl already in progress when the developer/user taps again.
+        // The crawler persists its queue in Room, so the next periodic/manual run can resume.
         workManager.enqueueUniqueWork(
             "johar-source-crawl-${target.name}",
-            ExistingWorkPolicy.REPLACE,
+            ExistingWorkPolicy.KEEP,
             immediateRequest,
         )
 
