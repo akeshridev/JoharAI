@@ -12,6 +12,9 @@ internal object JoharDatabaseProvider {
             context.applicationContext,
             JoharDatabase::class.java,
             "johar.db",
-        ).build().also { instance = it }
+        )
+            .addMigrations(JoharMigrations.MIGRATION_1_2)
+            .build()
+            .also { instance = it }
     }
 }
