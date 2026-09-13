@@ -31,7 +31,9 @@ Knowledge domains:
 9. Geography
 
 ## Current model goal
-Design a local knowledge database that can later be packed with source-backed Dassam Falls data and iterated without changing the core model.
+Design a generic local knowledge database that can later be packed with source-backed data for any canonical entity, starting with Dassam Falls.
+
+The model must support exhaustive category coverage without hardcoding place-specific fields or URLs. Each knowledge domain should be able to hold all discovered source-backed facts relevant to that category while remaining extensible as new fields appear.
 
 The model must separate:
 - canonical entities
@@ -40,10 +42,30 @@ The model must separate:
 - provenance/evidence
 - relationships between entities
 - media assets/references
+- category/field definitions used to organize knowledge
 - future canonical/resolved facts
 - future derived recommendations
 
 Do not collapse these into one giant Dassam record.
+
+## Discovery direction
+Entity-specific URLs/IDs should not be hardcoded into the knowledge model. Eventual discovery starts from a canonical entity request (name, aliases, region/country) and source adapters resolve dynamic IDs/URLs from open sources. Source adapters/endpoints may be configured; place-specific data is discovered.
+
+## Category completeness
+For every canonical entity, the packed knowledge DB should be able to represent all discovered data across every applicable knowledge domain, not a fixed minimal subset.
+
+Examples include:
+- Tourism: description, highlights, best time, suggested duration, attractions, activities.
+- Family & Accessibility: walking effort, stairs, wheelchair access, elderly/kid suitability, rest areas.
+- Safety & Emergency: hazards, restrictions, emergency contacts, nearby medical/police entities.
+- History & Culture: origin, historical claims, local names/stories, cultural significance.
+- Food: dishes, vendors/restaurants, nearby food entities, availability.
+- Travel & Logistics: routes, distances, transport, parking, entry fee, hours.
+- Weather & Season: seasonal behavior, monsoon/heat/fog context, water-flow context.
+- Facilities: toilets, water, shops, changing areas, connectivity, rest areas.
+- Geography: coordinates, administrative areas, rivers, terrain, elevation/height, nearby entities.
+
+The field model must remain extensible so newly discovered source-backed attributes can be added without redesigning the whole database.
 
 ## Media direction
 Media references may be captured in the packed knowledge model whenever available, even while runtime ingestion is frozen.
@@ -59,7 +81,7 @@ Store references and metadata, not binary image/video payloads, at this stage. P
 ## Module router
 
 ### `johar-domain`
-Primary active module. Pure Kotlin/JVM knowledge model and domain rules. Owns entity/fact/provenance/relationship/media concepts and storage-independent contracts. No Android, UI, network, parser, Room, WorkManager, or LLM implementation. Read `johar-domain/AGENTS.md` before changing it.
+Primary active module. Pure Kotlin/JVM knowledge model and domain rules. Owns entity/fact/provenance/relationship/media/category concepts and storage-independent contracts. No Android, UI, network, parser, Room, WorkManager, or LLM implementation. Read `johar-domain/AGENTS.md` before changing it.
 
 ### `johar-data`
 Currently frozen except when needed to validate the model against Room constraints later. Existing crawler/Room code is a harness, not the design authority. The domain model drives persistence shape, not the reverse.
