@@ -14,41 +14,36 @@ internal object DiscoveryQualityGate {
     ): Boolean {
         val title = normalizeText(name)
         val descriptionText = normalizeText(description.orEmpty())
+        val text = "$title $descriptionText"
         if (title.isBlank()) return false
         if (looksLikeUnresolvedSourceId(name)) return false
-        if (isGenericOrNonEntityTitle(title)) return false
+        if (isObviousJunk(title)) return false
+        if (!hasJharkhandEvidence(title, descriptionText)) return false
 
-        val categorySupported = when (keyword.category) {
+        return when (keyword.category) {
             DiscoveryCategory.FOOD ->
-                inferredType == EntityType.FOOD && FOOD_TERMS.any(title::contains)
+                inferredType == EntityType.FOOD || FOOD_TERMS.any(text::contains)
             DiscoveryCategory.FESTIVALS ->
-                inferredType == EntityType.FESTIVAL && FESTIVAL_TERMS.any(title::contains)
+                inferredType == EntityType.FESTIVAL || FESTIVAL_TERMS.any(text::contains)
             DiscoveryCategory.CULTURE ->
-                inferredType == EntityType.CULTURAL_PRACTICE && CULTURE_TERMS.any(title::contains)
+                inferredType == EntityType.CULTURAL_PRACTICE || CULTURE_TERMS.any(text::contains)
             DiscoveryCategory.EMERGENCY ->
-                inferredType in EMERGENCY_TYPES && EMERGENCY_TERMS.any(title::contains)
+                inferredType in EMERGENCY_TYPES || EMERGENCY_TERMS.any(text::contains)
             DiscoveryCategory.LOCAL_BAZAR ->
-                inferredType in MARKET_TYPES && MARKET_TERMS.any(title::contains)
+                inferredType in MARKET_TYPES || MARKET_TERMS.any(text::contains)
             DiscoveryCategory.PLACES ->
-                inferredType in PLACE_TYPES && isPlaceLike(title, descriptionText)
+                inferredType in PLACE_TYPES || PLACE_TERMS.any(text::contains)
             DiscoveryCategory.WEATHER -> false
         }
-        if (!categorySupported) return false
-
-        return hasJharkhandEvidence(title, descriptionText)
     }
 
     fun looksLikeUnresolvedSourceId(name: String): Boolean =
         WIKIDATA_ID.matches(name.trim())
 
-    private fun isGenericOrNonEntityTitle(title: String): Boolean =
+    private fun isObviousJunk(title: String): Boolean =
         GENERIC_TITLE_PREFIXES.any(title::startsWith) ||
-            NON_V1_TITLE_TERMS.any(title::contains)
-
-    private fun isPlaceLike(title: String, description: String): Boolean =
-        JHARKHAND_LOCALITY_TERMS.any(title::contains) ||
-            PLACE_TITLE_TERMS.any(title::contains) ||
-            PLACE_DESCRIPTION_PATTERNS.any(description::contains)
+            NON_V1_TITLE_TERMS.any(title::contains) ||
+            OUTSIDE_REGION_TITLES.any { title == it }
 
     private fun hasJharkhandEvidence(title: String, description: String): Boolean {
         if ("jharkhand" in title) return true
@@ -89,7 +84,6 @@ internal object DiscoveryQualityGate {
         "of jharkhand",
         "jharkhand india",
         "jharkhand state",
-        "jharkhand district",
         "located in jharkhand",
         "situated in jharkhand",
     )
@@ -101,8 +95,8 @@ internal object DiscoveryQualityGate {
         "festival", "fair", "mela", "puja", "utsav", "sarhul", "sohrai", "karam",
     )
     private val CULTURE_TERMS = listOf(
-        "culture", "dance", "music", "language", "tribe", "tribal", "folk", "art", "craft", "painting",
-        "tradition", "ritual",
+        "culture", "cultural", "dance", "music", "language", "tribe", "tribal", "people", "folk", "art",
+        "craft", "painting", "tradition", "ritual",
     )
     private val EMERGENCY_TERMS = listOf(
         "hospital", "clinic", "police", "ambulance", "fire station", "emergency",
@@ -110,37 +104,30 @@ internal object DiscoveryQualityGate {
     private val MARKET_TERMS = listOf(
         "market", "bazar", "bazaar", "haat", "mandi", "shop",
     )
-    private val PLACE_TITLE_TERMS = listOf(
-        "waterfall", "falls", "national park", "wildlife sanctuary", "forest reserve", "dam", "hill", "lake",
-        "temple", "village", "town", "city", "district", "river", "railway station", "airport",
-    )
-    private val PLACE_DESCRIPTION_PATTERNS = listOf(
-        "is a city in ",
-        "is a town in ",
-        "is a village in ",
-        "is a census town in ",
-        "is a hill station in ",
-        "is a waterfall in ",
-        "is a river in ",
-        "is a lake in ",
-        "is a dam in ",
-        "is a temple in ",
-        "is a national park in ",
-        "is a wildlife sanctuary in ",
+    private val PLACE_TERMS = listOf(
+        "waterfall", "falls", "park", "sanctuary", "dam", "hill", "lake", "temple", "village", "town", "city",
+        "district", "river", "station", "airport",
     )
 
     private val GENERIC_TITLE_PREFIXES = listOf(
         "list of ",
         "outline of ",
-        "tourism in ",
     )
 
     private val NON_V1_TITLE_TERMS = listOf(
         "legislative assembly",
         " assembly election",
         " election",
-        "government of ",
         "cricket team",
+    )
+
+    private val OUTSIDE_REGION_TITLES = setOf(
+        "bihar",
+        "eastern india",
+        "east india",
+        "kolkata",
+        "kolkata/east",
+        "keonjhar",
     )
 
     private val WIKIDATA_ID = Regex("^Q\\d+$", RegexOption.IGNORE_CASE)
