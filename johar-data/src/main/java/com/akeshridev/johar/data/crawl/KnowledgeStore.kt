@@ -97,22 +97,32 @@ internal class KnowledgeStore(
             )
         }
 
-        result.discoveredEntities.forEach { entity ->
-            val existing = knowledgeDao.getEntity(entity.id)
-            knowledgeDao.upsertEntity(
-                entity.toRow(
-                    nowEpochMillis = now,
-                    discoveryDepth = seed.depth + 1,
-                    existing = existing,
-                ),
-            )
-            insertKeywords(CrawlBootstrap.keywordsFor(entity))
+        val canonicalIds = mutableMapOf<String, String>()
+        result.discoveredEntities.forEach { discovered ->
+            canonicalIds[discovered.id] = upsertDiscoveredEntity(discovered, seed.depth + 1, now)
         }
 
-        replaceFacts(result)
-        replaceRelationships(result)
-        replaceMedia(result)
-        insertKeywords(result.discoveredKeywords)
+        val facts = result.facts.map { fact ->
+            canonicalIds[fact.entityId]?.let { fact.copy(entityId = it) } ?: fact
+        }
+        val relationships = result.relationships.map { relationship ->
+            relationship.copy(
+                fromEntityId = canonicalIds[relationship.fromEntityId] ?: relationship.fromEntityId,
+                toEntityId = canonicalIds[relationship.toEntityId] ?: relationship.toEntityId,
+            )
+        }
+        val media = result.media.map { asset ->
+            canonicalIds[asset.entityId]?.let { asset.copy(entityId = it) } ?: asset
+        }
+        val keywords = result.discoveredKeywords.map { keyword ->
+            val remappedId = keyword.entityId?.let(canonicalIds::get)
+            if (remappedId != null) keyword.copy(entityId = remappedId) else keyword
+        }
+
+        replaceFacts(ownerEntityId, result.sourceUrl, facts)
+        replaceRelationships(ownerEntityId, result.sourceUrl, relationships)
+        replaceMedia(ownerEntityId, result.sourceUrl, media)
+        insertKeywords(keywords)
     }
 
     fun persistDiscovery(
@@ -127,16 +137,8 @@ internal class KnowledgeStore(
             ?: 0
         persistSnapshot(ownerEntityId, result.sourceUrl, result.publisher, result.rawContent, now)
 
-        result.entities.forEach { entity ->
-            val existing = knowledgeDao.getEntity(entity.id)
-            knowledgeDao.upsertEntity(
-                entity.toRow(
-                    nowEpochMillis = now,
-                    discoveryDepth = minOf(existing?.discoveryDepth ?: parentDepth + 1, parentDepth + 1),
-                    existing = existing,
-                ),
-            )
-            insertKeywords(CrawlBootstrap.keywordsFor(entity))
+        result.entities.forEach { discovered ->
+            upsertDiscoveredEntity(discovered, parentDepth + 1, now)
         }
         insertKeywords(result.keywords)
     }
@@ -165,24 +167,64 @@ internal class KnowledgeStore(
         enabledKeywords = knowledgeDao.enabledKeywordCount(),
     )
 
-    private fun replaceFacts(result: SourceResult) {
-        val rows = result.facts.map { it.toRow() }
-        rows.groupBy { it.entityId to it.sourceUrl }
-            .forEach { (key, _) -> knowledgeDao.deleteFactsForSource(key.first, key.second) }
+    private fun upsertDiscoveredEntity(
+        discovered: KnowledgeEntity,
+        discoveryDepth: Int,
+        nowEpochMillis: Long,
+    ): String {
+        val existing = knowledgeDao.findEntity(normalizeText(discovered.name), discovered.region)
+            ?: knowledgeDao.getEntity(discovered.id)
+        val canonicalId = existing?.id ?: stableId(
+            "entity",
+            normalizeText(discovered.name),
+            discovered.region,
+            discovered.country,
+        )
+        val canonical = discovered.copy(id = canonicalId)
+        knowledgeDao.upsertEntity(
+            canonical.toRow(
+                nowEpochMillis = nowEpochMillis,
+                discoveryDepth = discoveryDepth,
+                existing = existing,
+            ),
+        )
+        insertKeywords(CrawlBootstrap.keywordsFor(canonical))
+        return canonicalId
+    }
+
+    private fun replaceFacts(
+        ownerEntityId: String,
+        resultSourceUrl: String,
+        facts: List<com.akeshridev.johar.domain.source.SourceFact>,
+    ) {
+        val rows = facts.map { it.toRow() }
+        val scopes = rows.mapTo(linkedSetOf()) { it.entityId to it.sourceUrl }
+        scopes += ownerEntityId to resultSourceUrl
+        scopes.forEach { (entityId, sourceUrl) -> knowledgeDao.deleteFactsForSource(entityId, sourceUrl) }
         if (rows.isNotEmpty()) knowledgeDao.upsertFacts(rows)
     }
 
-    private fun replaceRelationships(result: SourceResult) {
-        val rows = result.relationships.map { it.toRow() }
-        rows.groupBy { it.fromEntityId to it.sourceUrl }
-            .forEach { (key, _) -> knowledgeDao.deleteRelationshipsForSource(key.first, key.second) }
+    private fun replaceRelationships(
+        ownerEntityId: String,
+        resultSourceUrl: String,
+        relationships: List<com.akeshridev.johar.domain.entity.EntityRelationship>,
+    ) {
+        val rows = relationships.map { it.toRow() }
+        val scopes = rows.mapTo(linkedSetOf()) { it.fromEntityId to it.sourceUrl }
+        scopes += ownerEntityId to resultSourceUrl
+        scopes.forEach { (entityId, sourceUrl) -> knowledgeDao.deleteRelationshipsForSource(entityId, sourceUrl) }
         if (rows.isNotEmpty()) knowledgeDao.upsertRelationships(rows)
     }
 
-    private fun replaceMedia(result: SourceResult) {
-        val rows = result.media.map { it.toRow() }
-        rows.groupBy { it.entityId to it.sourceUrl }
-            .forEach { (key, _) -> knowledgeDao.deleteMediaForSource(key.first, key.second) }
+    private fun replaceMedia(
+        ownerEntityId: String,
+        resultSourceUrl: String,
+        media: List<com.akeshridev.johar.domain.media.MediaAsset>,
+    ) {
+        val rows = media.map { it.toRow() }
+        val scopes = rows.mapTo(linkedSetOf()) { it.entityId to it.sourceUrl }
+        scopes += ownerEntityId to resultSourceUrl
+        scopes.forEach { (entityId, sourceUrl) -> knowledgeDao.deleteMediaForSource(entityId, sourceUrl) }
         if (rows.isNotEmpty()) knowledgeDao.upsertMedia(rows)
     }
 
