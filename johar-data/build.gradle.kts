@@ -26,4 +26,6 @@ dependencies {
 
     implementation("androidx.work:work-runtime:2.11.2")
     implementation("org.jsoup:jsoup:1.23.2")
+
+    testImplementation(kotlin("test"))
 }
