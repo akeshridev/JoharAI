@@ -1,9 +1,24 @@
 # Johar AI Agent Context
 
 ## Product
-Johar AI is an offline-first Android companion for discovering Jharkhand through trusted local knowledge. V0 is intentionally limited to Dassam Falls.
+Johar AI is an offline-first Android companion for discovering and understanding Jharkhand through trusted local knowledge.
 
 Johar should feel like a micro-ChatGPT whose world is Jharkhand.
+
+## Core product principle
+Johar must be useful to people across Jharkhand, including users who prefer speaking over typing, have limited digital literacy, read slowly, use mixed/local language, or have unreliable connectivity.
+
+Design data and presentation around these needs:
+- natural spoken questions should work as well as typed questions;
+- answers should use simple, direct language before detail;
+- support Hindi/Hinglish and local-language vocabulary/aliases as the knowledge base grows;
+- prefer short actionable answers, icons, cards, images, audio/voice, and clear choices over dense paragraphs;
+- preserve local names and colloquial terms so users do not need formal spelling or terminology;
+- offline/local knowledge should remain useful under poor connectivity;
+- trust must be visible through source/evidence cues without forcing users to understand technical provenance;
+- follow-up questions should feel conversational, not like navigating a database.
+
+The product should reduce the amount of reading, typing, navigation, and technical knowledge required to get a useful answer.
 
 ## V1 scope — DATA + PRESENTATION ONLY
 For V1, focus only on:
@@ -41,9 +56,9 @@ Current implementation work should prioritize the knowledge model and packed/loc
 The existing crawl/Room thin slice may remain as a test harness. Expand runtime pieces only when they directly serve V1 data collection, refresh, storage, retrieval, or presentation.
 
 ## Current V0 boundary
-Johar should model only knowledge that helps a person decide whether to visit Dassam Falls, reach it, experience it, understand it, stay safe, and return.
+Dassam Falls is the first validation entity, not a special-case product boundary.
 
-Knowledge domains:
+Knowledge domains currently include:
 1. Tourism
 2. Family & Accessibility
 3. Safety & Emergency
@@ -53,6 +68,8 @@ Knowledge domains:
 7. Weather & Season Context
 8. Facilities
 9. Geography
+
+The model must be able to grow to other Jharkhand entity types such as foods, festivals, places, rivers, villages, institutions, and other useful local knowledge without redesigning the core schema.
 
 ## Current model goal
 Design a generic local knowledge database that can later be packed with source-backed data for any canonical entity, starting with Dassam Falls.
