@@ -187,4 +187,13 @@ interface KnowledgeDao {
         """,
     )
     fun entityCountsByType(): List<EntityTypeCountRow>
+
+    @Query(
+        """
+        SELECT * FROM knowledge_entities
+        WHERE enabled = 1
+        ORDER BY type ASC, name ASC
+        """,
+    )
+    fun allEnabledEntities(): List<KnowledgeEntityRow>
 }
