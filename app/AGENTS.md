@@ -3,21 +3,20 @@
 Read root `AGENTS.md` first.
 
 ## Scope
-Thin Android developer harness and composition root.
+Thin Android developer harness and composition root today; eventual V1 product remains one conversational screen.
 
 ## Product UI direction
-When product UI work is eventually unfrozen, Johar remains a single-screen conversational app.
-
-Do not introduce tabs, drawers, browse pages, category pages, entity detail screens, or a navigation stack unless the product direction explicitly changes.
+Do not introduce tabs, drawers, browse pages, category pages, entity detail screens, or a navigation stack unless product direction explicitly changes.
 
 The one chat surface may render rich answer components inline, such as entity cards, fact cards, media previews, source/evidence chips, safety warnings, and suggested follow-up prompts.
 
 ## Current rules
-- Product UI implementation is still frozen. Keep only the existing developer harness until explicitly changed.
+- Product presentation work is not part of the crawler implementation step. Keep the developer harness minimal.
+- The current button triggers the statewide Jharkhand crawl through the domain scheduler; it does not contain crawler logic itself.
 - `MainViewModel` consumes `johar-domain` use cases/contracts only.
 - `johar-data` imports are allowed only under `com.akeshridev.johar.di` for manual dependency wiring.
-- Do not put crawling, Jsoup, Room, WorkManager, or source URLs in Activity/Compose/ViewModel code.
-- No navigation architecture is needed for the current harness or the planned single-screen product.
+- Do not put crawling, HTTP, Room, WorkManager, source URLs, or source IDs in Activity/Compose/ViewModel code.
+- No navigation architecture is needed.
 
 ## Current flow
-`MainActivity` -> `MainViewModel` -> `ScheduleSourceCrawlUseCase` -> domain scheduler contract.
+`MainActivity` -> `MainViewModel` -> `ScheduleSourceCrawlUseCase` -> `SourceCrawlScheduler` -> data WorkManager implementation.
