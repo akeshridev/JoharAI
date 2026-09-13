@@ -4,12 +4,18 @@ import android.content.Context
 import android.util.Log
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.akeshridev.johar.data.crawl.CrawledSourceLogDumper
+import com.akeshridev.johar.data.crawl.KnowledgeStore
 import com.akeshridev.johar.data.crawl.SourceCrawler
 import com.akeshridev.johar.data.local.JoharDatabaseProvider
-import com.akeshridev.johar.data.parser.HtmlTextCleaner
-import com.akeshridev.johar.data.remote.JsoupHtmlSourceFetcher
+import com.akeshridev.johar.data.remote.JsoupHttpTextFetcher
+import com.akeshridev.johar.data.source.CommonsMediaSourceAdapter
+import com.akeshridev.johar.data.source.MediaWikiTextSourceAdapter
+import com.akeshridev.johar.data.source.OpenMeteoSourceAdapter
+import com.akeshridev.johar.data.source.OverpassSourceAdapter
+import com.akeshridev.johar.data.source.WikidataSourceAdapter
 import com.akeshridev.johar.domain.crawl.CrawlTarget
+import com.akeshridev.johar.domain.crawl.DiscoveryCategory
+import com.akeshridev.johar.domain.source.KnowledgeDomain
 
 class SourceCrawlWorker(
     appContext: Context,
@@ -22,13 +28,68 @@ class SourceCrawlWorker(
             ?: return Result.failure()
 
         return try {
-            val dao = JoharDatabaseProvider.get(applicationContext).crawledSourceDao()
-            SourceCrawler(
-                fetcher = JsoupHtmlSourceFetcher(),
-                cleaner = HtmlTextCleaner(),
-                dao = dao,
-                logDumper = CrawledSourceLogDumper(dao),
+            val database = JoharDatabaseProvider.get(applicationContext)
+            val fetcher = JsoupHttpTextFetcher()
+            val wikidata = WikidataSourceAdapter(fetcher)
+            val overpass = OverpassSourceAdapter(fetcher)
+            val wikipedia = MediaWikiTextSourceAdapter(
+                id = "wikipedia",
+                host = "en.wikipedia.org",
+                publisher = "Wikipedia",
+                defaultDomain = KnowledgeDomain.HISTORY_CULTURE,
+                referenceKey = "wikipedia_pageid",
+                discoveryCategories = setOf(
+                    DiscoveryCategory.PLACES,
+                    DiscoveryCategory.FOOD,
+                    DiscoveryCategory.FESTIVALS,
+                    DiscoveryCategory.CULTURE,
+                    DiscoveryCategory.LOCAL_BAZAR,
+                ),
+                fetcher = fetcher,
+            )
+            val wikivoyage = MediaWikiTextSourceAdapter(
+                id = "wikivoyage",
+                host = "en.wikivoyage.org",
+                publisher = "Wikivoyage",
+                defaultDomain = KnowledgeDomain.TRAVEL_LOGISTICS,
+                referenceKey = "wikivoyage_pageid",
+                discoveryCategories = setOf(
+                    DiscoveryCategory.PLACES,
+                    DiscoveryCategory.FOOD,
+                ),
+                fetcher = fetcher,
+            )
+            val commons = CommonsMediaSourceAdapter(fetcher)
+            val weather = OpenMeteoSourceAdapter(fetcher)
+            val store = KnowledgeStore(
+                knowledgeDao = database.knowledgeDao(),
+                sourceDao = database.crawledSourceDao(),
+            )
+
+            val stats = SourceCrawler(
+                store = store,
+                sourceAdapters = listOf(
+                    wikidata,
+                    overpass,
+                    wikipedia,
+                    wikivoyage,
+                    commons,
+                    weather,
+                ),
+                discoveryAdapters = listOf(
+                    overpass,
+                    wikidata,
+                    wikipedia,
+                    wikivoyage,
+                ),
             ).crawl(target)
+
+            Log.i(
+                TAG,
+                "Worker success: entities=${stats.entities}, facts=${stats.facts}, " +
+                    "relationships=${stats.relationships}, media=${stats.media}, " +
+                    "keywords=${stats.enabledKeywords}",
+            )
             Result.success()
         } catch (error: Exception) {
             Log.e(TAG, "Crawl failed for $target on attempt $runAttemptCount", error)
