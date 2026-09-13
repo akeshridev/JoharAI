@@ -1,10 +1,13 @@
 package com.akeshridev.johar
 
+import android.os.SystemClock
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.akeshridev.johar.data.retrieval.DeterministicJoharAnswerGenerator
+import com.akeshridev.johar.data.retrieval.LiteRtLmAnswerSynthesizer
+import com.akeshridev.johar.data.retrieval.LocalModelStore
 import com.akeshridev.johar.data.retrieval.OfflineKnowledgeRetriever
 import com.akeshridev.johar.data.retrieval.OfflineRagContextBuilder
 import com.akeshridev.johar.domain.crawl.ScheduleSourceCrawlUseCase
@@ -16,6 +19,7 @@ class MainViewModel(
     private val scheduleSourceCrawl: ScheduleSourceCrawlUseCase,
     private val offlineKnowledgeRetriever: OfflineKnowledgeRetriever,
     private val offlineRetrievalEvaluator: OfflineRetrievalEvaluator,
+    private val localModelStore: LocalModelStore,
 ) : ViewModel() {
 
     private val ragContextBuilder = OfflineRagContextBuilder(offlineKnowledgeRetriever)
@@ -58,6 +62,50 @@ class MainViewModel(
         }
     }
 
+    fun testOnDeviceLlm() {
+        viewModelScope.launch(Dispatchers.IO) {
+            localModelStore.ensureDirectory()
+            val status = localModelStore.status()
+            if (!status.isAvailable) {
+                Log.w(
+                    LLM_TAG,
+                    "MODEL_MISSING expectedPath=${status.path} " +
+                        "Place a compatible .litertlm model there, then run this test again.",
+                )
+                return@launch
+            }
+
+            val query = LLM_TEST_QUERY
+            val context = ragContextBuilder.build(query)
+            Log.i(
+                LLM_TAG,
+                "MODEL_READY path=${status.path} sizeBytes=${status.sizeBytes} " +
+                    "query=\"$query\" evidence=${context.hits.map { it.name }}",
+            )
+
+            val synthesizer = LiteRtLmAnswerSynthesizer(status.path)
+            val startedAt = SystemClock.elapsedRealtime()
+            try {
+                val answer = synthesizer.synthesize(context)
+                val latencyMs = SystemClock.elapsedRealtime() - startedAt
+                Log.i(
+                    LLM_TAG,
+                    "SUCCESS latencyMs=$latencyMs query=\"$query\" answer=\"$answer\"",
+                )
+            } catch (throwable: Throwable) {
+                val latencyMs = SystemClock.elapsedRealtime() - startedAt
+                Log.e(
+                    LLM_TAG,
+                    "FAILED latencyMs=$latencyMs path=${status.path} " +
+                        "error=${throwable::class.java.simpleName}: ${throwable.message}",
+                    throwable,
+                )
+            } finally {
+                synthesizer.close()
+            }
+        }
+    }
+
     fun runOfflineRetrievalEval() {
         viewModelScope.launch(Dispatchers.IO) {
             val report = offlineRetrievalEvaluator.run()
@@ -89,6 +137,7 @@ class MainViewModel(
         private val scheduleSourceCrawl: ScheduleSourceCrawlUseCase,
         private val offlineKnowledgeRetriever: OfflineKnowledgeRetriever,
         private val offlineRetrievalEvaluator: OfflineRetrievalEvaluator,
+        private val localModelStore: LocalModelStore,
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             require(modelClass.isAssignableFrom(MainViewModel::class.java))
@@ -97,6 +146,7 @@ class MainViewModel(
                 scheduleSourceCrawl = scheduleSourceCrawl,
                 offlineKnowledgeRetriever = offlineKnowledgeRetriever,
                 offlineRetrievalEvaluator = offlineRetrievalEvaluator,
+                localModelStore = localModelStore,
             ) as T
         }
     }
@@ -105,6 +155,9 @@ class MainViewModel(
         private const val TAG = "JoharRAG"
         private const val EVAL_TAG = "JoharEval"
         private const val ANSWER_TAG = "JoharAnswer"
+        private const val LLM_TAG = "JoharLLM"
+
+        private const val LLM_TEST_QUERY = "Rugra Jharkhand me special kyun hai?"
 
         private fun formatPercent(value: Double): String = "%.1f%%".format(value * 100.0)
 
