@@ -3,12 +3,13 @@
 Read root `AGENTS.md` first.
 
 ## Scope
-Android data/runtime module. Depends on `johar-domain` and owns the prebuilt knowledge database, source discovery, crawling, parsing/extraction, refresh, Room persistence, and WorkManager scheduling for Johar's V1 knowledge database.
+Android data/runtime module. Depends on `johar-domain` and owns the prebuilt knowledge database, offline retrieval, source discovery, crawling, parsing/extraction, refresh, Room persistence, and WorkManager scheduling for Johar's V1 knowledge database.
 
 ## Knowledge bootstrap architecture
 Johar now starts from a prebuilt Room-compatible SQLite seed database rather than importing a JSON pack row-by-row at runtime.
 
-- Seed asset path: `database/johar-base-2026.09.db`.
+- Packaged asset name: `johar-base-2026.09.db`.
+- The current app supplies it from `app/src/main/assets/johar-base-2026.09.db`.
 - Current seed knowledge release: `2026.09-mega-v1.2`.
 - The seed matches the current Room schema and is copied by Room only when `johar.db` does not yet exist.
 - After first creation, the copied database is the user's working Room database. Live crawler refresh/enrichment writes into the same tables.
@@ -16,14 +17,26 @@ Johar now starts from a prebuilt Room-compatible SQLite seed database rather tha
 - Stable/slow-changing knowledge belongs in the seed. Weather, opening/status information, transport schedules, temporary closures, changing contacts, and other volatile facts belong to live refresh.
 - The seed is an offline baseline, not evidence of current availability. Market/shop metadata never proves live stock.
 
+## Offline retrieval
+The first retrieval layer lives in `data/retrieval/` and reads the working Room database only; it must work with no network.
+
+Current V1 retrieval is intentionally simple and inspectable:
+- normalize natural-language queries;
+- remove common English/Hinglish stop words;
+- score entity name, aliases, description, facts, and broad entity type hints;
+- return the highest-ranked entities together with their source-backed facts;
+- use Logcat-based representative queries before introducing LLM answer generation.
+
+Do not treat this lexical scorer as the final RAG design. The intended progression is lexical/structured retrieval -> FTS/hybrid retrieval -> optional vector semantic retrieval where it materially improves vague queries. Retrieval should remain independently replaceable and must preserve source/freshness metadata for answer generation.
+
 ## Owns
 - `source/` — source adapters that resolve/fetch open data dynamically.
 - `remote/` — generic identified HTTP fetching.
 - `parser/` — source-specific parsing/cleaning helpers where needed.
 - `local/` — Room database, DAOs, source snapshots, entities, facts, relationships, media, crawl keywords, and mappers.
+- `retrieval/` — offline query normalization/ranking over the working Room knowledge base.
 - `crawl/` — bootstrap vocabulary, stable IDs, persistent crawl store, queue/orchestration, and crawl budgets.
 - `work/` — immediate and periodic WorkManager execution.
-- `src/main/assets/database/` — prebuilt Room seed database metadata/asset.
 
 ## Crawler invariant
 Do not hardcode Jharkhand entity-specific URLs, Wikidata Q IDs, OSM node/way/relation IDs, or Commons category IDs into production crawl logic.
@@ -33,10 +46,10 @@ Crawling starts from `CrawlSeed` context such as a name + Jharkhand + India. Ada
 `CrawlTarget` is only a developer/bootstrap entry point. `JHARKHAND` is the statewide root; `DASSAM_FALLS` remains a focused validation target.
 
 ## Current source adapters
-- Wikidata — identity, aliases, coordinates, generic claims, graph relationships, image references.
+- Wikidata — entity search/resolution, labels, aliases, coordinates, generic source claims, graph relationships, image references.
 - OpenStreetMap / Overpass — dynamic named-entity resolution, nearby facilities/services, places, markets, shops, hospitals, police, travel infrastructure, and bounded statewide category discovery.
 - Specialized Overpass discovery — precise bootstrap queries for dams, hills/lakes, temples, protected areas, heritage, fire/ambulance services, mandi/vegetable/fish markets, and explicitly tagged/named pork sellers.
-- Wikipedia — background/history/culture/food/festival/place text and discovery.
+- Wikipedia — source-backed background text and entity discovery for places, food, festivals, culture, and related knowledge.
 - Wikivoyage — travel/practical text and travel-oriented place/food discovery.
 - Wikimedia Commons — media references plus creator/attribution/license metadata.
 - Open-Meteo — coordinate-based current conditions and short forecast facts for place-like entities.
@@ -96,4 +109,4 @@ Manual enqueue performs an immediate crawl and ensures a unique 24-hour statewid
 - No Compose/ViewModel/UI code here.
 - No Android/network/database types in `johar-domain`.
 - Presentation never imports source adapters or DAOs directly.
-- Keep seed creation, source fetching, extraction, storage, discovery, and scheduling independently replaceable.
+- Keep seed creation, retrieval, source fetching, extraction, storage, discovery, and scheduling independently replaceable.
