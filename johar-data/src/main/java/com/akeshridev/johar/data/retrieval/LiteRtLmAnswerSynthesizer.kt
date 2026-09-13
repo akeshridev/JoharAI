@@ -56,12 +56,12 @@ class LiteRtLmAnswerSynthesizer(
     }
 
     private fun createEngine(): Engine {
-        Log.i(TAG, "ENGINE_CREATE_START backend=CPU modelPath=$modelPath")
+        Log.i(TAG, "ENGINE_CREATE_START backend=GPU modelPath=$modelPath")
         val createStartedAt = SystemClock.elapsedRealtime()
         val created = Engine(
             EngineConfig(
                 modelPath = modelPath,
-                backend = Backend.CPU(),
+                backend = Backend.GPU(),
             ),
         )
         Log.i(
