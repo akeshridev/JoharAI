@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme {
-                CrawlTrigger(onCrawlClick = viewModel::crawlDassam)
+                CrawlTrigger(onCrawlClick = viewModel::crawlKnowledge)
             }
         }
     }
@@ -43,7 +43,7 @@ private fun CrawlTrigger(onCrawlClick: () -> Unit) {
             contentAlignment = Alignment.Center,
         ) {
             Button(onClick = onCrawlClick) {
-                Text("Crawl Dassam → Room + Logcat")
+                Text("Crawl Jharkhand → Room + Logcat")
             }
         }
     }
