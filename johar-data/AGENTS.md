@@ -29,6 +29,8 @@ Crawling starts from `CrawlSeed` context such as a name + Jharkhand + India. Ada
 - Wikimedia Commons — media references plus creator/attribution/license metadata.
 - Open-Meteo — coordinate-based current conditions and short forecast facts for place-like entities.
 
+Do not use public Overpass instances for very broad statewide scans such as all villages, all rivers, generic places, or similarly expensive queries. Broad statewide entity discovery should come from Wikidata/MediaWiki or other suitable sources; OSM should enrich discovered entities individually and handle narrower, selective statewide categories.
+
 Do not use the public Nominatim service as a periodic/bulk statewide crawler. If Nominatim is introduced later, its public-use policy, rate limit, caching, identification, and bulk restrictions must be respected or a suitable/self-hosted service must be used.
 
 ## Persistent discovery loop
@@ -83,6 +85,8 @@ Item-specific discovery must be evidence-based. For example, a pork query may us
 
 ## WorkManager
 A manual enqueue performs an immediate crawl and ensures a unique 24-hour statewide periodic refresh exists. Network connectivity and battery-not-low constraints apply. The periodic worker continues persisted stale entity/keyword queues.
+
+Manual unique work uses KEEP semantics: tapping crawl again must not cancel an already-running crawl. Queue progress is persisted in Room and later runs resume it.
 
 ## Architecture rules
 - No Compose/ViewModel/UI code here.
