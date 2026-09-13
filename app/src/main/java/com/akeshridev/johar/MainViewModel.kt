@@ -8,7 +8,7 @@ class MainViewModel(
     private val scheduleSourceCrawl: ScheduleSourceCrawlUseCase,
 ) : ViewModel() {
 
-    fun crawlDassam() {
+    fun crawlKnowledge() {
         scheduleSourceCrawl()
     }
 
