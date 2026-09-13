@@ -52,6 +52,51 @@ interface KnowledgeDao {
         """
         SELECT * FROM knowledge_entities
         WHERE enabled = 1
+          AND (normalizedName LIKE '%' || :normalizedQuery || '%'
+               OR aliasesJson LIKE '%' || :normalizedQuery || '%')
+        ORDER BY
+          CASE WHEN normalizedName = :normalizedQuery THEN 0 ELSE 1 END,
+          discoveryDepth ASC,
+          name ASC
+        LIMIT :limit
+        """,
+    )
+    fun searchEntities(
+        normalizedQuery: String,
+        limit: Int = 20,
+    ): List<KnowledgeEntityRow>
+
+    @Query(
+        """
+        SELECT * FROM source_facts
+        WHERE entityId = :entityId
+        ORDER BY domain ASC, field ASC, retrievedAtEpochMillis DESC
+        """,
+    )
+    fun factsForEntity(entityId: String): List<SourceFactRow>
+
+    @Query(
+        """
+        SELECT * FROM entity_relationships
+        WHERE fromEntityId = :entityId
+        ORDER BY predicate ASC, retrievedAtEpochMillis DESC
+        """,
+    )
+    fun relationshipsFromEntity(entityId: String): List<EntityRelationshipRow>
+
+    @Query(
+        """
+        SELECT * FROM media_assets
+        WHERE entityId = :entityId
+        ORDER BY type ASC, title ASC
+        """,
+    )
+    fun mediaForEntity(entityId: String): List<MediaAssetRow>
+
+    @Query(
+        """
+        SELECT * FROM knowledge_entities
+        WHERE enabled = 1
           AND (lastCrawledAtEpochMillis IS NULL OR lastCrawledAtEpochMillis < :staleBeforeEpochMillis)
         ORDER BY
           CASE WHEN lastCrawledAtEpochMillis IS NULL THEN 0 ELSE 1 END,
