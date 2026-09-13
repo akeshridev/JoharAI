@@ -67,7 +67,6 @@ internal class WikidataSourceAdapter(
         val retrievedAt = System.currentTimeMillis()
         val facts = mutableListOf<SourceFact>()
         val relationships = mutableListOf<EntityRelationship>()
-        val discovered = mutableListOf<KnowledgeEntity>()
         val media = mutableListOf<MediaAsset>()
 
         val propertyKeys = claims.keys()
@@ -99,6 +98,9 @@ internal class WikidataSourceAdapter(
                     if (targetQid.isBlank()) continue
 
                     if (property in RECURSIVE_RELATION_PROPERTIES) {
+                        // Preserve the source-backed relationship without manufacturing a user-facing
+                        // Qxxxx entity. The target can be materialized later only after label/type
+                        // resolution succeeds.
                         val targetId = "wikidata:$targetQid"
                         relationships += EntityRelationship(
                             id = stableId("rel", ownerId, targetId, "wikidata.$property", sourceUrl),
@@ -109,14 +111,6 @@ internal class WikidataSourceAdapter(
                             publisher = PUBLISHER,
                             retrievedAtEpochMillis = retrievedAt,
                             evidenceText = evidence,
-                        )
-                        discovered += KnowledgeEntity(
-                            id = targetId,
-                            name = targetQid,
-                            type = EntityType.OTHER,
-                            region = seed.region,
-                            country = seed.country,
-                            externalRefs = mapOf(REF_WIKIDATA to targetQid),
                         )
                     } else {
                         facts += fact(
@@ -202,7 +196,6 @@ internal class WikidataSourceAdapter(
             publisher = PUBLISHER,
             rawContent = raw,
             entity = entity,
-            discoveredEntities = discovered.distinctBy { it.id },
             facts = facts,
             relationships = relationships,
             media = media,
@@ -221,11 +214,15 @@ internal class WikidataSourceAdapter(
                 val label = item.optString("label")
                 if (qid.isBlank() || label.isBlank()) continue
                 val description = item.optString("description").takeIf(String::isNotBlank)
+                val inferredType = inferEntityType(description, EntityType.OTHER)
+                if (!DiscoveryQualityGate.accept(keyword, label, description, inferredType)) continue
+
                 add(
                     KnowledgeEntity(
                         id = "wikidata:$qid",
                         name = label,
-                        type = inferEntityType(description, typeFor(keyword.category)),
+                        type = inferredType.takeUnless { it == EntityType.OTHER }
+                            ?: typeFor(keyword.category),
                         description = description,
                         region = "Jharkhand",
                         country = "India",
@@ -374,7 +371,7 @@ internal class WikidataSourceAdapter(
     }
 
     private fun inferEntityType(description: String?, fallback: EntityType): EntityType {
-        val text = description.orEmpty().lowercase()
+        val text = normalizeText(description.orEmpty())
         return when {
             "waterfall" in text -> EntityType.TOURIST_ATTRACTION
             "festival" in text -> EntityType.FESTIVAL
@@ -389,6 +386,8 @@ internal class WikidataSourceAdapter(
             "district" in text -> EntityType.DISTRICT
             "airport" in text -> EntityType.AIRPORT
             "railway" in text || "railroad station" in text -> EntityType.RAILWAY_STATION
+            listOf("dance", "music", "language", "tribe", "tribal", "folk", "art", "craft", "painting", "culture").any(text::contains) ->
+                EntityType.CULTURAL_PRACTICE
             else -> fallback
         }
     }
@@ -414,10 +413,10 @@ internal class WikidataSourceAdapter(
         private const val MAX_ALIAS_KEYWORDS = 8
 
         private val RECURSIVE_RELATION_PROPERTIES = setOf(
-            "P131", // located in administrative territorial entity
-            "P361", // part of
-            "P403", // mouth of the watercourse
-            "P706", // located on terrain feature
+            "P131",
+            "P361",
+            "P403",
+            "P706",
         )
     }
 }
