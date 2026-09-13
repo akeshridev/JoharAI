@@ -3,6 +3,23 @@
 ## Product
 Johar AI is an offline-first Android companion for discovering Jharkhand through trusted local knowledge. V0 is intentionally limited to Dassam Falls.
 
+Johar should feel like a micro-ChatGPT whose world is Jharkhand.
+
+## Product interaction invariant
+Johar has one primary product surface: a single chat screen.
+
+Do not design separate browse/category/detail/search/navigation screens for places, food, festivals, culture, safety, travel, or other domains. Users ask naturally in chat; Johar resolves entities/intents and returns conversational answers.
+
+Rich UI is allowed only inside the conversation when useful, for example:
+- entity cards
+- compact fact cards
+- images/video previews
+- source/evidence chips
+- safety warnings
+- suggested follow-up prompts
+
+These are answer components, not separate product destinations.
+
 ## Current focus — MODEL ONLY
 Development is now 100% focused on the knowledge model and the shape of the packed local database.
 
