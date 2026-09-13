@@ -42,6 +42,7 @@ class MainActivity : ComponentActivity() {
             MaterialTheme {
                 DeveloperHarness(
                     onTestOfflineClick = viewModel::testOfflineRetrieval,
+                    onTestAnswersClick = viewModel::testDeterministicAnswers,
                     onRunEvalClick = viewModel::runOfflineRetrievalEval,
                     onCrawlClick = viewModel::crawlKnowledge,
                 )
@@ -53,6 +54,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun DeveloperHarness(
     onTestOfflineClick: () -> Unit,
+    onTestAnswersClick: () -> Unit,
     onRunEvalClick: () -> Unit,
     onCrawlClick: () -> Unit,
 ) {
@@ -64,6 +66,9 @@ private fun DeveloperHarness(
         ) {
             Button(onClick = onTestOfflineClick) {
                 Text("Test Offline RAG Retrieval → Logcat")
+            }
+            Button(onClick = onTestAnswersClick) {
+                Text("Test Deterministic Answers → Logcat")
             }
             Button(onClick = onRunEvalClick) {
                 Text("Run Retrieval Eval → Logcat")
