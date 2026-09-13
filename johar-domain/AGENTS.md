@@ -21,7 +21,7 @@ The model must represent these concepts separately:
 3. Source fact/claim — one source-backed claim about an entity.
 4. Evidence/provenance — exact support for the claim.
 5. Entity relationship — e.g. waterfall LOCATED_NEAR village, waterfall FED_BY river.
-6. Media asset — image/video associated with a canonical entity, with source, attribution, license and optional thumbnail/preview metadata.
+6. Media asset/reference — image/video associated with a canonical entity, with source, attribution, license and optional thumbnail/preview metadata.
 7. Canonical/resolved fact — future selected/normalized knowledge derived from source claims.
 8. Derived recommendation — future conclusions such as suitable-for-elderly; never mix these with source facts.
 
@@ -34,7 +34,9 @@ The model must represent these concepts separately:
 - Unknown must remain explicit; never silently convert unknown to false/zero/empty text.
 - Prefer typed/normalized values while retaining source wording/evidence.
 - If a value is itself a real-world thing (river, village, hospital, food place, attraction), prefer an entity reference/relationship over a plain string when useful.
-- Media is a first-class entity, not just a raw URL string on a place.
+- Media is a first-class concept, not just a raw URL string on a place.
+- Media references may point to direct/static images, Wikimedia Commons assets, YouTube/video pages, source-page media, thumbnails, or previews.
+- At this stage store references + metadata only, not binary image/video payloads.
 - Media must retain source URL and, when available, creator/attribution, license, license URL, MIME type, dimensions/duration and preview/thumbnail URL.
 - Do not assume media is reusable merely because it is publicly reachable; licensing/attribution metadata must be preserved when available.
 - Avoid a giant DassamFalls data class containing every domain.
