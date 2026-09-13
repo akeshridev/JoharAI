@@ -61,17 +61,10 @@ class DeterministicJoharAnswerGenerator(
             normalizeText(splitFieldName(fact.field)).contains(requestedField)
         }
 
-        val label = when (requestedField) {
-            "state animal" -> if (looksHinglish(query)) "state animal" else "state animal"
-            "state bird" -> "state bird"
-            "state tree" -> "state tree"
-            "state flower" -> "state flower"
-            else -> requestedField
-        }
         val text = if (looksHinglish(query)) {
-            "Jharkhand ka $label ${fact.value} hai."
+            "Jharkhand ka $requestedField ${fact.value} hai."
         } else {
-            "Jharkhand's $label is ${fact.value}."
+            "Jharkhand's $requestedField is ${fact.value}."
         }
 
         return JoharAnswer(
@@ -100,11 +93,12 @@ class DeterministicJoharAnswerGenerator(
         val names = relevant.map { it.name }.distinct()
         if (names.isEmpty()) return null
         val joined = joinNames(names)
-        val noun = if (isTemple) "places" else "waterfalls"
-        val text = if (looksHinglish(query)) {
-            "$joined relevant $noun hain."
-        } else {
-            "$joined are relevant $noun."
+
+        val text = when {
+            looksHinglish(query) && isTemple -> "$joined hain."
+            looksHinglish(query) && isWaterfall -> "$joined hain."
+            isTemple -> "$joined are relevant places to visit."
+            else -> "$joined are relevant waterfalls."
         }
 
         return JoharAnswer(
