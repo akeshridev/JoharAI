@@ -1,0 +1,1 @@
+Binary database is committed separately via Git blob/tree APIs.
