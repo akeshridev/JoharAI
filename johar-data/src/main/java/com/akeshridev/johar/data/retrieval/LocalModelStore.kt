@@ -10,6 +10,10 @@ import java.net.URL
  *
  * LiteRT-LM consumes a filesystem path, so the model is downloaded once into
  * app-private storage and reused on subsequent launches.
+ *
+ * The configured model is large enough that a network connection can sometimes
+ * end early without throwing. A file is therefore considered ready only when its
+ * size matches the pinned model artifact, never merely because it is non-empty.
  */
 class LocalModelStore(
     context: Context,
@@ -22,10 +26,11 @@ class LocalModelStore(
 
     fun status(): LocalModelStatus {
         val file = modelFile
+        val sizeBytes = file.takeIf(File::isFile)?.length() ?: 0L
         return LocalModelStatus(
             path = file.absolutePath,
-            isAvailable = file.isFile && file.length() > 0L,
-            sizeBytes = file.takeIf(File::isFile)?.length() ?: 0L,
+            isAvailable = file.isFile && sizeBytes == EXPECTED_MODEL_SIZE_BYTES,
+            sizeBytes = sizeBytes,
         )
     }
 
@@ -51,6 +56,7 @@ class LocalModelStore(
                 instanceFollowRedirects = true
                 requestMethod = "GET"
                 setRequestProperty("User-Agent", "JoharAI/0.1")
+                setRequestProperty("Accept-Encoding", "identity")
             }
             connection.connect()
 
@@ -59,7 +65,13 @@ class LocalModelStore(
                 "Model download failed with HTTP $responseCode"
             }
 
-            val totalBytes = connection.contentLengthLong.coerceAtLeast(-1L)
+            val contentLength = connection.contentLengthLong
+            if (contentLength > 0L) {
+                check(contentLength == EXPECTED_MODEL_SIZE_BYTES) {
+                    "Unexpected model Content-Length: $contentLength; expected $EXPECTED_MODEL_SIZE_BYTES"
+                }
+            }
+
             var downloadedBytes = 0L
             connection.inputStream.buffered().use { input ->
                 temporary.outputStream().buffered().use { output ->
@@ -69,12 +81,18 @@ class LocalModelStore(
                         if (read < 0) break
                         output.write(buffer, 0, read)
                         downloadedBytes += read
-                        onProgress(downloadedBytes, totalBytes)
+                        onProgress(downloadedBytes, EXPECTED_MODEL_SIZE_BYTES)
                     }
                 }
             }
 
-            check(temporary.length() > 0L) { "Downloaded model is empty" }
+            check(downloadedBytes == EXPECTED_MODEL_SIZE_BYTES) {
+                "Incomplete model download: $downloadedBytes bytes; expected $EXPECTED_MODEL_SIZE_BYTES"
+            }
+            check(temporary.length() == EXPECTED_MODEL_SIZE_BYTES) {
+                "Downloaded model file size mismatch: ${temporary.length()} bytes; expected $EXPECTED_MODEL_SIZE_BYTES"
+            }
+
             if (target.exists()) target.delete()
             check(temporary.renameTo(target)) {
                 "Unable to move downloaded model into ${target.absolutePath}"
@@ -92,6 +110,10 @@ class LocalModelStore(
     companion object {
         const val MODEL_DIRECTORY = "models"
         const val DEFAULT_MODEL_FILE_NAME = "johar-qwen2.5-1.5b.litertlm"
+
+        // Qwen2.5-1.5B-Instruct_multi-prefill-seq_q8_ekv4096.litertlm
+        const val EXPECTED_MODEL_SIZE_BYTES = 1_597_931_520L
+
         const val DEFAULT_MODEL_URL =
             "https://huggingface.co/litert-community/Qwen2.5-1.5B-Instruct/resolve/main/" +
                 "Qwen2.5-1.5B-Instruct_multi-prefill-seq_q8_ekv4096.litertlm?download=true"
