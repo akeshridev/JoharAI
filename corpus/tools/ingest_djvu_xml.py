@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """Convert Internet Archive DjVu OCR XML into Johar AI RAG chunks.
 
-Designed for public-domain scanned books. It uses IA scandata.xml to map scan
-leaves to printed numeric page numbers, keeps paragraph boundaries from DjVu
-OCR, detects conservative section headings, and emits the same provenance-rich
-JSONL shape as the TEI ingester.
+Designed for public-domain scanned books. When IA scandata contains reliable
+numeric printed-page labels, those are used. Otherwise the ingester preserves
+exact 1-based scan/PDF page indices and labels that provenance explicitly.
 """
 
 from __future__ import annotations
@@ -21,6 +20,7 @@ from typing import Iterable
 SPACE_RE = re.compile(r"\s+")
 PAGE_NUMBER_RE = re.compile(r"^\s*(\d+)\s*$")
 ROMAN_OR_NUMBER_RE = re.compile(r"^[IVXLCDM\d .:-]+$", re.IGNORECASE)
+MIN_PRINTED_PAGE_LABELS = 50
 
 
 @dataclass
@@ -36,20 +36,15 @@ def local_name(tag: str) -> str:
 
 
 def clean_text(text: str) -> str:
-    text = SPACE_RE.sub(" ", text.replace("\u00ad", "")).strip()
-    return text
+    return SPACE_RE.sub(" ", text.replace("\u00ad", "")).strip()
 
 
 def word_count(text: str) -> int:
     return len(text.split())
 
 
-def load_page_map(scandata_path: Path) -> dict[int, int]:
-    """Map IA leafNum -> printed numeric page number.
-
-    Front matter with Roman/blank labels is intentionally excluded from the
-    numeric body-page map so pageStart/pageEnd remain unambiguous integers.
-    """
+def load_printed_page_map(scandata_path: Path) -> dict[int, int]:
+    """Map IA leafNum -> printed numeric page number when scandata provides it."""
     root = ET.parse(scandata_path).getroot()
     mapping: dict[int, int] = {}
     for page in root.iter():
@@ -58,15 +53,12 @@ def load_page_map(scandata_path: Path) -> dict[int, int]:
         raw_leaf = page.attrib.get("leafNum") or page.attrib.get("leafnum")
         if raw_leaf is None or not raw_leaf.isdigit():
             continue
-        page_number: int | None = None
         for child in page.iter():
             if local_name(child.tag) == "PAGENUMBER" and child.text:
                 match = PAGE_NUMBER_RE.match(child.text)
                 if match:
-                    page_number = int(match.group(1))
+                    mapping[int(raw_leaf)] = int(match.group(1))
                     break
-        if page_number is not None:
-            mapping[int(raw_leaf)] = page_number
     return mapping
 
 
@@ -103,37 +95,52 @@ def looks_like_heading(text: str) -> bool:
     if text.endswith((".", ",", ";", "?", "!")) and len(words) > 5:
         return False
     upper_ratio = sum(c.isupper() for c in letters) / len(letters)
-    title_like = sum(word[:1].isupper() for word in words if word[:1].isalpha()) >= max(1, len(words) - 2)
+    title_like_words = [word for word in words if word[:1].isalpha()]
+    title_like = (
+        sum(word[:1].isupper() for word in title_like_words)
+        >= max(1, len(title_like_words) - 2)
+    )
     return upper_ratio >= 0.65 or (title_like and not ROMAN_OR_NUMBER_RE.fullmatch(text))
 
 
 def useful_text(text: str) -> bool:
     if len(text) < 20:
         return False
-    printable = sum(ch.isalnum() or ch.isspace() or ch in ".,;:'\"!?()-[]/" for ch in text)
+    printable = sum(
+        ch.isalnum() or ch.isspace() or ch in ".,;:'\"!?()-[]/"
+        for ch in text
+    )
     return printable / max(len(text), 1) >= 0.90
 
 
-def read_ocr_paragraphs(djvu_path: Path, page_map: dict[int, int]) -> tuple[list[Paragraph], dict]:
+def read_ocr_paragraphs(
+    djvu_path: Path,
+    printed_page_map: dict[int, int],
+    use_scan_pages: bool,
+) -> tuple[list[Paragraph], dict]:
     paragraphs: list[Paragraph] = []
     current_section = "Page-aware OCR"
     object_index = -1
     objects_seen = 0
-    mapped_pages_seen: set[int] = set()
-    mapped_pages_without_text = 0
+    pages_seen: set[int] = set()
+    pages_without_text = 0
     rejected_paragraphs = 0
 
-    for event, elem in ET.iterparse(djvu_path, events=("end",)):
+    for _, elem in ET.iterparse(djvu_path, events=("end",)):
         if local_name(elem.tag) != "OBJECT":
             continue
         object_index += 1
         objects_seen += 1
-        printed_page = page_map.get(object_index)
-        if printed_page is None:
-            elem.clear()
-            continue
 
-        mapped_pages_seen.add(printed_page)
+        if use_scan_pages:
+            page_number = object_index + 1
+        else:
+            page_number = printed_page_map.get(object_index)
+            if page_number is None:
+                elem.clear()
+                continue
+
+        pages_seen.add(page_number)
         page_paragraphs: list[str] = []
         for node in elem.iter():
             if local_name(node.tag) != "PARAGRAPH":
@@ -147,7 +154,7 @@ def read_ocr_paragraphs(djvu_path: Path, page_map: dict[int, int]) -> tuple[list
                 rejected_paragraphs += 1
 
         if not page_paragraphs:
-            mapped_pages_without_text += 1
+            pages_without_text += 1
             elem.clear()
             continue
 
@@ -158,8 +165,8 @@ def read_ocr_paragraphs(djvu_path: Path, page_map: dict[int, int]) -> tuple[list
             paragraphs.append(
                 Paragraph(
                     section=current_section,
-                    page_start=printed_page,
-                    page_end=printed_page,
+                    page_start=page_number,
+                    page_end=page_number,
                     text=text,
                 )
             )
@@ -167,8 +174,10 @@ def read_ocr_paragraphs(djvu_path: Path, page_map: dict[int, int]) -> tuple[list
 
     diagnostics = {
         "scanObjectsSeen": objects_seen,
-        "numericPrintedPagesMapped": len(mapped_pages_seen),
-        "numericPrintedPagesWithoutUsableText": mapped_pages_without_text,
+        "printedPageLabelsAvailable": len(printed_page_map),
+        "pageReferenceType": "SCAN_PAGE_1_BASED" if use_scan_pages else "PRINTED_PAGE",
+        "pagesMapped": len(pages_seen),
+        "pagesWithoutUsableText": pages_without_text,
         "ocrParagraphsRejectedAsNoise": rejected_paragraphs,
     }
     return paragraphs, diagnostics
@@ -224,7 +233,12 @@ def chunk_paragraphs(
     return chunks
 
 
-def build_chunk(source: dict, paragraphs: list[Paragraph], ordinal: int) -> dict:
+def build_chunk(
+    source: dict,
+    paragraphs: list[Paragraph],
+    ordinal: int,
+    page_reference_type: str,
+) -> dict:
     text = "\n\n".join(p.text for p in paragraphs).strip()
     page_start = min(p.page_start for p in paragraphs)
     page_end = max(p.page_end for p in paragraphs)
@@ -244,6 +258,7 @@ def build_chunk(source: dict, paragraphs: list[Paragraph], ordinal: int) -> dict
         "chapterOrSection": section,
         "pageStart": page_start,
         "pageEnd": page_end,
+        "pageReferenceType": page_reference_type,
         "districts": source.get("districts", []),
         "entities": source.get("entities", []),
         "topics": source.get("topics", []),
@@ -270,16 +285,23 @@ def main() -> None:
         raise SystemExit("Invalid chunk word limits")
 
     source = json.loads(args.source.read_text(encoding="utf-8"))
-    page_map = load_page_map(args.scandata)
-    if not page_map:
-        raise SystemExit("No numeric printed-page mapping found in scandata")
+    printed_page_map = load_printed_page_map(args.scandata)
+    use_scan_pages = len(printed_page_map) < MIN_PRINTED_PAGE_LABELS
 
-    paragraphs, diagnostics = read_ocr_paragraphs(args.djvu, page_map)
+    paragraphs, diagnostics = read_ocr_paragraphs(
+        args.djvu,
+        printed_page_map,
+        use_scan_pages,
+    )
     if not paragraphs:
         raise SystemExit("No usable OCR paragraphs found")
 
     chunks = chunk_paragraphs(paragraphs, args.min_words, args.max_words)
-    records = [build_chunk(source, chunk, i + 1) for i, chunk in enumerate(chunks)]
+    page_reference_type = diagnostics["pageReferenceType"]
+    records = [
+        build_chunk(source, chunk, i + 1, page_reference_type)
+        for i, chunk in enumerate(chunks)
+    ]
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
     chunk_path = args.out_dir / "rag_chunks.jsonl"
