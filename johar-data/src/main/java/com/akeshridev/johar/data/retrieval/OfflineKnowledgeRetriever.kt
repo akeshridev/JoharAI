@@ -169,10 +169,16 @@ class OfflineKnowledgeRetriever(context: Context) {
     }
 
     private fun preferredTypes(query: String): Set<String> = buildSet {
-        if (containsAny(query, "rugra", "food", "dish", "cuisine", "khana")) add("FOOD")
-        if (containsAny(query, "festival", "parab", "mela")) add("FESTIVAL")
+        if (containsAny(query, "rugra", "food", "dish", "cuisine", "khana", "snack")) add("FOOD")
+        if (containsAny(query, "festival", "parab", "mela", "puja")) add("FESTIVAL")
         if (containsAny(query, "temple", "mandir", "dham", "pilgrimage", "religious place", "spiritual place")) add("TOURIST_ATTRACTION")
-        if (containsAny(query, "waterfall", "falls", "jharna")) add("NATURAL_FEATURE")
+        if (containsAny(query, "waterfall", "falls", "jharna", "dam", "reservoir", "lake", "hill", "pahar")) add("NATURAL_FEATURE")
+        if (containsAny(query, "culture", "cultural", "dance", "art", "tradition")) add("CULTURAL_PRACTICE")
+        if (containsAny(query, "market", "bazar", "bazaar", "haat", "mandi")) add("MARKET")
+        if (containsAny(query, "hospital", "clinic")) add("HOSPITAL")
+        if (containsAny(query, "police", "thana")) add("POLICE_STATION")
+        if (query.contains("airport")) add("AIRPORT")
+        if (containsAny(query, "railway", "rail station", "train station")) add("RAILWAY_STATION")
         if (query.contains("river")) add("RIVER")
         if (query.contains("city")) add("CITY")
         if (query.contains("district")) add("DISTRICT")
@@ -184,9 +190,24 @@ class OfflineKnowledgeRetriever(context: Context) {
         if (containsAny(query, "waterfall", "falls", "jharna")) add("WATERFALL")
         if (containsAny(query, "dam", "reservoir")) add("DAM")
         if (query.contains("lake")) add("LAKE")
+        if (containsAny(query, "hill", "pahar")) add("HILL")
+        if (containsAny(query, "viewpoint", "view point", "sunset point")) add("VIEWPOINT")
         if (query.contains("forest")) add("FOREST")
         if (containsAny(query, "wildlife", "sanctuary")) add("WILDLIFE_SANCTUARY")
         if (query.contains("tiger reserve")) add("TIGER_RESERVE")
+        if (containsAny(query, "national park", "park")) add("NATIONAL_PARK")
+        if (query.contains("park")) add("PARK")
+        if (containsAny(query, "heritage", "historic", "history", "historical")) add("HERITAGE_SITE")
+        if (query.contains("museum")) add("MUSEUM")
+        if (containsAny(query, "dance", "chhau")) add("DANCE")
+        if (containsAny(query, "tribe", "tribal", "adivasi")) add("TRIBE")
+        if (query.contains("language")) add("LANGUAGE")
+        if (containsAny(query, "market", "bazar", "bazaar", "haat", "mandi")) {
+            add("MARKET_COLLECTION")
+            add("MARKET_TYPE")
+        }
+        if (query.contains("airport")) add("AIRPORT")
+        if (containsAny(query, "railway", "rail station", "train station")) add("RAILWAY_STATION")
     }
 
     private fun normalizeQueryAliases(query: String): String = query
@@ -195,7 +216,11 @@ class OfflineKnowledgeRetriever(context: Context) {
         .replace("rajya pakshi", "state bird")
         .replace("rajya vriksh", "state tree")
         .replace("rajya phool", "state flower")
+        .replace("rugda", "rugra")
+        .replace("rugdha", "rugra")
+        .replace("baba dham", "baidyanath dham")
         .replace("gautamdhara waterfall", "jonha falls")
+        .replace("gautamdhara", "jonha falls")
         .replace("jonha waterfall", "jonha falls")
         .replace("hundru waterfall", "hundru falls")
         .replace("sita waterfall", "sita falls")
@@ -232,6 +257,7 @@ class OfflineKnowledgeRetriever(context: Context) {
         private val CONTRASTING_PACK_TYPES = setOf(
             "DAM", "LAKE", "WATERFALL", "TEMPLE", "PILGRIMAGE", "ASHRAM", "MUSEUM",
             "HERITAGE_SITE", "VIEWPOINT", "PARK", "FOREST", "WILDLIFE_SANCTUARY", "TIGER_RESERVE", "NATIONAL_PARK",
+            "HILL", "DANCE", "TRIBE", "MARKET_COLLECTION", "MARKET_TYPE",
         )
         private val STOP_WORDS = setOf(
             "what", "is", "are", "the", "a", "an", "of", "in", "near", "nearby", "me", "tell", "about",
