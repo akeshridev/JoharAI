@@ -25,7 +25,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.akeshridev.johar.data.retrieval.LocalModelStore
 import com.akeshridev.johar.di.JoharGraph
 import com.akeshridev.johar.eval.OfflineRetrievalEvaluator
-import com.akeshridev.johar.eval.TouristSimulationEvaluator
+import com.akeshridev.johar.eval.RanchiCoverageEvaluator
 
 class MainActivity : ComponentActivity() {
     private val graph by lazy { JoharGraph(applicationContext) }
@@ -35,7 +35,7 @@ class MainActivity : ComponentActivity() {
             context = applicationContext,
             retriever = graph.offlineKnowledgeRetriever,
         )
-        val touristEvaluator = TouristSimulationEvaluator(
+        val ranchiCoverageEvaluator = RanchiCoverageEvaluator(
             context = applicationContext,
             retriever = graph.offlineKnowledgeRetriever,
         )
@@ -46,7 +46,7 @@ class MainActivity : ComponentActivity() {
                 scheduleSourceCrawl = graph.scheduleSourceCrawlUseCase,
                 offlineKnowledgeRetriever = graph.offlineKnowledgeRetriever,
                 offlineRetrievalEvaluator = evaluator,
-                touristSimulationEvaluator = touristEvaluator,
+                ranchiCoverageEvaluator = ranchiCoverageEvaluator,
                 localModelStore = localModelStore,
             ),
         )[MainViewModel::class.java]
@@ -61,7 +61,7 @@ class MainActivity : ComponentActivity() {
                     onTestAnswersClick = viewModel::testDeterministicAnswers,
                     onTestLlmClick = viewModel::testOnDeviceLlm,
                     onRunEvalClick = viewModel::runOfflineRetrievalEval,
-                    onRunTouristEvalClick = viewModel::runTouristSimulationEval,
+                    onRunRanchiCoverageEvalClick = viewModel::runRanchiCoverageEval,
                     onCrawlClick = viewModel::crawlKnowledge,
                 )
             }
@@ -75,10 +75,10 @@ private fun DeveloperHarness(
     onTestAnswersClick: () -> Unit,
     onTestLlmClick: (String) -> Unit,
     onRunEvalClick: () -> Unit,
-    onRunTouristEvalClick: () -> Unit,
+    onRunRanchiCoverageEvalClick: () -> Unit,
     onCrawlClick: () -> Unit,
 ) {
-    var query by rememberSaveable { mutableStateOf("Rugra Jharkhand me special kyun hai?") }
+    var query by rememberSaveable { mutableStateOf("Ranchi me parents ke saath kam walking wali jagah?") }
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -92,7 +92,7 @@ private fun DeveloperHarness(
                 value = query,
                 onValueChange = { query = it },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Ask Johar") },
+                label = { Text("Ask Johar — Ranchi") },
                 supportingText = { Text("Runs local retrieval + Gemma; inspect JoharLLM in Logcat") },
                 minLines = 2,
             )
@@ -103,19 +103,19 @@ private fun DeveloperHarness(
                 Text("Run Query On-Device → Logcat")
             }
             Button(onClick = onTestOfflineClick) {
-                Text("Test Offline RAG Retrieval → Logcat")
+                Text("Test Ranchi RAG Retrieval → Logcat")
             }
             Button(onClick = onTestAnswersClick) {
                 Text("Test Deterministic Answers → Logcat")
             }
             Button(onClick = onRunEvalClick) {
-                Text("Run Retrieval Eval → Logcat")
+                Text("Run Frozen Retrieval Eval → Logcat")
             }
-            Button(onClick = onRunTouristEvalClick) {
-                Text("Run Tourist Gap Eval → Logcat")
+            Button(onClick = onRunRanchiCoverageEvalClick) {
+                Text("Run Ranchi Coverage Eval → Logcat")
             }
             Button(onClick = onCrawlClick) {
-                Text("Crawl Live Jharkhand → Room + Logcat")
+                Text("Crawl Ranchi Knowledge → Room + Logcat")
             }
         }
     }

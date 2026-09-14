@@ -169,24 +169,42 @@ class OfflineKnowledgeRetriever(context: Context) {
     }
 
     private fun preferredTypes(query: String): Set<String> = buildSet {
-        if (containsAny(query, "rugra", "food", "dish", "cuisine", "khana", "snack", "sweet")) add("FOOD")
+        if (containsAny(query, "rugra", "food", "dish", "cuisine", "khana", "snack", "sweet", "dhuska")) add("FOOD")
         if (containsAny(query, "festival", "parab", "mela", "puja")) add("FESTIVAL")
-        if (containsAny(query, "temple", "mandir", "dham", "pilgrimage", "religious place", "spiritual place")) add("TOURIST_ATTRACTION")
+        if (containsAny(query, "temple", "mandir", "dham", "pilgrimage", "religious place", "spiritual place", "church", "mosque", "masjid", "gurudwara", "gurdwara")) {
+            add("TOURIST_ATTRACTION")
+            add("FACILITY")
+        }
         if (containsAny(query, "waterfall", "falls", "jharna", "dam", "reservoir", "lake", "hill", "pahar", "forest", "wildlife", "sanctuary", "national park")) add("NATURAL_FEATURE")
         if (containsAny(query, "culture", "cultural", "dance", "art", "painting", "craft", "handicraft", "tradition")) add("CULTURAL_PRACTICE")
         if (containsAny(query, "market", "bazar", "bazaar", "haat", "mandi")) add("MARKET")
+        if (containsAny(query, "restaurant", "resturant", "restaurnt", "cafe", "dhaba", "street food")) add("RESTAURANT")
+        if (containsAny(query, "mutton", "pork", "butcher", "meat shop", "fish shop", "vegetable shop", "sabzi shop", "pharmacy", "medical shop", "chemist", "repair shop", "supermarket")) add("SHOP")
         if (containsAny(query, "hospital", "clinic")) add("HOSPITAL")
         if (containsAny(query, "police", "thana")) add("POLICE_STATION")
+        if (containsAny(query, "fire station", "ambulance")) add("EMERGENCY_SERVICE")
+        if (containsAny(query, "bank", "atm", "college", "university", "school", "library", "government office", "cowork", "business area", "industrial area", "courier")) {
+            add("FACILITY")
+            add("ORGANIZATION")
+        }
+        if (containsAny(query, "hotel", "guest house", "hostel", "convention", "meeting venue", "event venue", "parking", "gym", "fitness centre", "cinema", "petrol", "fuel", "charging station", "ev charging", "toilet", "public toilet")) add("FACILITY")
         if (query.contains("airport")) add("AIRPORT")
         if (containsAny(query, "railway", "rail station", "train station")) add("RAILWAY_STATION")
+        if (containsAny(query, "bus stand", "bus station", "bus terminal")) add("BUS_STAND")
         if (query.contains("river")) add("RIVER")
+        if (query.contains("village") || query.contains("gaon")) add("VILLAGE")
+        if (containsAny(query, "locality", "neighborhood", "neighbourhood", "area", "pincode", "pin code")) add("PLACE")
         if (query.contains("city")) add("CITY")
         if (query.contains("district")) add("DISTRICT")
     }
 
     private fun preferredPackTypes(query: String): Set<String> = buildSet {
+        val asksRestaurant = containsAny(query, "restaurant", "resturant", "restaurnt", "dhaba", "cafe", "street food")
         if (containsAny(query, "temple", "mandir", "dham", "religious place", "spiritual place")) add("TEMPLE")
         if (containsAny(query, "pilgrimage", "religious place", "spiritual place", "shikharji")) add("PILGRIMAGE")
+        if (query.contains("church")) add("CHURCH")
+        if (containsAny(query, "mosque", "masjid")) add("MOSQUE")
+        if (containsAny(query, "gurudwara", "gurdwara")) add("GURUDWARA")
         if (containsAny(query, "waterfall", "falls", "jharna")) add("WATERFALL")
         if (containsAny(query, "dam", "reservoir")) add("DAM")
         if (query.contains("lake")) add("LAKE")
@@ -196,7 +214,7 @@ class OfflineKnowledgeRetriever(context: Context) {
         if (containsAny(query, "wildlife", "sanctuary", "elephant")) add("WILDLIFE_SANCTUARY")
         if (query.contains("tiger reserve")) add("TIGER_RESERVE")
         if (containsAny(query, "national park", "betla")) add("NATIONAL_PARK")
-        if (query.contains("park")) add("PARK")
+        if (containsAny(query, "park", "playground", "child park", "children park")) add("PARK")
         if (containsAny(query, "heritage", "historic", "history", "historical")) add("HERITAGE_SITE")
         if (query.contains("museum")) add("MUSEUM")
         if (containsAny(query, "dance", "chhau")) add("DANCE")
@@ -208,8 +226,52 @@ class OfflineKnowledgeRetriever(context: Context) {
             add("MARKET_COLLECTION")
             add("MARKET_TYPE")
         }
+        if (containsAny(query, "restaurant", "resturant", "restaurnt", "dhaba")) add("RESTAURANT")
+        if (query.contains("cafe")) add("CAFE")
+        if (query.contains("street food")) add("STREET_FOOD")
+        if (containsAny(query, "pork", "mutton", "butcher", "meat shop")) add("BUTCHER")
+        if (query.contains("fish shop")) add("FISH_SHOP")
+        if (containsAny(query, "vegetable shop", "sabzi shop")) add("VEGETABLE_SHOP")
+        if (containsAny(query, "pharmacy", "medical shop", "chemist")) add("PHARMACY")
+        if (query.contains("bank")) add("BANK")
+        if (query.contains("atm")) add("ATM")
+        if (query.contains("school")) add("SCHOOL")
+        if (query.contains("college")) {
+            add("COLLEGE")
+            add("COLLEGE_UNIVERSITY")
+        }
+        if (query.contains("university")) {
+            add("UNIVERSITY")
+            add("COLLEGE_UNIVERSITY")
+        }
+        if (query.contains("library")) add("LIBRARY")
+        if (query.contains("stadium")) add("STADIUM")
+        if (query.contains("gym") || query.contains("fitness centre")) add("GYM")
+        if (query.contains("cinema")) add("CINEMA")
+        if (containsAny(query, "business area", "commercial area")) add("BUSINESS_AREA")
+        if (query.contains("industrial area")) add("INDUSTRIAL_AREA")
+        if (query.contains("cowork")) add("COWORKING")
+        if (containsAny(query, "hotel", "guest house", "hostel")) add("HOTEL")
+        if (containsAny(query, "convention", "conference venue")) add("CONVENTION_VENUE")
+        if (containsAny(query, "event venue", "meeting venue")) add("EVENT_VENUE")
+        if (query.contains("parking") && !asksRestaurant) add("PARKING")
+        if (containsAny(query, "petrol", "fuel")) add("FUEL")
+        if (containsAny(query, "charging station", "ev charging")) add("EV_CHARGING")
+        if (containsAny(query, "toilet", "public toilet")) add("TOILET")
+        if (query.contains("repair")) add("REPAIR")
+        if (containsAny(query, "mall", "shopping mall")) add("MALL")
+        if (query.contains("supermarket")) add("SUPERMARKET")
+        if (query.contains("handicraft shop")) add("HANDICRAFT_SHOP")
+        if (query.contains("courier")) add("COURIER")
+        if (query.contains("village") || query.contains("gaon")) add("VILLAGE")
+        if (containsAny(query, "locality", "neighborhood", "neighbourhood", "pincode", "pin code")) add("LOCALITY")
+        if (query.contains("hospital")) add("HOSPITAL")
+        if (containsAny(query, "police", "thana")) add("POLICE_STATION")
+        if (query.contains("fire station")) add("FIRE_STATION")
+        if (query.contains("ambulance")) add("AMBULANCE")
         if (query.contains("airport")) add("AIRPORT")
         if (containsAny(query, "railway", "rail station", "train station")) add("RAILWAY_STATION")
+        if (containsAny(query, "bus stand", "bus station", "bus terminal")) add("BUS_STAND")
     }
 
     private fun normalizeQueryAliases(query: String): String = query
@@ -223,6 +285,17 @@ class OfflineKnowledgeRetriever(context: Context) {
         .replace("baba dham", "baidyanath dham")
         .replace("dhokra", "dokra")
         .replace("kohvar", "khovar")
+        .replace("restaurnt", "restaurant")
+        .replace("resturant", "restaurant")
+        .replace("medical store", "pharmacy")
+        .replace("medical shop", "pharmacy")
+        .replace("petrol pump", "fuel")
+        .replace("gurdwara", "gurudwara")
+        .replace("masjid", "mosque")
+        .replace("public washroom", "public toilet")
+        .replace("washroom", "toilet")
+        .replace("gaav", "village")
+        .replace("gaon", "village")
         .replace("gautamdhara waterfall", "jonha falls")
         .replace("gautamdhara", "jonha falls")
         .replace("jonha waterfall", "jonha falls")
@@ -257,11 +330,17 @@ class OfflineKnowledgeRetriever(context: Context) {
 
     companion object {
         private val LOCATION_RELATIONSHIPS = setOf("LOCATED_IN_DISTRICT", "SUBDIVISION_OF", "PART_OF_JHARKHAND")
-        private val GENERIC_LOCATION_TYPES = setOf("CITY", "TOWN", "DISTRICT", "REGION", "PLACE")
+        private val GENERIC_LOCATION_TYPES = setOf("CITY", "TOWN", "DISTRICT", "REGION", "PLACE", "VILLAGE")
         private val CONTRASTING_PACK_TYPES = setOf(
-            "DAM", "LAKE", "WATERFALL", "TEMPLE", "PILGRIMAGE", "ASHRAM", "MUSEUM",
-            "HERITAGE_SITE", "VIEWPOINT", "PARK", "FOREST", "WILDLIFE_SANCTUARY", "TIGER_RESERVE", "NATIONAL_PARK",
-            "HILL", "DANCE", "ART", "CRAFT", "TRIBE", "MARKET_COLLECTION", "MARKET_TYPE",
+            "DAM", "LAKE", "WATERFALL", "TEMPLE", "PILGRIMAGE", "ASHRAM", "CHURCH", "MOSQUE", "GURUDWARA",
+            "MUSEUM", "HERITAGE_SITE", "VIEWPOINT", "PARK", "FOREST", "WILDLIFE_SANCTUARY", "TIGER_RESERVE",
+            "NATIONAL_PARK", "HILL", "DANCE", "ART", "CRAFT", "TRIBE", "MARKET_COLLECTION", "MARKET_TYPE",
+            "RESTAURANT", "CAFE", "STREET_FOOD", "BUTCHER", "FISH_SHOP", "VEGETABLE_SHOP", "PHARMACY",
+            "BANK", "ATM", "SCHOOL", "COLLEGE", "UNIVERSITY", "COLLEGE_UNIVERSITY", "LIBRARY", "STADIUM",
+            "GYM", "CINEMA", "BUSINESS_AREA", "INDUSTRIAL_AREA", "COWORKING", "HOTEL", "CONVENTION_VENUE",
+            "EVENT_VENUE", "PARKING", "FUEL", "EV_CHARGING", "TOILET", "REPAIR", "MALL", "SUPERMARKET",
+            "HANDICRAFT_SHOP", "COURIER", "LOCALITY", "VILLAGE", "HOSPITAL", "POLICE_STATION", "FIRE_STATION",
+            "AMBULANCE", "AIRPORT", "RAILWAY_STATION", "BUS_STAND",
         )
         private val STOP_WORDS = setOf(
             "what", "is", "are", "the", "a", "an", "of", "in", "near", "nearby", "me", "tell", "about",

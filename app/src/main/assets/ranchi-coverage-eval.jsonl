@@ -1,0 +1,120 @@
+{"id":"R001","persona":"first_time_tourist","query":"Ranchi me pehli baar aya hu 1 din me kya dekhu","category":"itinerary","minHits":5,"requiredFactGroups":["ADDRESS"]}
+{"id":"R002","persona":"first_time_tourist","query":"Ranchi ke paas peaceful waterfall","category":"places","expectedPackTypes":["WATERFALL"],"minHits":3,"requiredFactGroups":["ADDRESS","COORDINATES"]}
+{"id":"R003","persona":"first_time_tourist","query":"Dassam Falls kaise jaye","category":"route","expectedPackTypes":["WATERFALL"],"minHits":1,"requiredFactGroups":["ADDRESS","COORDINATES"]}
+{"id":"R004","persona":"first_time_tourist","query":"Ranchi me tribal culture samajhne ke liye kahan jau","category":"culture-place","minHits":3,"requiredFactGroups":["ADDRESS"]}
+{"id":"R005","persona":"first_time_tourist","query":"Ranchi se nearby day trip options","category":"day-trip","minHits":5,"requiredFactGroups":["ADDRESS"]}
+{"id":"R006","persona":"budget_traveller","query":"Ranchi me free ya low cost ghumne ki jagah","category":"budget-places","minHits":4,"requiredFactGroups":["ADDRESS","PRICE"]}
+{"id":"R007","persona":"budget_traveller","query":"Ranchi railway station ke paas budget khana","category":"food-locality","minHits":3,"requiredFactGroups":["ADDRESS","PRICE"]}
+{"id":"R008","persona":"budget_traveller","query":"airport se city jane ka cheapest option","category":"transport","minHits":2,"requiredFactGroups":["TRANSPORT","PRICE"]}
+{"id":"R009","persona":"parent","query":"baccho ke saath Ranchi me kahan ghum sakte hain","category":"family-places","minHits":4,"requiredFactGroups":["KIDS","ADDRESS"]}
+{"id":"R010","persona":"parent","query":"Lalpur ke paas child park","category":"kids-park","expectedPackTypes":["PARK"],"minHits":2,"requiredFactGroups":["ADDRESS","COORDINATES","KIDS"]}
+{"id":"R011","persona":"parent","query":"kids ke liye safe picnic place Ranchi ke paas","category":"family-safety","minHits":3,"requiredFactGroups":["KIDS","SAFETY","ADDRESS"]}
+{"id":"R012","persona":"parent","query":"park me toilet aur parking hai kya","category":"family-facility","locationContext":"Ranchi","minHits":2,"requiredFactGroups":["TOILET","PARKING"]}
+{"id":"R013","persona":"elderly","query":"parents ke saath Ranchi me kam walking wali jagah","category":"accessibility","minHits":4,"requiredFactGroups":["ACCESSIBILITY","ADDRESS"]}
+{"id":"R014","persona":"elderly","query":"kam stairs wala mandir Ranchi me","category":"religion-accessibility","expectedPackTypes":["TEMPLE","PILGRIMAGE"],"minHits":2,"requiredFactGroups":["ACCESSIBILITY","ADDRESS"]}
+{"id":"R015","persona":"elderly","query":"wheelchair friendly place Ranchi","category":"accessibility","minHits":3,"requiredFactGroups":["ACCESSIBILITY","ADDRESS"]}
+{"id":"R016","persona":"elderly","query":"Jagannath Mandir me parking aur walking kitna hai","category":"religion-practical","expectedPackTypes":["TEMPLE","PILGRIMAGE"],"minHits":1,"requiredFactGroups":["PARKING","ACCESSIBILITY"]}
+{"id":"R017","persona":"woman_solo","query":"Lalpur se railway station jane ka transport option","category":"transport","minHits":2,"requiredFactGroups":["TRANSPORT"]}
+{"id":"R018","persona":"woman_solo","query":"Ranchi me evening me ghumne ki family crowd wali jagah","category":"evening-place","minHits":3,"requiredFactGroups":["ADDRESS"]}
+{"id":"R019","persona":"woman_solo","query":"mere paas police station","category":"emergency-nearby","locationContext":"Lalpur Ranchi","requiresLocationContext":true,"minHits":2,"requiredFactGroups":["ADDRESS","COORDINATES"]}
+{"id":"R020","persona":"woman_solo","query":"late night airport se Lalpur cab milega kya","category":"transport-live","minHits":1,"requiredFactGroups":["TRANSPORT"],"requiresCurrentData":true}
+{"id":"R021","persona":"local_resident","query":"Ranchi ke bazar","category":"market","expectedPackTypes":["MARKET_COLLECTION","MARKET_TYPE"],"minHits":4,"requiredFactGroups":["ADDRESS","OFFERINGS"]}
+{"id":"R022","persona":"local_resident","query":"Sunday ko kaunsa haat lagta hai Ranchi me","category":"market-day","expectedPackTypes":["MARKET_COLLECTION","MARKET_TYPE"],"minHits":2,"requiredFactGroups":["TIMINGS","ADDRESS"]}
+{"id":"R023","persona":"local_resident","query":"Ranchi me sabzi mandi kahan hai","category":"market-food","minHits":3,"requiredFactGroups":["ADDRESS","OFFERINGS"]}
+{"id":"R024","persona":"local_resident","query":"Harmu ke paas daily market","category":"market-locality","minHits":2,"requiredFactGroups":["ADDRESS","TIMINGS"]}
+{"id":"R025","persona":"non_veg_foodie","query":"Ranchi me mutton kahan milega","category":"meat-market","minHits":2,"requiredFactGroups":["ADDRESS","OFFERINGS"]}
+{"id":"R026","persona":"non_veg_foodie","query":"Ranchi me pork kahan milega","category":"meat-market","minHits":2,"requiredFactGroups":["ADDRESS","OFFERINGS"]}
+{"id":"R027","persona":"non_veg_foodie","query":"Doranda me fish market","category":"meat-market","minHits":2,"requiredFactGroups":["ADDRESS","OFFERINGS"]}
+{"id":"R028","persona":"non_veg_foodie","query":"aaj Doranda market me fresh pork milega kya","category":"inventory-live","minHits":1,"requiredFactGroups":["ADDRESS","OFFERINGS"],"requiresCurrentData":true}
+{"id":"R029","persona":"foodie","query":"Ranchi ka famous local food kya hai","category":"food-culture","minHits":4,"requiredFactGroups":[]}
+{"id":"R030","persona":"foodie","query":"Dhuska kahan milega Ranchi me","category":"food-availability","minHits":2,"requiredFactGroups":["ADDRESS","OFFERINGS"]}
+{"id":"R031","persona":"foodie","query":"Rugra kahan milega Ranchi me","category":"seasonal-food","minHits":2,"requiredFactGroups":["ADDRESS","SEASON","OFFERINGS"]}
+{"id":"R032","persona":"foodie","query":"Rugra kis season me milta hai","category":"seasonal-food","minHits":1,"requiredFactGroups":["SEASON"]}
+{"id":"R033","persona":"vegetarian","query":"Lalpur me family vegetarian restaurant","category":"restaurant","minHits":3,"requiredFactGroups":["ADDRESS","CUISINE","FAMILY"]}
+{"id":"R034","persona":"foodie","query":"Ranchi ke top 5 restaurant","category":"restaurant-ranking","minHits":5,"requiredFactGroups":["ADDRESS","CUISINE","PRICE"]}
+{"id":"R035","persona":"foodie","query":"Ranchi me tribal food restaurant","category":"restaurant-local","minHits":2,"requiredFactGroups":["ADDRESS","CUISINE"]}
+{"id":"R036","persona":"foodie","query":"abhi Lalpur me kaunsa restaurant open hai","category":"restaurant-live","minHits":2,"requiredFactGroups":["ADDRESS","TIMINGS"],"requiresCurrentData":true}
+{"id":"R037","persona":"devotee","query":"Lalpur ke paas mandir","category":"religion-nearby","expectedPackTypes":["TEMPLE","PILGRIMAGE"],"minHits":2,"requiredFactGroups":["ADDRESS","COORDINATES"]}
+{"id":"R038","persona":"devotee","query":"Deori Mandir kahan hai","category":"religion","expectedPackTypes":["TEMPLE","PILGRIMAGE"],"minHits":1,"requiredFactGroups":["ADDRESS","COORDINATES"]}
+{"id":"R039","persona":"devotee","query":"Ranchi me famous church kahan hai","category":"religion","minHits":2,"requiredFactGroups":["ADDRESS"]}
+{"id":"R040","persona":"devotee","query":"Ranchi me gurudwara kahan hai","category":"religion","minHits":2,"requiredFactGroups":["ADDRESS"]}
+{"id":"R041","persona":"devotee","query":"Ranchi me mosque near Main Road","category":"religion-nearby","minHits":2,"requiredFactGroups":["ADDRESS"]}
+{"id":"R042","persona":"devotee","query":"Deori Mandir aaj kitne baje band hoga","category":"religion-live","minHits":1,"requiredFactGroups":["TIMINGS"],"requiresCurrentData":true}
+{"id":"R043","persona":"student","query":"Ranchi me major colleges kaun se hain","category":"education","minHits":5,"requiredFactGroups":["ADDRESS"]}
+{"id":"R044","persona":"student","query":"Ranchi University kahan hai","category":"education","minHits":1,"requiredFactGroups":["ADDRESS","COORDINATES"]}
+{"id":"R045","persona":"student","query":"Lalpur ke paas library","category":"education-locality","minHits":2,"requiredFactGroups":["ADDRESS"]}
+{"id":"R046","persona":"student","query":"students ke liye sasta khana Lalpur me","category":"student-food","minHits":3,"requiredFactGroups":["ADDRESS","PRICE"]}
+{"id":"R047","persona":"student","query":"Ranchi me exam centre jane ke liye railway station se route","category":"student-transport","minHits":1,"requiredFactGroups":["TRANSPORT"]}
+{"id":"R048","persona":"job_seeker","query":"Ranchi me IT companies kis area me hain","category":"work","minHits":3,"requiredFactGroups":["ADDRESS"]}
+{"id":"R049","persona":"office_worker","query":"Ranchi me coworking space kahan hai","category":"work-space","minHits":2,"requiredFactGroups":["ADDRESS","FACILITY"]}
+{"id":"R050","persona":"business_visitor","query":"airport se business meeting ke liye city centre kaise jaye","category":"business-transport","minHits":2,"requiredFactGroups":["TRANSPORT","ADDRESS"]}
+{"id":"R051","persona":"business_visitor","query":"Ranchi ke major business areas kaun se hain","category":"business-area","minHits":3,"requiredFactGroups":["ADDRESS"]}
+{"id":"R052","persona":"business_visitor","query":"Ranchi me convention ya large meeting venue","category":"business-venue","minHits":2,"requiredFactGroups":["ADDRESS","FACILITY"]}
+{"id":"R053","persona":"shopkeeper","query":"wholesale market Ranchi me kahan hai","category":"business-market","minHits":3,"requiredFactGroups":["ADDRESS","OFFERINGS"]}
+{"id":"R054","persona":"shopkeeper","query":"Upper Bazar kis cheez ke liye famous hai","category":"business-market","minHits":1,"requiredFactGroups":["OFFERINGS"]}
+{"id":"R055","persona":"commuter","query":"Ranchi railway station kahan hai","category":"transport","minHits":1,"requiredFactGroups":["ADDRESS","COORDINATES"]}
+{"id":"R056","persona":"commuter","query":"Birsa Munda airport se Lalpur kaise jaye","category":"transport","minHits":2,"requiredFactGroups":["TRANSPORT","ADDRESS"]}
+{"id":"R057","persona":"commuter","query":"Ranchi me main bus stand kahan hai","category":"transport","minHits":2,"requiredFactGroups":["ADDRESS","COORDINATES"]}
+{"id":"R058","persona":"commuter","query":"Ranchi me auto fare kitna lagega","category":"transport-live","minHits":1,"requiredFactGroups":["PRICE"],"requiresCurrentData":true}
+{"id":"R059","persona":"driver","query":"Dassam Falls me parking hai kya","category":"parking","expectedPackTypes":["WATERFALL"],"minHits":1,"requiredFactGroups":["PARKING"]}
+{"id":"R060","persona":"driver","query":"Ranchi me EV charging station","category":"mobility-service","minHits":3,"requiredFactGroups":["ADDRESS"]}
+{"id":"R061","persona":"driver","query":"Lalpur ke paas petrol pump","category":"mobility-service","minHits":3,"requiredFactGroups":["ADDRESS","COORDINATES"]}
+{"id":"R062","persona":"driver","query":"abhi Ranchi traffic kaisa hai","category":"traffic-live","requiresCurrentData":true,"minHits":1,"requiredFactGroups":[]}
+{"id":"R063","persona":"patient","query":"Ranchi me emergency hospital kahan hai","category":"health-emergency","minHits":4,"requiredFactGroups":["ADDRESS","COORDINATES","CONTACT"]}
+{"id":"R064","persona":"caregiver","query":"Bariatu ke paas hospital","category":"health-nearby","minHits":3,"requiredFactGroups":["ADDRESS","COORDINATES"]}
+{"id":"R065","persona":"local_resident","query":"Lalpur ke paas pharmacy","category":"pharmacy","minHits":3,"requiredFactGroups":["ADDRESS","COORDINATES"]}
+{"id":"R066","persona":"caregiver","query":"24 hour pharmacy abhi open hai kya","category":"pharmacy-live","locationContext":"Bariatu Ranchi","minHits":2,"requiredFactGroups":["TIMINGS","ADDRESS"],"requiresCurrentData":true}
+{"id":"R067","persona":"local_resident","query":"Ranchi fire station contact","category":"emergency","minHits":2,"requiredFactGroups":["CONTACT","ADDRESS"]}
+{"id":"R068","persona":"local_resident","query":"police emergency number Ranchi","category":"emergency","minHits":1,"requiredFactGroups":["CONTACT"]}
+{"id":"R069","persona":"history_learner","query":"Birsa Munda ka Ranchi se kya connection hai","category":"history","minHits":1,"requiredFactGroups":[]}
+{"id":"R070","persona":"history_learner","query":"Ranchi me Birsa Munda related places","category":"history-place","minHits":3,"requiredFactGroups":["ADDRESS"]}
+{"id":"R071","persona":"culture_learner","query":"Munda logon ke bare me simple me batao","category":"culture-history","minHits":1,"requiredFactGroups":[]}
+{"id":"R072","persona":"culture_learner","query":"Oraon culture Ranchi me kahan samajh sakte hain","category":"culture-place","minHits":2,"requiredFactGroups":["ADDRESS"]}
+{"id":"R073","persona":"culture_learner","query":"Sarhul kya hai","category":"festival","minHits":1,"requiredFactGroups":[]}
+{"id":"R074","persona":"culture_learner","query":"Sarhul kab hota hai","category":"festival","minHits":1,"requiredFactGroups":["SEASON"]}
+{"id":"R075","persona":"local_resident","query":"Sarhul procession aaj kahan se niklega","category":"festival-live","minHits":1,"requiredFactGroups":["ADDRESS","TIMINGS"],"requiresCurrentData":true}
+{"id":"R076","persona":"culture_learner","query":"Ranchi me Sohrai art kahan dekh sakte hain","category":"art-craft","expectedPackTypes":["ART","CRAFT"],"minHits":2,"requiredFactGroups":["ADDRESS"]}
+{"id":"R077","persona":"photographer","query":"Ranchi me sunrise photo ke liye jagah","category":"photography","minHits":3,"requiredFactGroups":["ADDRESS"]}
+{"id":"R078","persona":"photographer","query":"Patratu Valley photography ke liye best season","category":"photography-season","minHits":1,"requiredFactGroups":["SEASON"]}
+{"id":"R079","persona":"couple","query":"Ranchi me peaceful evening place","category":"leisure","minHits":3,"requiredFactGroups":["ADDRESS"]}
+{"id":"R080","persona":"couple","query":"Ranchi me cafe date ke liye","category":"cafe","minHits":3,"requiredFactGroups":["ADDRESS","PRICE"]}
+{"id":"R081","persona":"fitness_user","query":"Ranchi me morning walk park","category":"fitness-park","expectedPackTypes":["PARK"],"minHits":3,"requiredFactGroups":["ADDRESS"]}
+{"id":"R082","persona":"sports_user","query":"Ranchi me sports stadium kahan hai","category":"sports","minHits":2,"requiredFactGroups":["ADDRESS","COORDINATES"]}
+{"id":"R083","persona":"local_resident","query":"Ranchi me public toilet kahan hai","category":"public-utility","minHits":3,"requiredFactGroups":["ADDRESS","TOILET"]}
+{"id":"R084","persona":"local_resident","query":"Lalpur ke paas ATM","category":"banking-utility","minHits":3,"requiredFactGroups":["ADDRESS","COORDINATES"]}
+{"id":"R085","persona":"local_resident","query":"Kanke ke paas bank branch","category":"banking-utility","minHits":3,"requiredFactGroups":["ADDRESS"]}
+{"id":"R086","persona":"local_resident","query":"bike puncture repair near me","category":"repair-service","locationContext":"Lalpur Ranchi","requiresLocationContext":true,"minHits":2,"requiredFactGroups":["ADDRESS"]}
+{"id":"R087","persona":"local_resident","query":"mobile repair shop Lalpur","category":"repair-service","minHits":3,"requiredFactGroups":["ADDRESS"]}
+{"id":"R088","persona":"local_resident","query":"Ranchi me handicraft kahan kharide","category":"shopping","minHits":3,"requiredFactGroups":["ADDRESS","OFFERINGS"]}
+{"id":"R089","persona":"tourist","query":"Jharkhand se kya souvenir leke jau Ranchi se","category":"shopping-culture","minHits":3,"requiredFactGroups":[]}
+{"id":"R090","persona":"local_resident","query":"Ranchi me mall kahan hai","category":"shopping","minHits":3,"requiredFactGroups":["ADDRESS"]}
+{"id":"R091","persona":"local_resident","query":"aaj Ranchi weather kaisa hai","category":"weather-live","minHits":1,"requiresCurrentData":true,"requiredFactGroups":[]}
+{"id":"R092","persona":"tourist","query":"kal Dassam Falls jana weather theek rahega","category":"weather-trip","minHits":1,"requiresCurrentData":true,"requiredFactGroups":[]}
+{"id":"R093","persona":"local_resident","query":"Ranchi me monsoon kab hota hai","category":"climate","minHits":1,"requiredFactGroups":["SEASON"]}
+{"id":"R094","persona":"tourist","query":"waterfall monsoon me safe hai kya","category":"nature-safety","locationContext":"Dassam Falls Ranchi","minHits":1,"requiredFactGroups":["SAFETY","SEASON"]}
+{"id":"R095","persona":"citizen","query":"Ranchi district collector office kahan hai","category":"government","minHits":1,"requiredFactGroups":["ADDRESS","COORDINATES"]}
+{"id":"R096","persona":"citizen","query":"Ranchi municipal office kahan hai","category":"government","minHits":1,"requiredFactGroups":["ADDRESS"]}
+{"id":"R097","persona":"citizen","query":"Ranchi ka current DC kaun hai","category":"government-live","minHits":1,"requiresCurrentData":true,"requiredFactGroups":[]}
+{"id":"R098","persona":"business_owner","query":"trade license ke liye Ranchi me kis office jana hai","category":"civic-business","minHits":1,"requiredFactGroups":["ADDRESS"]}
+{"id":"R099","persona":"new_resident","query":"Lalpur area me kya kya useful hai","category":"neighborhood-overview","minHits":5,"requiredFactGroups":["ADDRESS"]}
+{"id":"R100","persona":"new_resident","query":"Doranda kis cheez ke liye known hai","category":"neighborhood-overview","minHits":3,"requiredFactGroups":[]}
+{"id":"R101","persona":"new_resident","query":"Harmu ke paas market hospital park batao","category":"neighborhood-mixed","minHits":5,"requiredFactGroups":["ADDRESS"]}
+{"id":"R102","persona":"new_resident","query":"Kanke me family ke liye useful places","category":"neighborhood-family","minHits":4,"requiredFactGroups":["ADDRESS"]}
+{"id":"R103","persona":"tourist","query":"mere aas paas mandir hai","category":"near-me","locationContext":"Lalpur Ranchi","requiresLocationContext":true,"expectedPackTypes":["TEMPLE","PILGRIMAGE"],"minHits":2,"requiredFactGroups":["ADDRESS","COORDINATES"]}
+{"id":"R104","persona":"tourist","query":"mere paas khane ki jagah","category":"near-me-food","locationContext":"Main Road Ranchi","requiresLocationContext":true,"minHits":3,"requiredFactGroups":["ADDRESS"]}
+{"id":"R105","persona":"parent","query":"parents aur kids dono ke liye Ranchi me jagah","category":"multi-constraint","minHits":4,"requiredFactGroups":["ACCESSIBILITY","KIDS","ADDRESS"]}
+{"id":"R106","persona":"driver","query":"parking ke saath family restaurant Ranchi","category":"multi-constraint","minHits":3,"requiredFactGroups":["PARKING","FAMILY","ADDRESS"]}
+{"id":"R107","persona":"elderly","query":"mandir jana hai parents ke sath parking bhi chahiye stairs kam ho","category":"multi-constraint","locationContext":"Ranchi","minHits":2,"requiredFactGroups":["PARKING","ACCESSIBILITY","ADDRESS"]}
+{"id":"R108","persona":"tourist","query":"peaceful nature place near Ranchi parents ke sath little walking","category":"multi-constraint","minHits":3,"requiredFactGroups":["ACCESSIBILITY","ADDRESS"]}
+{"id":"R109","persona":"local_resident","query":"mutton kahan","category":"short-fragment","locationContext":"Ranchi","minHits":2,"requiredFactGroups":["ADDRESS","OFFERINGS"]}
+{"id":"R110","persona":"local_resident","query":"child park address","category":"short-fragment","locationContext":"Lalpur Ranchi","minHits":2,"requiredFactGroups":["ADDRESS","KIDS"]}
+{"id":"R111","persona":"tourist","query":"deri mandir kaha h","category":"misspelling","expectedPackTypes":["TEMPLE","PILGRIMAGE"],"minHits":1,"requiredFactGroups":["ADDRESS"]}
+{"id":"R112","persona":"foodie","query":"rugda kaha milega","category":"alias-misspelling","locationContext":"Ranchi","minHits":1,"requiredFactGroups":["SEASON"]}
+{"id":"R113","persona":"local_resident","query":"bajar near lalpur","category":"misspelling-locality","minHits":2,"requiredFactGroups":["ADDRESS","OFFERINGS"]}
+{"id":"R114","persona":"tourist","query":"waterfal near ranchi","category":"misspelling","expectedPackTypes":["WATERFALL"],"minHits":3,"requiredFactGroups":["ADDRESS"]}
+{"id":"R115","persona":"resident","query":"Ranchi ke aas paas gaon aur local culture dekhna hai","category":"rural-culture","minHits":3,"requiredFactGroups":["ADDRESS"]}
+{"id":"R116","persona":"business_visitor","query":"airport ke paas hotel aur meeting place","category":"business-travel","minHits":3,"requiredFactGroups":["ADDRESS"]}
+{"id":"R117","persona":"premium_traveller","query":"Ranchi me premium family dining","category":"restaurant-premium","minHits":3,"requiredFactGroups":["ADDRESS","CUISINE","PRICE","FAMILY"]}
+{"id":"R118","persona":"visitor","query":"Ranchi me museum aaj open hai kya","category":"museum-live","expectedPackTypes":["MUSEUM"],"minHits":1,"requiredFactGroups":["TIMINGS"],"requiresCurrentData":true}
+{"id":"R119","persona":"resident","query":"Ranchi me aaj koi mela ya event hai","category":"event-live","minHits":1,"requiresCurrentData":true,"requiredFactGroups":["ADDRESS","TIMINGS"]}
+{"id":"R120","persona":"general","query":"What is the capital of Australia?","category":"out-of-domain","minHits":1,"requiredFactGroups":[]}
