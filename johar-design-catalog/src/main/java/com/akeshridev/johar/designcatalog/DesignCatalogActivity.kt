@@ -48,6 +48,7 @@ import com.akeshridev.johar.designsystem.JoharRouteCard
 import com.akeshridev.johar.designsystem.JoharRouteCardModel
 import com.akeshridev.johar.designsystem.JoharRouteStop
 import com.akeshridev.johar.designsystem.JoharSourceRow
+import com.akeshridev.johar.designsystem.JoharSplashScreen
 import com.akeshridev.johar.designsystem.JoharSuggestionCard
 import com.akeshridev.johar.designsystem.JoharTheme
 import com.akeshridev.johar.designsystem.JoharUtilityCard
@@ -90,7 +91,13 @@ private fun DesignCatalogScreen(
                         Text(if (darkTheme) "Dark" else "Light", style = MaterialTheme.typography.labelSmall)
                     }
                 }
-                Spacer(Modifier.height(20.dp))
+            }
+
+            CatalogSection("Splash experience") {
+                JoharSplashScreen(compactPreview = true)
+            }
+
+            Column(Modifier.padding(horizontal = 20.dp)) {
                 Surface(
                     shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
                     color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
