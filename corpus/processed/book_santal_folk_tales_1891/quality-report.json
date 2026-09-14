@@ -8,12 +8,12 @@
   "sectionCount": 32,
   "chunkWordMin": 53,
   "chunkWordMax": 695,
-  "chunkWordAverage": 512.2,
+  "chunkWordAverage": 512.8,
   "shortChunkCount": 6,
   "duplicateChunkIdCount": 0,
   "duplicateTextCount": 0,
   "missingPageCount": 0,
-  "ragChunkBytes": 282692,
+  "ragChunkBytes": 282910,
   "warnings": [
     "6 chunks are below 250 words; allowed at semantic/section boundaries but should be sampled."
   ],
