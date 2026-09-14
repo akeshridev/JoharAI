@@ -93,6 +93,7 @@ internal class OverpassSpecializedDiscoveryAdapter(
     private fun placesSelector(term: String): String? = when {
         "neighborhood" in term || "localit" in term ->
             "nwr(area.searchArea)[\"place\"~\"suburb|neighbourhood|quarter|locality\"][\"name\"];"
+        "village" in term -> "nwr(area.searchArea)[\"place\"=\"village\"][\"name\"];"
         "waterfall" in term -> "nwr(area.searchArea)[\"natural\"=\"waterfall\"][\"name\"];"
         "picnic" in term -> "nwr(area.searchArea)[\"tourism\"=\"picnic_site\"][\"name\"];"
         "children park" in term || "playground" in term ->
@@ -112,15 +113,21 @@ internal class OverpassSpecializedDiscoveryAdapter(
             "nwr(area.searchArea)[\"amenity\"=\"place_of_worship\"][\"religion\"=\"sikh\"][\"name\"];"
         "museum" in term -> "nwr(area.searchArea)[\"tourism\"=\"museum\"][\"name\"];"
         "heritage" in term -> "nwr(area.searchArea)[\"heritage\"][\"name\"];"
+        "hotel" in term -> "nwr(area.searchArea)[\"tourism\"~\"hotel|guest_house|hostel\"][\"name\"];"
+        "convention" in term -> "nwr(area.searchArea)[\"amenity\"=\"conference_centre\"][\"name\"];"
+        "event venue" in term -> "nwr(area.searchArea)[\"amenity\"=\"events_venue\"][\"name\"];"
         "railway" in term || "train station" in term ->
             "nwr(area.searchArea)[\"railway\"~\"station|halt\"][\"name\"];"
         "bus terminal" in term || "bus stand" in term ->
             "nwr(area.searchArea)[\"amenity\"=\"bus_station\"][\"name\"];"
         "airport" in term -> "nwr(area.searchArea)[\"aeroway\"=\"aerodrome\"][\"name\"];"
+        "parking" in term -> "nwr(area.searchArea)[\"amenity\"=\"parking\"][\"name\"];"
         "college" in term -> "nwr(area.searchArea)[\"amenity\"=\"college\"][\"name\"];"
         "universit" in term -> "nwr(area.searchArea)[\"amenity\"=\"university\"][\"name\"];"
         "librar" in term -> "nwr(area.searchArea)[\"amenity\"=\"library\"][\"name\"];"
         "stadium" in term -> "nwr(area.searchArea)[\"leisure\"=\"stadium\"][\"name\"];"
+        "gym" in term -> "nwr(area.searchArea)[\"leisure\"=\"fitness_centre\"][\"name\"];"
+        "cinema" in term -> "nwr(area.searchArea)[\"amenity\"=\"cinema\"][\"name\"];"
         "government office" in term -> "nwr(area.searchArea)[\"office\"=\"government\"][\"name\"];"
         "industrial" in term -> "nwr(area.searchArea)[\"landuse\"=\"industrial\"][\"name\"];"
         "business area" in term -> "nwr(area.searchArea)[\"landuse\"=\"commercial\"][\"name\"];"
@@ -173,6 +180,7 @@ internal class OverpassSpecializedDiscoveryAdapter(
             "nwr(area.searchArea)[\"amenity\"=\"marketplace\"][\"name\"];"
         "handicraft" in term -> "nwr(area.searchArea)[\"shop\"~\"craft|gift|art\"][\"name\"];"
         "shopping mall" in term || "malls" in term -> "nwr(area.searchArea)[\"shop\"=\"mall\"][\"name\"];"
+        "supermarket" in term -> "nwr(area.searchArea)[\"shop\"=\"supermarket\"][\"name\"];"
         "bank" in term || "atm" in term -> "nwr(area.searchArea)[\"amenity\"~\"bank|atm\"][\"name\"];"
         "petrol" in term || "fuel" in term -> "nwr(area.searchArea)[\"amenity\"=\"fuel\"][\"name\"];"
         "charging" in term || "ev " in "$term " ->
@@ -186,6 +194,8 @@ internal class OverpassSpecializedDiscoveryAdapter(
             nwr(area.searchArea)["shop"="motorcycle"]["service:motorcycle:repair"="yes"]["name"];
             nwr(area.searchArea)["shop"="bicycle"]["service:bicycle:repair"="yes"]["name"];
         """.trimIndent()
+        "car repair" in term -> "nwr(area.searchArea)[\"shop\"=\"car_repair\"][\"name\"];"
+        "courier" in term -> "nwr(area.searchArea)[\"office\"~\"courier|logistics\"][\"name\"];"
         else -> null
     }
 
@@ -193,6 +203,7 @@ internal class OverpassSpecializedDiscoveryAdapter(
         val amenity = tags.optString("amenity")
         val shop = tags.optString("shop")
         val place = tags.optString("place")
+        val tourism = tags.optString("tourism")
         return when {
             amenity in setOf("hospital", "clinic") -> EntityType.HOSPITAL
             amenity == "police" -> EntityType.POLICE_STATION
@@ -202,14 +213,18 @@ internal class OverpassSpecializedDiscoveryAdapter(
             amenity in setOf("restaurant", "cafe", "fast_food") -> EntityType.RESTAURANT
             amenity == "bus_station" -> EntityType.BUS_STAND
             amenity == "pharmacy" -> EntityType.SHOP
-            amenity in setOf("bank", "atm", "library", "college", "university", "place_of_worship", "fuel", "charging_station", "toilets") ->
-                EntityType.FACILITY
+            amenity in setOf(
+                "bank", "atm", "library", "college", "university", "place_of_worship", "fuel",
+                "charging_station", "toilets", "parking", "conference_centre", "events_venue", "cinema",
+            ) -> EntityType.FACILITY
             tags.optString("railway") in setOf("station", "halt") -> EntityType.RAILWAY_STATION
             tags.optString("aeroway") == "aerodrome" -> EntityType.AIRPORT
+            tourism in setOf("hotel", "guest_house", "hostel") -> EntityType.FACILITY
             shop.isNotBlank() -> EntityType.SHOP
+            place == "village" -> EntityType.VILLAGE
             place in setOf("suburb", "neighbourhood", "quarter", "locality") -> EntityType.PLACE
             tags.optString("natural").isNotBlank() || tags.optString("waterway") == "dam" -> EntityType.NATURAL_FEATURE
-            tags.has("tourism") || tags.optString("leisure") in setOf("park", "playground", "stadium") ->
+            tourism.isNotBlank() || tags.optString("leisure") in setOf("park", "playground", "stadium", "fitness_centre") ->
                 EntityType.TOURIST_ATTRACTION
             tags.has("office") -> EntityType.ORGANIZATION
             else -> when (keyword.category) {
@@ -223,6 +238,7 @@ internal class OverpassSpecializedDiscoveryAdapter(
     private fun packTypeFor(keyword: CrawlKeyword, tags: JSONObject): String? {
         val term = normalizeText(keyword.term)
         return when {
+            "village" in term -> "VILLAGE"
             "waterfall" in term -> "WATERFALL"
             "dam" in term -> "DAM"
             "lake" in term -> "LAKE"
@@ -235,13 +251,19 @@ internal class OverpassSpecializedDiscoveryAdapter(
             "gurudwara" in term || "gurdwara" in term -> "GURUDWARA"
             "museum" in term -> "MUSEUM"
             "heritage" in term -> "HERITAGE_SITE"
+            "hotel" in term -> "HOTEL"
+            "convention" in term -> "CONVENTION_VENUE"
+            "event venue" in term -> "EVENT_VENUE"
             "railway" in term || "train station" in term -> "RAILWAY_STATION"
             "bus terminal" in term || "bus stand" in term -> "BUS_STAND"
             "airport" in term -> "AIRPORT"
+            "parking" in term -> "PARKING"
             "college" in term -> "COLLEGE"
             "universit" in term -> "UNIVERSITY"
             "librar" in term -> "LIBRARY"
             "stadium" in term -> "STADIUM"
+            "gym" in term -> "GYM"
+            "cinema" in term -> "CINEMA"
             "cowork" in term -> "COWORKING"
             "industrial" in term -> "INDUSTRIAL_AREA"
             "business area" in term -> "BUSINESS_AREA"
@@ -259,11 +281,13 @@ internal class OverpassSpecializedDiscoveryAdapter(
             "haat" in term || "bazar" in term || "market" in term || "mandi" in term -> "MARKET_COLLECTION"
             "handicraft" in term -> "HANDICRAFT_SHOP"
             "mall" in term -> "MALL"
+            "supermarket" in term -> "SUPERMARKET"
             "bank" in term || "atm" in term -> if (tags.optString("amenity") == "atm") "ATM" else "BANK"
             "petrol" in term || "fuel" in term -> "FUEL"
             "charging" in term || "ev " in "$term " -> "EV_CHARGING"
             "toilet" in term -> "TOILET"
             "repair" in term -> "REPAIR"
+            "courier" in term -> "COURIER"
             "neighborhood" in term || "localit" in term -> "LOCALITY"
             else -> null
         }
