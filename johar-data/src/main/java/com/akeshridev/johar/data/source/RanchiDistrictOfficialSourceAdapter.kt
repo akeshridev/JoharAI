@@ -11,6 +11,7 @@ import com.akeshridev.johar.domain.source.Freshness
 import com.akeshridev.johar.domain.source.KnowledgeDomain
 import com.akeshridev.johar.domain.source.SourceFact
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 
 /**
@@ -230,7 +231,7 @@ internal class RanchiDistrictOfficialSourceAdapter(
             val state = cells[4].text().trim()
             val pincode = cells[5].text().trim()
 
-            // The official page contains legacy entries from old district boundaries. For the
+            // The official page includes legacy entries from old district boundaries. For the
             // city prototype, retain rows explicitly attached to Ranchi taluk only.
             if (!district.equals("Ranchi", true) || !taluk.equals("Ranchi", true)) return@forEach
             if (office.isBlank() || pincode.length !in 5..6) return@forEach
@@ -280,7 +281,8 @@ internal class RanchiDistrictOfficialSourceAdapter(
             val detailRaw = runCatching { fetcher.get(url) }.getOrNull()
             if (detailRaw != null) snapshots += "URL=$url\n$detailRaw"
             val detail = detailRaw?.let { Jsoup.parse(it, url) }
-            val name = detail?.selectFirst("h1")?.text()?.trim().takeUnless(String?::isNullOrBlank) ?: listedName
+            val detailName = detail?.selectFirst("h1")?.text()?.trim()
+            val name = detailName?.takeIf { it.isNotBlank() } ?: listedName
             val description = detail?.select("p")
                 ?.asSequence()
                 ?.map { it.text().trim() }
@@ -317,7 +319,7 @@ internal class RanchiDistrictOfficialSourceAdapter(
     private fun howToReachFacts(
         entityId: String,
         sourceUrl: String,
-        document: org.jsoup.nodes.Document,
+        document: Document,
         retrievedAt: Long,
     ): List<SourceFact> = buildList {
         document.select("h3").forEach { heading ->
@@ -378,12 +380,7 @@ internal class RanchiDistrictOfficialSourceAdapter(
         freshness = freshness,
     )
 
-    private fun nearestItemContainer(heading: Element): Element? =
-        heading.parents().firstOrNull { parent ->
-            parent.tagName() == "li" || parent.classNames().any { it.contains("row", true) || it.contains("item", true) }
-        } ?: heading.parent()
-
-    private fun nearbySummary(document: org.jsoup.nodes.Document, detailUrl: String): String? {
+    private fun nearbySummary(document: Document, detailUrl: String): String? {
         val anchor = document.select("a[href]").firstOrNull { it.absUrl("href") == detailUrl } ?: return null
         val container = nearestItemContainer(anchor) ?: anchor.parent() ?: return null
         return container.text()
