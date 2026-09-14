@@ -1,64 +1,111 @@
 # Johar AI Agent Context
 
 ## Product
-Johar AI is an offline-first Android companion for discovering and understanding Jharkhand through trusted local knowledge.
+Johar AI is an offline-first Android local-knowledge assistant.
 
-Johar should feel like a micro-ChatGPT whose world is Jharkhand.
+### V1 prototype focus
+V1 is deliberately Ranchi-first:
+- Ranchi city
+- Ranchi district
+- Ranchi neighborhoods/localities
+- nearby day-trip places that a Ranchi user would realistically ask about, roughly within an 80-100 km travel radius when useful
+
+The architecture must remain scalable district-by-district across Jharkhand, but V1 quality is measured on Ranchi depth rather than statewide breadth.
+
+See `docs/ranchi-v1-scope.md` for the full persona/domain matrix.
 
 ## Core product principle
-Johar must be useful to people across Jharkhand, including users who prefer speaking over typing, have limited digital literacy, read slowly, use mixed/local language, or have unreliable connectivity.
+Johar should feel like a small local ChatGPT whose strongest world knowledge is Ranchi.
+
+It must be useful not only to tourists, but also to:
+- local residents
+- children, parents and elderly users
+- women travelling alone
+- students and job seekers
+- commuters, drivers and bikers
+- businessmen, business visitors and shopkeepers
+- patients/caregivers
+- devotees
+- foodies
+- people with accessibility needs
+- users with limited connectivity or low digital literacy
 
 Design data and presentation around these needs:
 - natural spoken questions should work as well as typed questions;
-- terse, fragmented, misspelled, colloquial, and one-word queries should still be useful when intent can be inferred;
-- answers should use simple, direct language before detail;
-- support Hindi/Hinglish and local-language vocabulary/aliases as the knowledge base grows;
-- prefer short actionable answers, icons, cards, images, audio/voice, and clear choices over dense paragraphs;
-- preserve local names and colloquial terms so users do not need formal spelling or terminology;
-- offline/local knowledge should remain useful under poor connectivity;
-- trust must be visible through source/evidence cues without forcing users to understand technical provenance;
-- follow-up questions should feel conversational, not like navigating a database.
-
-The product should reduce the amount of reading, typing, navigation, and technical knowledge required to get a useful answer.
+- terse, fragmented, misspelled, colloquial and one-word queries should still work when intent can be inferred;
+- support English, Hindi, Hinglish and local vocabulary/aliases as the knowledge base grows;
+- preserve conversational context, e.g. `mere aas paas mandir?` -> `Lalpur` must continue with Lalpur as the location constraint;
+- prefer short actionable answers before detail;
+- trust must be visible through source/evidence cues;
+- never invent a top list, shop, timing, address, availability or safety claim.
 
 ## V1 knowledge universe
-Prioritize seven everyday Jharkhand knowledge areas:
-1. Places
-2. Food
-3. Festivals
-4. Culture
-5. Emergency information
-6. Weather
-7. Local bazar / haat / market knowledge
+Do not optimize only for tourism. Ranchi V1 should cover as much useful local life as reliable data allows:
+1. Places, neighborhoods and navigation
+2. Food, restaurants, cafes and street food
+3. Haat, bazar, mandi, meat/fish/vegetable markets and shopping
+4. Religion/spiritual places
+5. Family, children, elderly and accessibility
+6. Hospitals, pharmacies where supported, police/fire/emergency
+7. Transport, airport, railway, bus, parking and mobility
+8. Education, colleges, universities, libraries and student life
+9. Work, business areas, industrial/business institutions and useful business services
+10. Civic/government/public facilities
+11. Culture, tribes, history, language, art, craft, music and dance
+12. Festivals, fairs and events
+13. Nature, biodiversity, weather and seasonal knowledge
+14. Safety and practical needs
+15. Recreation, sports, photography and lifestyle
+16. Everyday local utilities such as banks/ATMs, fuel, toilets and repair/service categories when reliable open data exists
 
-These organize discovery and presentation; they are not separate screens or rigid database silos.
+## Freshness model
+Treat facts differently by freshness:
+- `STATIC_OR_SLOW`: identity, geography, history, culture, long-lived relationships.
+- `PRACTICAL_CHANGEABLE`: addresses, facilities, accessibility, restaurant/market metadata, typical market day. Refresh periodically.
+- `LIVE`: weather, open-now, current inventory, traffic, fares, event route/status, current officeholder. Never imply freshness without current evidence.
 
-Johar should eventually answer questions such as:
-- "Dassam Falls kaise jayega?"
-- "Rugra kab milta hai?"
-- "Sarhul kya hai?"
-- "bazar near me"
-- "pork kaha milega?"
-- "nearby haat kab lagta hai?"
-- short local terms whose meaning can be resolved from conversation/location context
+Historical books/gazetteers are historical evidence only. They must not be used to prove current roads, hours, facilities, officials, business status or political status.
 
-Near-me and availability answers are location-sensitive and freshness-sensitive. Static shop/market metadata can identify a likely seller; it must never be presented as live inventory unless a fresh source explicitly supports that claim.
+## Answer behavior
+Johar should not reflexively say `online search karun?`.
 
-## V1 scope — DATA + PRESENTATION ONLY
-Focus only on:
-1. Data — discover, crawl, refresh, model, store, retrieve, and source Jharkhand knowledge.
-2. Presentation — turn retrieved knowledge into simple conversational answers on one chat screen, with inline cards/media/source cues when useful.
+- Strong offline evidence -> answer directly.
+- Partial evidence -> answer the known part and clearly state the missing part.
+- Near-me request without location -> ask only for location/locality.
+- Live question without fresh evidence -> explain that the live portion cannot be verified while still giving useful static context.
+- No evidence -> say the local corpus does not support the claim; do not fabricate.
+
+## Evaluation strategy
+Keep two separate benchmarks:
+
+### Frozen retrieval evaluation
+Existing retrieval benchmark remains frozen. Do not tune retrieval merely to game this benchmark.
+
+### Ranchi Coverage Eval
+A product-coverage benchmark built from realistic Ranchi queries across personas and domains. Track:
+- answerable / partial / no-evidence
+- missing fact groups
+- wrong result type
+- locality coverage
+- freshness-required cases
+- persona/domain coverage
+- provenance completeness
+
+The primary V1 success criterion is practical Ranchi answerability, not corpus megabytes.
+
+## V1 scope — DATA + PRESENTATION
+Focus on:
+1. Data — discover, crawl, ingest, refresh, model, store, retrieve and source Ranchi knowledge.
+2. Presentation — turn retrieved knowledge into simple conversational answers on one chat screen with cards/media/source cues when useful.
 
 Out of scope unless explicitly changed:
-- multiple screens/navigation
-- browse/category/detail pages
+- multiple product screens/navigation
 - accounts/social/community
-- backend/platform expansion
 - unrelated Android infrastructure
-- speculative features not required to collect or present knowledge
+- speculative features that do not improve Ranchi knowledge quality
 
 ## Product interaction invariant
-Johar has one primary product surface: a single chat screen. Rich components such as entity cards, facts, images/video, source chips, warnings, and follow-up prompts live inside chat; they are not destinations.
+Johar has one primary product surface: a single chat screen. Rich cards, facts, images/video, source cues, warnings and follow-up prompts appear inside chat.
 
 ## Core knowledge model
 Keep five concepts basic and extensible:
@@ -68,43 +115,44 @@ Keep five concepts basic and extensible:
 - Source
 - Media
 
-`EntityType` answers what a thing is. `KnowledgeDomain` answers what kind of fact is stored about it.
+`EntityType` answers what a thing is. `KnowledgeDomain` answers what kind of fact is stored about it. Facts remain source-backed key/value records. Relationships connect entities. Media remains separate from binary storage.
 
-Examples:
-- Dassam Falls -> `TOURIST_ATTRACTION`
-- Rugra -> `FOOD`
-- Sarhul -> `FESTIVAL`
-- a haat/bazar -> `MARKET`
+## Data priorities
+For the Ranchi prototype, high-density practical local data outranks additional historical-book volume.
 
-Facts remain extensible source-backed key/value records. Relationships connect real entities. Media remains separate from binary storage.
+Prioritize:
+- locality/address/coordinate coverage
+- temples/religious sites
+- parks/kids/family places
+- restaurants/food/seasonal food
+- haat/bazar/markets/meat/fish/vegetable shopping
+- hospitals/police/emergency
+- airport/rail/bus/transport landmarks
+- accessibility, walking, stairs, parking, toilets when sourceable
+- colleges/universities/student landmarks
+- business/industrial/public institutions
+- culture/history/festivals
+- nearby day trips
 
-## Current crawler implementation
-The V1 crawler is active in `johar-data`; it is no longer only a single Dassam HTML harness.
+Historical/cultural corpora remain valuable supporting evidence, not the main volume target.
 
-Bootstrap targets:
-- `JHARKHAND` — statewide discovery root and default developer crawl target.
-- `DASSAM_FALLS` — focused validation entity.
+## Current open-source adapters
+Current adapters include:
+- Wikidata — identity, aliases, coordinates, claims, graph links, image references
+- OpenStreetMap / Overpass — places, local services, hospitals/police, markets/shops, travel infrastructure
+- Wikipedia — background/history/culture/food/festival/place text and discovery
+- Wikivoyage — travel/practical text and discovery
+- Wikimedia Commons — media references and license/attribution metadata
+- Open-Meteo — current and short-forecast weather for coordinate-bearing entities
 
-Crawling is dynamic and source-driven. Do not hardcode entity-specific source URLs, Wikidata Q IDs, OSM IDs, or Commons category IDs. Source identifiers are resolved at runtime and persisted in entity external references.
+Do not use the public Nominatim service as a periodic/bulk crawler.
 
-Current open-source adapters:
-- Wikidata — identity, aliases, coordinates, generic claims, graph links, image references.
-- OpenStreetMap / Overpass — places, local services, nearby entities, hospitals/police, markets/shops, travel infrastructure, bounded statewide discovery.
-- Wikipedia — background/history/culture/food/festival/place text and discovery.
-- Wikivoyage — travel/practical text and discovery.
-- Wikimedia Commons — image/video references and attribution/license metadata.
-- Open-Meteo — current and short-forecast weather facts for coordinate-bearing place entities.
+## Persistent discovery
+The discovery loop remains:
 
-Do not use the public Nominatim service as a periodic/bulk statewide crawler. If it is introduced later, obey its current usage policy or use an appropriate/self-hosted alternative.
+`Ranchi root + domain keywords -> bounded discovery -> entities/facts/relationships/media -> aliases/entities -> later crawl`
 
-## Persistent self-expanding discovery
-The discovery loop is:
-
-`root entity + category keywords -> bounded discovery -> entities/facts/relationships/media -> discovered entity keywords -> later crawl`
-
-The keyword table is data-driven and self-expanding. New useful aliases/entities become later crawl work after normalization/deduplication.
-
-Current Room tables include:
+Room tables currently include:
 - `knowledge_entities`
 - `source_facts`
 - `entity_relationships`
@@ -112,49 +160,19 @@ Current Room tables include:
 - `crawl_keywords`
 - `crawled_sources`
 
-The crawler persists queue/freshness state, processes bounded batches, and continues in later runs instead of attempting to download all of Jharkhand at once.
+Refresh/replace stale source-scoped knowledge instead of appending forever. Preserve source URL, publisher, retrieval time, evidence, freshness and media attribution/license metadata.
 
-Current WorkManager behavior:
-- developer/manual trigger starts an immediate crawl;
-- the first trigger also ensures a unique 24-hour statewide periodic refresh;
-- network-connected + battery-not-low constraints apply;
-- source failures are isolated so successful sources still persist;
-- entity and keyword queues resume from Room on later runs.
-
-## Crawl vocabulary
-Initial statewide discovery covers useful concepts for:
-- places/waterfalls/picnic spots/villages/rivers
-- traditional/local/seasonal foods
-- festivals/tribal festivals
-- culture/tribal culture/dance/crafts
-- hospitals/police
-- haat/bazar/weekly markets/local markets
-- butcher/meat/pork-oriented shop discovery
-
-This seed vocabulary is not intended to enumerate all knowledge. The crawler expands it from discovered entities/aliases.
-
-## Refresh and storage
-Target up to approximately 1.5 GB total local storage when useful. This is neither a Room-only target nor APK size.
-
-Rules:
-- refresh/replace stale source-scoped knowledge rather than append forever;
-- keep raw source snapshots separately and bounded;
-- store media URLs/metadata by default, not binary image/video payloads;
-- retain source URL, publisher, retrieval time, evidence, and media attribution/license metadata;
-- conflicting source claims may coexist;
-- unknown is not false/zero/empty;
-- source facts are not canonical truth;
-- static market/shop metadata does not prove current stock/availability.
+Unknown is not false/zero/empty. Conflicting sourced claims may coexist. Static shop/market metadata never proves current stock.
 
 ## Module router
 ### `johar-domain`
-Pure Kotlin/JVM model and storage-independent contracts. No Android, HTTP, Room, WorkManager, UI, or concrete source logic.
+Pure Kotlin/JVM model and storage-independent contracts. No Android, HTTP, Room, WorkManager, UI or concrete source logic.
 
 ### `johar-data`
-Owns source adapters, discovery/crawl orchestration, refresh, persistence, and WorkManager scheduling.
+Source adapters, discovery/crawl orchestration, refresh, persistence and WorkManager scheduling.
 
 ### `app`
-Thin composition/developer harness today; V1 product remains one chat screen with no navigation architecture.
+Thin composition/developer harness today; V1 product remains one chat screen.
 
 ## Architecture rules
 - Single responsibility.
@@ -163,13 +181,13 @@ Thin composition/developer harness today; V1 product remains one chat screen wit
 - Persistence maps to/from domain concepts.
 - Prefer simple explicit concepts over giant catch-all objects.
 - Never bypass provenance or entity boundaries for convenience.
-- Keep fetching, parsing, storage, discovery, and scheduling independently replaceable.
+- Keep fetching, parsing, storage, discovery and scheduling independently replaceable.
 
 ## Engineering constraints
 - Package root: `com.akeshridev.johar`
 - Kotlin first.
 - Android-only V1; no backend unless explicitly requested.
-- Use free/open sources for the core dataset.
+- Use free/open/government/public-domain/user-provided/legal sources for the core dataset.
 
 ## Collaboration style
-Work in small increments. Update the relevant `AGENTS.md` whenever architecture/focus changes. Keep explanations compact unless the user asks for depth.
+Work in small increments. Keep the Ranchi Coverage Eval visible while adding data. Every meaningful corpus addition should be justified by a real coverage gap rather than raw size.
