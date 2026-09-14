@@ -4,6 +4,10 @@
 Designed for public-domain scanned books. When IA scandata contains reliable
 numeric printed-page labels, those are used. Otherwise the ingester preserves
 exact 1-based scan/PDF page indices and labels that provenance explicitly.
+
+OCR section detection is intentionally conservative: a missed subheading is
+safer for retrieval than promoting a footnote, index entry, or running prose
+line into a false section label.
 """
 
 from __future__ import annotations
@@ -19,7 +23,12 @@ from typing import Iterable
 
 SPACE_RE = re.compile(r"\s+")
 PAGE_NUMBER_RE = re.compile(r"^\s*(\d+)\s*$")
-ROMAN_OR_NUMBER_RE = re.compile(r"^[IVXLCDM\d .:-]+$", re.IGNORECASE)
+STRUCTURAL_HEADING_RE = re.compile(
+    r"^(?:CHAPTER|PART|BOOK|SECTION|APPENDIX|INTRODUCTION|PREFACE|ADDENDA|CORRIGENDA)\b",
+    re.IGNORECASE,
+)
+FOOTNOTE_LIKE_RE = re.compile(r"^(?:[*†‡§]|[a-z]\s+(?:vide|see)\b)", re.IGNORECASE)
+TRAILING_PAGE_RE = re.compile(r"\s+[\[(]?(?:\d{1,3}|[ivxlcdm]{1,8})[\])]?[.,;:]?\s*$", re.IGNORECASE)
 MIN_PRINTED_PAGE_LABELS = 50
 
 
@@ -85,22 +94,35 @@ def paragraph_text(node: ET.Element) -> str:
     return clean_text(" ".join(lines))
 
 
+def normalize_heading(text: str) -> str:
+    text = clean_text(text)
+    # Scanned books often repeat a chapter/running heading followed by the
+    # printed page number. Keep the semantic title, not the furniture.
+    stripped = TRAILING_PAGE_RE.sub("", text).strip()
+    return stripped or text
+
+
 def looks_like_heading(text: str) -> bool:
+    text = clean_text(text)
     words = text.split()
     if not (1 <= len(words) <= 14) or len(text) > 120:
         return False
+    if FOOTNOTE_LIKE_RE.match(text):
+        return False
+
     letters = [c for c in text if c.isalpha()]
-    if len(letters) < 3:
+    if len(letters) < 4:
         return False
-    if text.endswith((".", ",", ";", "?", "!")) and len(words) > 5:
-        return False
+
+    if STRUCTURAL_HEADING_RE.match(text):
+        return True
+
+    # Generic OCR headings must be overwhelmingly uppercase. Deliberately do
+    # not infer headings from Title Case: footnotes, index terms and names are
+    # commonly Title Case and previously caused severe over-segmentation.
     upper_ratio = sum(c.isupper() for c in letters) / len(letters)
-    title_like_words = [word for word in words if word[:1].isalpha()]
-    title_like = (
-        sum(word[:1].isupper() for word in title_like_words)
-        >= max(1, len(title_like_words) - 2)
-    )
-    return upper_ratio >= 0.65 or (title_like and not ROMAN_OR_NUMBER_RE.fullmatch(text))
+    digit_ratio = sum(c.isdigit() for c in text) / max(len(text), 1)
+    return upper_ratio >= 0.82 and digit_ratio <= 0.12
 
 
 def useful_text(text: str) -> bool:
@@ -113,10 +135,21 @@ def useful_text(text: str) -> bool:
     return printable / max(len(text), 1) >= 0.90
 
 
+def compile_start_patterns(source: dict) -> list[re.Pattern[str]]:
+    extraction = source.get("extraction") or {}
+    patterns = extraction.get("contentStartPatterns") or []
+    return [re.compile(pattern, re.IGNORECASE) for pattern in patterns]
+
+
+def matches_any(text: str, patterns: list[re.Pattern[str]]) -> bool:
+    return any(pattern.search(text) for pattern in patterns)
+
+
 def read_ocr_paragraphs(
     djvu_path: Path,
     printed_page_map: dict[int, int],
     use_scan_pages: bool,
+    start_patterns: list[re.Pattern[str]],
 ) -> tuple[list[Paragraph], dict]:
     paragraphs: list[Paragraph] = []
     current_section = "Page-aware OCR"
@@ -125,6 +158,9 @@ def read_ocr_paragraphs(
     pages_seen: set[int] = set()
     pages_without_text = 0
     rejected_paragraphs = 0
+    content_started = not start_patterns
+    content_start_page: int | None = None
+    pages_skipped_before_start = 0
 
     for _, elem in ET.iterparse(djvu_path, events=("end",)):
         if local_name(elem.tag) != "OBJECT":
@@ -140,7 +176,6 @@ def read_ocr_paragraphs(
                 elem.clear()
                 continue
 
-        pages_seen.add(page_number)
         page_paragraphs: list[str] = []
         for node in elem.iter():
             if local_name(node.tag) != "PARAGRAPH":
@@ -153,6 +188,21 @@ def read_ocr_paragraphs(
             else:
                 rejected_paragraphs += 1
 
+        if not content_started:
+            start_index: int | None = None
+            for index, text in enumerate(page_paragraphs):
+                if matches_any(clean_text(text), start_patterns):
+                    start_index = index
+                    break
+            if start_index is None:
+                pages_skipped_before_start += 1
+                elem.clear()
+                continue
+            content_started = True
+            content_start_page = page_number
+            page_paragraphs = page_paragraphs[start_index:]
+
+        pages_seen.add(page_number)
         if not page_paragraphs:
             pages_without_text += 1
             elem.clear()
@@ -160,7 +210,7 @@ def read_ocr_paragraphs(
 
         for text in page_paragraphs:
             if looks_like_heading(text):
-                current_section = text
+                current_section = normalize_heading(text)
                 continue
             paragraphs.append(
                 Paragraph(
@@ -172,10 +222,15 @@ def read_ocr_paragraphs(
             )
         elem.clear()
 
+    if start_patterns and not content_started:
+        raise SystemExit("Configured OCR contentStartPatterns were never matched")
+
     diagnostics = {
         "scanObjectsSeen": objects_seen,
         "printedPageLabelsAvailable": len(printed_page_map),
         "pageReferenceType": "SCAN_PAGE_1_BASED" if use_scan_pages else "PRINTED_PAGE",
+        "contentStartPage": content_start_page,
+        "pagesSkippedBeforeContentStart": pages_skipped_before_start,
         "pagesMapped": len(pages_seen),
         "pagesWithoutUsableText": pages_without_text,
         "ocrParagraphsRejectedAsNoise": rejected_paragraphs,
@@ -287,11 +342,13 @@ def main() -> None:
     source = json.loads(args.source.read_text(encoding="utf-8"))
     printed_page_map = load_printed_page_map(args.scandata)
     use_scan_pages = len(printed_page_map) < MIN_PRINTED_PAGE_LABELS
+    start_patterns = compile_start_patterns(source)
 
     paragraphs, diagnostics = read_ocr_paragraphs(
         args.djvu,
         printed_page_map,
         use_scan_pages,
+        start_patterns,
     )
     if not paragraphs:
         raise SystemExit("No usable OCR paragraphs found")
