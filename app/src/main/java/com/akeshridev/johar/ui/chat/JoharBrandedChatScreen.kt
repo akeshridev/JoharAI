@@ -30,6 +30,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.akeshridev.johar.designsystem.JoharCardAction
@@ -64,6 +67,7 @@ fun JoharBrandedChatScreen(
     var input by rememberSaveable { mutableStateOf("") }
     val listState = rememberLazyListState()
     val isFreshConversation = messages.size == 1 && messages.firstOrNull()?.id == "welcome"
+    val latestJoharId = messages.lastOrNull { it.sender == Sender.JOHAR }?.id
 
     LaunchedEffect(messages.size, isThinking) {
         val extraItem = if (isThinking) 1 else 0
@@ -71,20 +75,35 @@ fun JoharBrandedChatScreen(
         if (target >= 0) listState.animateScrollToItem(target)
     }
 
-    Surface(modifier = modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+    Surface(
+        modifier = modifier
+            .fillMaxSize()
+            .semantics { testTagsAsResourceId = true }
+            .testTag(JoharTestTags.ROOT),
+        color = MaterialTheme.colorScheme.background,
+    ) {
         Column(Modifier.fillMaxSize()) {
             JoharChatHeader()
 
             LazyColumn(
                 state = listState,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .testTag(JoharTestTags.CHAT_LIST),
                 contentPadding = PaddingValues(horizontal = 18.dp, vertical = 18.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {
                 items(messages, key = { it.id }) { message ->
                     when (message.sender) {
                         Sender.USER -> UserBubble(message.content)
-                        Sender.JOHAR -> JoharBubble(message.content, onAction, onSend)
+                        Sender.JOHAR -> JoharBubble(
+                            content = message.content,
+                            onAction = onAction,
+                            onSend = onSend,
+                            modifier = Modifier.testTag(
+                                if (message.id == latestJoharId) JoharTestTags.LATEST_ANSWER else JoharTestTags.ANSWER,
+                            ),
+                        )
                     }
                 }
 
@@ -115,7 +134,10 @@ fun JoharBrandedChatScreen(
 
                 if (isThinking) {
                     item(key = "thinking") {
-                        JoharNagadaThinkingBubble(label = "Johar is thinking…")
+                        JoharNagadaThinkingBubble(
+                            modifier = Modifier.testTag(JoharTestTags.THINKING),
+                            label = "Johar is thinking…",
+                        )
                     }
                 }
             }
@@ -217,7 +239,9 @@ private fun JoharComposer(
                 value = value,
                 onValueChange = onValueChange,
                 enabled = enabled,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .testTag(JoharTestTags.CHAT_INPUT),
                 placeholder = { Text("Ask anything about Ranchi…") },
                 maxLines = 4,
                 shape = RoundedCornerShape(24.dp),
@@ -230,6 +254,7 @@ private fun JoharComposer(
             )
             JoharPrimaryButton(
                 label = "Send",
+                modifier = Modifier.testTag(JoharTestTags.SEND_BUTTON),
                 enabled = value.isNotBlank() && enabled,
                 onClick = onSend,
             )
@@ -260,15 +285,18 @@ private fun JoharBubble(
     content: JoharContent,
     onAction: (JoharCardAction) -> Unit,
     onSend: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    Column(Modifier.fillMaxWidth(0.94f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(modifier.fillMaxWidth(0.94f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         when (content) {
-            is JoharContent.Text -> Text(
-                text = content.text,
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onBackground,
-            )
-            is JoharContent.Grounded -> {
+            is JoharContent.Text -> Column(Modifier.testTag(JoharTestTags.TEXT)) {
+                Text(
+                    text = content.text,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onBackground,
+                )
+            }
+            is JoharContent.Grounded -> Column(Modifier.testTag(JoharTestTags.GROUNDED)) {
                 if (content.tone == JoharInfoTone.NORMAL) {
                     Text(
                         text = content.text,
@@ -276,22 +304,24 @@ private fun JoharBubble(
                         color = MaterialTheme.colorScheme.onBackground,
                     )
                 } else {
-                    JoharInfoCard(
-                        title = when (content.tone) {
-                            JoharInfoTone.NOT_CONFIRMED -> "Current status not confirmed"
-                            JoharInfoTone.WARNING -> "Check"
-                            JoharInfoTone.OFFLINE -> "Offline"
-                            else -> "Johar"
-                        },
-                        text = content.text,
-                        tone = content.tone,
-                    )
+                    Column(Modifier.testTag(JoharTestTags.INFO_CARD)) {
+                        JoharInfoCard(
+                            title = when (content.tone) {
+                                JoharInfoTone.NOT_CONFIRMED -> "Current status not confirmed"
+                                JoharInfoTone.WARNING -> "Check"
+                                JoharInfoTone.OFFLINE -> "Offline"
+                                else -> "Johar"
+                            },
+                            text = content.text,
+                            tone = content.tone,
+                        )
+                    }
                 }
                 content.sources.forEach { source ->
                     JoharSourceRow(sourceName = source.sourceName, verified = source.verified)
                 }
             }
-            is JoharContent.Places -> {
+            is JoharContent.Places -> Column(Modifier.testTag(JoharTestTags.PLACE_CARD)) {
                 content.intro?.let { Text(it, style = MaterialTheme.typography.bodyLarge) }
                 if (content.items.size == 1) {
                     JoharPlaceCard(model = content.items.single(), onAction = onAction)
@@ -299,7 +329,7 @@ private fun JoharBubble(
                     JoharPlaceCarousel(title = "Jagah", places = content.items, onAction = onAction)
                 }
             }
-            is JoharContent.Utilities -> {
+            is JoharContent.Utilities -> Column(Modifier.testTag(JoharTestTags.UTILITY_CARD)) {
                 content.intro?.let { Text(it, style = MaterialTheme.typography.bodyLarge) }
                 content.items.forEach { item ->
                     JoharUtilityCard(
@@ -311,23 +341,31 @@ private fun JoharBubble(
                     )
                 }
             }
-            is JoharContent.Map -> RanchiMapCard(destination = content.destination)
-            is JoharContent.Route -> {
+            is JoharContent.Map -> Column(Modifier.testTag(JoharTestTags.MAP_CARD)) {
+                RanchiMapCard(destination = content.destination)
+            }
+            is JoharContent.Route -> Column(Modifier.testTag(JoharTestTags.ROUTE_CARD)) {
                 JoharRouteCard(model = content.route, onAction = onAction)
-                RanchiMapCard(
-                    destination = content.destination,
-                    origin = content.origin.coordinate,
-                    route = content.routePoints,
+                Column(Modifier.testTag(JoharTestTags.MAP_CARD)) {
+                    RanchiMapCard(
+                        destination = content.destination,
+                        origin = content.origin.coordinate,
+                        route = content.routePoints,
+                    )
+                }
+            }
+            is JoharContent.Itinerary -> Column(Modifier.testTag(JoharTestTags.ITINERARY_CARD)) {
+                JoharItineraryCard(model = content.plan, onAction = onAction)
+            }
+            is JoharContent.Comparison -> Column(Modifier.testTag(JoharTestTags.COMPARISON_CARD)) {
+                JoharComparisonCard(
+                    leftTitle = content.leftTitle,
+                    rightTitle = content.rightTitle,
+                    rows = content.rows,
+                    recommendation = content.recommendation,
                 )
             }
-            is JoharContent.Itinerary -> JoharItineraryCard(model = content.plan, onAction = onAction)
-            is JoharContent.Comparison -> JoharComparisonCard(
-                leftTitle = content.leftTitle,
-                rightTitle = content.rightTitle,
-                rows = content.rows,
-                recommendation = content.recommendation,
-            )
-            is JoharContent.Clarification -> {
+            is JoharContent.Clarification -> Column(Modifier.testTag(JoharTestTags.CLARIFICATION)) {
                 Text(content.prompt, style = MaterialTheme.typography.bodyLarge)
                 if (content.options.isNotEmpty()) {
                     JoharPreferenceChips(
@@ -337,13 +375,15 @@ private fun JoharBubble(
                     )
                 }
             }
-            is JoharContent.Info -> JoharInfoCard(
-                title = content.title,
-                text = content.text,
-                tone = content.tone,
-                actions = content.actions,
-                onAction = onAction,
-            )
+            is JoharContent.Info -> Column(Modifier.testTag(JoharTestTags.INFO_CARD)) {
+                JoharInfoCard(
+                    title = content.title,
+                    text = content.text,
+                    tone = content.tone,
+                    actions = content.actions,
+                    onAction = onAction,
+                )
+            }
         }
     }
 }
