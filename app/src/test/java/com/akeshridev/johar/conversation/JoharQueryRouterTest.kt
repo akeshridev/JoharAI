@@ -1,5 +1,7 @@
 package com.akeshridev.johar.conversation
 
+import com.akeshridev.johar.data.retrieval.JoharAnswer
+import com.akeshridev.johar.data.retrieval.JoharAnswerMode
 import com.akeshridev.johar.data.routing.RanchiRouteResult
 import com.akeshridev.johar.data.spatial.RanchiCoordinate
 import com.akeshridev.johar.data.spatial.RanchiSpatialPlace
@@ -11,14 +13,8 @@ class JoharQueryRouterTest {
 
     @Test
     fun placeLookupReturnsStrongSpatialMatch() {
-        val tagoreHill = place(
-            id = "tagore-hill",
-            name = "Tagore Hill",
-            type = "TOURIST_ATTRACTION",
-        )
-        val router = router(
-            resolve = { query -> if (query == "tagore hill") listOf(tagoreHill) else emptyList() },
-        )
+        val tagoreHill = place("tagore-hill", "Tagore Hill", "TOURIST_ATTRACTION")
+        val router = router(resolve = { query -> if (query == "tagore hill") listOf(tagoreHill) else emptyList() })
 
         val result = router.answer("Tagore Hill kahan hai?")
 
@@ -28,39 +24,28 @@ class JoharQueryRouterTest {
     }
 
     @Test
-    fun knowledgeQuestionStaysTextFirst() {
+    fun knowledgeQuestionPreservesGroundedAnswer() {
         val router = router()
 
         val result = router.answer("Rugra kya hai?")
 
-        assertEquals(
-            JoharQueryResult.Text("knowledge:Rugra kya hai?"),
-            result,
-        )
+        assertTrue(result is JoharQueryResult.Grounded)
+        result as JoharQueryResult.Grounded
+        assertEquals("knowledge:Rugra kya hai?", result.answer.text)
+        assertEquals(GroundedTone.NORMAL, result.tone)
     }
 
     @Test
     fun nearbyWithoutOriginAsksThenUsesExplicitLocality() {
-        val lalpur = place(
-            id = "lalpur",
-            name = "Lalpur",
-            type = "PLACE",
-        )
-        val temple = place(
-            id = "temple-1",
-            name = "Hanuman Mandir",
-            type = "TEMPLE",
-            distanceKm = 1.2,
-        )
+        val lalpur = place("lalpur", "Lalpur", "PLACE")
+        val temple = place("temple-1", "Hanuman Mandir", "TEMPLE", distanceKm = 1.2)
         val router = router(
             resolve = { query -> if (query.equals("Lalpur", ignoreCase = true)) listOf(lalpur) else emptyList() },
             nearby = { _, _ -> listOf(temple) },
         )
 
-        assertEquals(
-            JoharQueryResult.Text("Kis locality ya landmark ke paas? Jaise Lalpur ya Ranchi railway station."),
-            router.answer("mere aas paas mandir?"),
-        )
+        val clarification = router.answer("mere aas paas mandir?")
+        assertTrue(clarification is JoharQueryResult.Clarification)
 
         val result = router.answer("Lalpur")
         assertTrue(result is JoharQueryResult.Places)
@@ -71,29 +56,44 @@ class JoharQueryRouterTest {
     }
 
     @Test
-    fun weakSpatialCandidateFallsBackToKnowledge() {
-        val tagoreHill = place(
-            id = "tagore-hill",
-            name = "Tagore Hill",
-            type = "TOURIST_ATTRACTION",
+    fun utilityNearbyResultsAreMarkedUtility() {
+        val lalpur = place("lalpur", "Lalpur", "PLACE")
+        val hospital = place("hospital-1", "Sadar Hospital", "HOSPITAL", distanceKm = 2.0)
+        val router = router(
+            resolve = { query -> if (query.equals("Lalpur", true)) listOf(lalpur) else emptyList() },
+            nearby = { _, _ -> listOf(hospital) },
         )
+
+        val result = router.answer("Lalpur ke paas hospital")
+
+        assertTrue(result is JoharQueryResult.Places)
+        result as JoharQueryResult.Places
+        assertEquals(PlaceResultKind.UTILITY, result.kind)
+        assertEquals(hospital, result.places.single())
+    }
+
+    @Test
+    fun weakSpatialCandidateFallsBackToKnowledge() {
+        val tagoreHill = place("tagore-hill", "Tagore Hill", "TOURIST_ATTRACTION")
         val router = router(resolve = { listOf(tagoreHill) })
 
         val result = router.answer("Rock Garden")
 
-        assertEquals(JoharQueryResult.Text("knowledge:Rock Garden"), result)
+        assertTrue(result is JoharQueryResult.Grounded)
+        result as JoharQueryResult.Grounded
+        assertEquals("knowledge:Rock Garden", result.answer.text)
     }
 
     @Test
-    fun liveStatusQuestionDoesNotPretendOfflineDataIsCurrent() {
+    fun liveStatusQuestionIsExplicitlyNotConfirmed() {
         val router = router()
 
         val result = router.answer("Pahari Mandir open now?")
 
-        assertTrue(result is JoharQueryResult.Text)
-        result as JoharQueryResult.Text
-        assertTrue(result.text.startsWith("Abhi ki timing, status ya availability confirm nahi hai."))
-        assertTrue(result.text.contains("knowledge:Pahari Mandir open now?"))
+        assertTrue(result is JoharQueryResult.Grounded)
+        result as JoharQueryResult.Grounded
+        assertEquals(GroundedTone.NOT_CONFIRMED, result.tone)
+        assertTrue(result.prefix.orEmpty().contains("confirm nahi"))
     }
 
     @Test
@@ -141,10 +141,46 @@ class JoharQueryRouterTest {
 
         val result = router.answer("Tagore Hill se Ranchi station kaise jaye?")
 
-        assertTrue(result is JoharQueryResult.Text)
-        result as JoharQueryResult.Text
-        assertTrue(result.text.contains("routing pack"))
-        assertTrue(result.text.contains("road route"))
+        assertTrue(result is JoharQueryResult.Grounded)
+        result as JoharQueryResult.Grounded
+        assertEquals(GroundedTone.OFFLINE, result.tone)
+        assertTrue(result.prefix.orEmpty().contains("routing pack"))
+    }
+
+    @Test
+    fun comparisonRequiresTwoRealResolvedPlaces() {
+        val tagoreHill = place("tagore-hill", "Tagore Hill", "TOURIST_ATTRACTION")
+        val rockGarden = place("rock-garden", "Rock Garden", "PARK")
+        val router = router(resolve = { query ->
+            when (query.lowercase()) {
+                "tagore hill" -> listOf(tagoreHill)
+                "rock garden" -> listOf(rockGarden)
+                else -> emptyList()
+            }
+        })
+
+        val result = router.answer("Tagore Hill vs Rock Garden")
+
+        assertEquals(JoharQueryResult.Comparison(tagoreHill, rockGarden), result)
+    }
+
+    @Test
+    fun explicitItineraryUsesOnlyResolvedStopsInRequestedOrder() {
+        val tagoreHill = place("tagore-hill", "Tagore Hill", "TOURIST_ATTRACTION")
+        val rockGarden = place("rock-garden", "Rock Garden", "PARK")
+        val router = router(resolve = { query ->
+            when (query.lowercase()) {
+                "tagore hill" -> listOf(tagoreHill)
+                "rock garden" -> listOf(rockGarden)
+                else -> emptyList()
+            }
+        })
+
+        val result = router.answer("plan: Tagore Hill, Rock Garden")
+
+        assertTrue(result is JoharQueryResult.Itinerary)
+        result as JoharQueryResult.Itinerary
+        assertEquals(listOf(tagoreHill, rockGarden), result.places)
     }
 
     private fun router(
@@ -157,7 +193,13 @@ class JoharQueryRouterTest {
     ) = JoharQueryRouter(
         resolvePlace = resolve,
         nearby = nearby,
-        knowledgeAnswer = { "knowledge:$it" },
+        knowledgeAnswer = {
+            JoharAnswer(
+                text = "knowledge:$it",
+                evidence = emptyList(),
+                mode = JoharAnswerMode.DETERMINISTIC,
+            )
+        },
         routeInstalled = routeInstalled,
         route = route,
     )
