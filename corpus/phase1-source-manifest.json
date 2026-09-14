@@ -62,7 +62,7 @@
       "sourceType": "BOOK",
       "historicalOrCurrent": "HISTORICAL_PRIMARY_OR_PERIOD_SOURCE",
       "rightsClass": "PUBLIC_DOMAIN",
-      "status": "READY_TO_INGEST",
+      "status": "INGESTED",
       "sourceUrl": "https://www.gutenberg.org/ebooks/35060",
       "topics": ["Santal", "folklore", "oral traditions", "culture", "Santali literature"],
       "upstreamMachineReadableSource": {
@@ -71,13 +71,15 @@
         "ref": "master",
         "sha": "36b276b4f100395b949751939b929d92fccc80a9"
       },
+      "processedPath": "corpus/processed/book_santal_folk_tales_1891",
       "ingestionProgress": {
-        "complete": false,
-        "pagesProcessed": 5,
-        "chunksCreated": 4,
-        "retainedProcessedBytes": 12108
+        "complete": true,
+        "pagesProcessed": 127,
+        "chunksCreated": 84,
+        "retainedProcessedBytes": 282910,
+        "qualityReport": "corpus/processed/book_santal_folk_tales_1891/quality-report.json"
       },
-      "notes": "Public-domain machine-readable TEI is available. First page-aware pilot is committed; keep source READY_TO_INGEST until full-book processing and quality sampling are complete."
+      "notes": "Full public-domain machine-readable TEI ingestion complete. Upstream blob SHA was verified before processing. Page provenance, hierarchical section titles and inline editorial notes are preserved. Automated QC passed with no duplicate text or missing page provenance; six short semantic-boundary chunks were manually reviewed and accepted. Treat narrative and period commentary as historical folklore evidence, not unqualified present-day cultural fact."
     },
     {
       "id": "gazetteer_hazaribag_official",
