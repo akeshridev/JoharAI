@@ -21,6 +21,8 @@ class JoharGraph(context: Context) {
         resolvePlace = { ranchiSpatialEngine.resolvePlace(it, limit = 20) },
         nearby = { origin, types -> ranchiSpatialEngine.nearby(origin, radiusKm = 5.0, types = types, limit = 100) },
         knowledgeAnswer = { DeterministicJoharAnswerGenerator(offlineKnowledgeRetriever).answer(it).text },
+        routeInstalled = { ranchiOfflineRouter.isInstalled() },
+        route = { origin, destination -> ranchiOfflineRouter.route(origin, destination) },
     )
 
     val scheduleSourceCrawlUseCase = ScheduleSourceCrawlUseCase(scheduler)
