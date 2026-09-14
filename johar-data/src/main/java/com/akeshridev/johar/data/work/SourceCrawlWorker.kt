@@ -8,6 +8,7 @@ import com.akeshridev.johar.data.crawl.KnowledgeStore
 import com.akeshridev.johar.data.crawl.SourceCrawler
 import com.akeshridev.johar.data.local.JoharDatabaseProvider
 import com.akeshridev.johar.data.remote.JsoupHttpTextFetcher
+import com.akeshridev.johar.data.remote.OverpassFailoverHttpTextFetcher
 import com.akeshridev.johar.data.source.CommonsMediaSourceAdapter
 import com.akeshridev.johar.data.source.MediaWikiTextSourceAdapter
 import com.akeshridev.johar.data.source.OpenMeteoSourceAdapter
@@ -34,9 +35,10 @@ class SourceCrawlWorker(
         return try {
             val database = JoharDatabaseProvider.get(applicationContext)
             val fetcher = JsoupHttpTextFetcher()
+            val overpassFetcher = OverpassFailoverHttpTextFetcher(fetcher)
             val wikidata = WikidataSourceAdapter(fetcher)
-            val overpass = OverpassSourceAdapter(fetcher)
-            val specializedOverpass = OverpassSpecializedDiscoveryAdapter(fetcher)
+            val overpass = OverpassSourceAdapter(overpassFetcher)
+            val specializedOverpass = OverpassSpecializedDiscoveryAdapter(overpassFetcher)
             val ranchiOfficial = RanchiDistrictOfficialSourceAdapter(fetcher)
             val wikipedia = MediaWikiTextSourceAdapter(
                 id = "wikipedia",
@@ -75,7 +77,9 @@ class SourceCrawlWorker(
             val entityAdapters = buildList {
                 if (target == CrawlTarget.RANCHI) add(ranchiOfficial)
                 add(wikidata)
-                if (target != CrawlTarget.JHARKHAND) add(overpass)
+                // Ranchi discovery uses the narrower specialized Overpass adapter below. Running
+                // the legacy generic entity crawl for Ranchi is redundant, slow and noisy.
+                if (target == CrawlTarget.DASSAM_FALLS) add(overpass)
                 add(wikipedia)
                 add(wikivoyage)
                 add(commons)
