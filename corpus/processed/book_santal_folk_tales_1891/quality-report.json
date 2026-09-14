@@ -1,0 +1,47 @@
+{
+  "sourceId": "book_santal_folk_tales_1891",
+  "passed": true,
+  "chunkCount": 84,
+  "pageCountRepresented": 127,
+  "pageMin": 1,
+  "pageMax": 127,
+  "sectionCount": 32,
+  "chunkWordMin": 53,
+  "chunkWordMax": 695,
+  "chunkWordAverage": 512.2,
+  "shortChunkCount": 6,
+  "duplicateChunkIdCount": 0,
+  "duplicateTextCount": 0,
+  "missingPageCount": 0,
+  "ragChunkBytes": 282284,
+  "warnings": [
+    "6 chunks are below 250 words; allowed at semantic/section boundaries but should be sampled."
+  ],
+  "failures": [],
+  "reviewSamples": [
+    {
+      "chunkId": "book_santal_folk_tales_1891:00001:09eaac985a79",
+      "chapterOrSection": "The Magic Lamp.",
+      "pageStart": 1,
+      "pageEnd": 2,
+      "wordCount": 528,
+      "preview": "In the capital of a certain raja, there lived a poor widow. She had an only son who was of comely form and handsome countenance. One day a merchant from a far country came to her house, and standing in front of the door called out, “dada, dada,” (elder brother). The widow replied, “He is no more, he died many years ago"
+    },
+    {
+      "chunkId": "book_santal_folk_tales_1891:00043:3ed29757baa9",
+      "chapterOrSection": "Lipi, and Lapra.",
+      "pageStart": 63,
+      "pageEnd": 65,
+      "wordCount": 354,
+      "preview": "He called them again and again. The dogs heard the voice, and struggled to get loose, and at length, by a great effort, they succeeded in breaking the ropes with which they were bound, and ran in the direction from which the sound proceeded. Now and again the cries ceased, and they stood still until they again heard th"
+    },
+    {
+      "chunkId": "book_santal_folk_tales_1891:00084:75c5d1990c2b",
+      "chapterOrSection": "A Simple Thief.",
+      "pageStart": 126,
+      "pageEnd": 127,
+      "wordCount": 451,
+      "preview": "After a little time spent in considering the offer the thieves had made him, he decided to accompany them. The thieves were pleased to receive him into their gang, and at once they proceeded towards a certain village. Having arrived there they went to a rich man's house, and dug a hole through the wall. They then said "
+    }
+  ]
+}
