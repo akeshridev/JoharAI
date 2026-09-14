@@ -6,8 +6,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTextClearance
-import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextReplacement
 import androidx.test.platform.app.InstrumentationRegistry
 import com.akeshridev.johar.ui.chat.JoharTestTags
 import org.json.JSONObject
@@ -40,8 +39,7 @@ class Johar200CommandUiTest(
             }
 
             composeRule.onNodeWithTag(JoharTestTags.CHAT_INPUT, useUnmergedTree = true)
-                .performTextClearance()
-                .performTextInput(case.query)
+                .performTextReplacement(case.query)
             composeRule.onNodeWithTag(JoharTestTags.SEND_BUTTON, useUnmergedTree = true)
                 .performClick()
 
