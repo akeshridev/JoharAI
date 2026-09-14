@@ -37,6 +37,8 @@ class OfflineKnowledgeRetriever(context: Context) {
                         type = entity.type,
                         packType = packType,
                         description = entity.description,
+                        latitude = entity.latitude,
+                        longitude = entity.longitude,
                         score = score(
                             entity, packType, facts, queryTokens, locationTokens, locationMatch,
                             preferredTypes, preferredPackTypes, asksStateFact,
@@ -355,6 +357,8 @@ data class OfflineKnowledgeHit(
     val type: String,
     val packType: String?,
     val description: String?,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
     val score: Int,
     val facts: List<OfflineKnowledgeFact>,
 )
