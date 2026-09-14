@@ -12,6 +12,7 @@ import com.akeshridev.johar.data.retrieval.OfflineKnowledgeRetriever
 import com.akeshridev.johar.data.retrieval.OfflineRagContextBuilder
 import com.akeshridev.johar.domain.crawl.ScheduleSourceCrawlUseCase
 import com.akeshridev.johar.eval.OfflineRetrievalEvaluator
+import com.akeshridev.johar.eval.TouristSimulationEvaluator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -19,6 +20,7 @@ class MainViewModel(
     private val scheduleSourceCrawl: ScheduleSourceCrawlUseCase,
     private val offlineKnowledgeRetriever: OfflineKnowledgeRetriever,
     private val offlineRetrievalEvaluator: OfflineRetrievalEvaluator,
+    private val touristSimulationEvaluator: TouristSimulationEvaluator,
     private val localModelStore: LocalModelStore,
 ) : ViewModel() {
 
@@ -124,6 +126,25 @@ class MainViewModel(
         }
     }
 
+    fun runTouristSimulationEval() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val report = touristSimulationEvaluator.run()
+            Log.i(
+                TOURIST_EVAL_TAG,
+                "SUMMARY total=${report.total} pass=${report.pass} partial=${report.partial} " +
+                    "gap=${report.gap} gapCounts=${report.gapCounts}",
+            )
+            report.results.forEach { result ->
+                Log.i(
+                    TOURIST_EVAL_TAG,
+                    "${result.case.id} status=${result.status} category=${result.case.category} " +
+                        "query=\"${result.case.query}\" effectiveQuery=\"${result.effectiveQuery}\" " +
+                        "gaps=${result.gaps} actual=${result.actual} packTypes=${result.actualPackTypes}",
+                )
+            }
+        }
+    }
+
     fun crawlKnowledge() {
         scheduleSourceCrawl()
     }
@@ -132,6 +153,7 @@ class MainViewModel(
         private val scheduleSourceCrawl: ScheduleSourceCrawlUseCase,
         private val offlineKnowledgeRetriever: OfflineKnowledgeRetriever,
         private val offlineRetrievalEvaluator: OfflineRetrievalEvaluator,
+        private val touristSimulationEvaluator: TouristSimulationEvaluator,
         private val localModelStore: LocalModelStore,
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -141,6 +163,7 @@ class MainViewModel(
                 scheduleSourceCrawl = scheduleSourceCrawl,
                 offlineKnowledgeRetriever = offlineKnowledgeRetriever,
                 offlineRetrievalEvaluator = offlineRetrievalEvaluator,
+                touristSimulationEvaluator = touristSimulationEvaluator,
                 localModelStore = localModelStore,
             ) as T
         }
@@ -149,6 +172,7 @@ class MainViewModel(
     companion object {
         private const val TAG = "JoharRAG"
         private const val EVAL_TAG = "JoharEval"
+        private const val TOURIST_EVAL_TAG = "JoharTouristEval"
         private const val ANSWER_TAG = "JoharAnswer"
         private const val LLM_TAG = "JoharLLM"
 
