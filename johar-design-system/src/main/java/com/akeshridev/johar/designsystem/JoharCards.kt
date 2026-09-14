@@ -207,16 +207,21 @@ fun JoharInfoCard(
     compact: Boolean = false,
     onAction: (JoharCardAction) -> Unit = {},
 ) {
+    val usesSemanticContainer = tone == JoharInfoTone.LIVE ||
+        tone == JoharInfoTone.VERIFIED ||
+        tone == JoharInfoTone.NOT_CONFIRMED ||
+        tone == JoharInfoTone.WARNING
     val container = when (tone) {
         JoharInfoTone.LIVE, JoharInfoTone.VERIFIED -> JoharColors.SoftGreen
         JoharInfoTone.NOT_CONFIRMED, JoharInfoTone.WARNING -> JoharColors.SoftOrange
         else -> MaterialTheme.colorScheme.surface
     }
+    val contentColor = if (usesSemanticContainer) JoharColors.Forest else MaterialTheme.colorScheme.onSurface
 
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(if (compact) JoharRadius.Medium else JoharRadius.Large),
-        colors = CardDefaults.cardColors(containerColor = container),
+        colors = CardDefaults.cardColors(containerColor = container, contentColor = contentColor),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.9f)),
     ) {
         Column(Modifier.padding(if (compact) JoharSpacing.Md else JoharSpacing.Lg)) {
