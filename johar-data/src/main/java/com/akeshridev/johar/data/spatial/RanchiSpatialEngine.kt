@@ -22,9 +22,24 @@ class RanchiSpatialEngine(context: Context) {
         val normalized = normalizeText(query)
         if (normalized.isBlank()) return emptyList()
 
-        return dao.searchEntities(normalized, limit = maxOf(limit * 5, 20))
+        val candidates = linkedMapOf<String, KnowledgeEntityRow>()
+        dao.searchEntities(normalized, limit = maxOf(limit * 5, 20)).forEach { candidates[it.id] = it }
+
+        if (candidates.size < limit) {
+            normalized
+                .split(' ')
+                .asSequence()
+                .filter { it.length >= 3 && it !in SEARCH_STOP_WORDS }
+                .forEach { token ->
+                    dao.searchEntities(token, limit = 20).forEach { candidates.putIfAbsent(it.id, it) }
+                }
+        }
+
+        return candidates.values
             .asSequence()
-            .mapNotNull(::toRanchiPlace)
+            .mapNotNull { entity -> toRanchiPlace(entity)?.let { it to relevanceScore(normalized, entity) } }
+            .sortedByDescending { (_, score) -> score }
+            .map { (place, _) -> place }
             .take(limit)
             .toList()
     }
@@ -67,6 +82,25 @@ class RanchiSpatialEngine(context: Context) {
         return earthRadiusKm * 2 * atan2(sqrt(a), sqrt(1 - a))
     }
 
+    private fun relevanceScore(query: String, entity: KnowledgeEntityRow): Int {
+        val name = entity.normalizedName
+        val tokens = query.split(' ').filter(String::isNotBlank)
+        var score = when {
+            name == query -> 500
+            name.contains(query) || query.contains(name) -> 250
+            else -> 0
+        }
+        score += tokens.count(name::contains) * 20
+
+        val type = entity.type.uppercase()
+        if (containsAny(query, "railway", "station", "junction") && containsAny(type, "RAIL", "STATION")) score += 120
+        if (containsAny(query, "mandir", "temple") && containsAny(type, "TEMPLE", "PILGRIMAGE")) score += 120
+        if (containsAny(query, "hospital", "clinic") && containsAny(type, "HOSPITAL", "HEALTH")) score += 120
+        if (containsAny(query, "park", "garden") && containsAny(type, "PARK", "GARDEN")) score += 120
+        if (containsAny(query, "airport") && containsAny(type, "AIRPORT")) score += 120
+        return score
+    }
+
     private fun toRanchiPlace(entity: KnowledgeEntityRow): RanchiSpatialPlace? {
         val latitude = entity.latitude ?: return null
         val longitude = entity.longitude ?: return null
@@ -80,6 +114,14 @@ class RanchiSpatialEngine(context: Context) {
             coordinate = coordinate,
             region = entity.region,
             description = entity.description,
+        )
+    }
+
+    private fun containsAny(text: String, vararg values: String): Boolean = values.any(text::contains)
+
+    private companion object {
+        val SEARCH_STOP_WORDS = setOf(
+            "ranchi", "mein", "me", "ke", "ka", "ki", "ko", "se", "paas", "near", "kahan", "hai",
         )
     }
 }
