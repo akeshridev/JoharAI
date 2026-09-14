@@ -81,6 +81,11 @@ class TeiParser(HTMLParser):
             return
         if not self.state.in_text:
             return
+        if tag.startswith("div"):
+            # Gutenberg's TEI is SGML-like and often leaves <p> unclosed.
+            # A new division is therefore a hard semantic boundary.
+            self._flush_paragraph()
+            return
         if tag == "pb":
             page = parse_page(attrs)
             if page is not None:
@@ -89,6 +94,10 @@ class TeiParser(HTMLParser):
                     self.state.paragraph_page_end = page
             return
         if tag == "head":
+            # A heading starts a new semantic section. Flush any SGML-style
+            # unclosed paragraph before changing current_section, otherwise
+            # text from the previous story can be mislabeled as the next one.
+            self._flush_paragraph()
             self._flush_heading()
             self.state.collecting_heading = True
             self.state.heading_parts = []
@@ -170,34 +179,45 @@ def split_long_paragraph(paragraph: Paragraph, max_words: int) -> list[Paragraph
     if word_count(paragraph.text) <= max_words:
         return [paragraph]
 
+    def make_piece(text: str) -> Paragraph:
+        return Paragraph(
+            section=paragraph.section,
+            page_start=paragraph.page_start,
+            page_end=paragraph.page_end,
+            text=text.strip(),
+        )
+
     sentences = SENTENCE_RE.split(paragraph.text)
     pieces: list[Paragraph] = []
     current: list[str] = []
     current_words = 0
+
+    def flush_current() -> None:
+        nonlocal current, current_words
+        if current:
+            pieces.append(make_piece(" ".join(current)))
+        current = []
+        current_words = 0
+
     for sentence in sentences:
-        count = word_count(sentence)
+        sentence_words = sentence.split()
+        count = len(sentence_words)
+
+        # Sentence segmentation is best-effort. If a source contains an
+        # extremely long sentence, hard-split it so max_words remains a real
+        # contract instead of a preference.
+        if count > max_words:
+            flush_current()
+            for start in range(0, count, max_words):
+                pieces.append(make_piece(" ".join(sentence_words[start : start + max_words])))
+            continue
+
         if current and current_words + count > max_words:
-            pieces.append(
-                Paragraph(
-                    section=paragraph.section,
-                    page_start=paragraph.page_start,
-                    page_end=paragraph.page_end,
-                    text=" ".join(current).strip(),
-                )
-            )
-            current = []
-            current_words = 0
+            flush_current()
         current.append(sentence)
         current_words += count
-    if current:
-        pieces.append(
-            Paragraph(
-                section=paragraph.section,
-                page_start=paragraph.page_start,
-                page_end=paragraph.page_end,
-                text=" ".join(current).strip(),
-            )
-        )
+
+    flush_current()
     return pieces
 
 
@@ -225,13 +245,18 @@ def chunk_paragraphs(
         p_words = word_count(paragraph.text)
         if current and paragraph.section != current_section:
             flush()
-        if current and current_words >= min_words and current_words + p_words > max_words:
+
+        # max_words is a hard bound. A short current chunk may remain short
+        # rather than absorbing the next paragraph and exceeding the limit.
+        if current and current_words + p_words > max_words:
             flush()
+
         current.append(paragraph)
         current_words += p_words
         current_section = paragraph.section
         if current_words >= max_words:
             flush()
+
     flush()
     return chunks
 
@@ -306,15 +331,15 @@ def main() -> None:
         for record in records:
             handle.write(json.dumps(record, ensure_ascii=False) + "\n")
 
-    page_values = [
-        page
-        for p in paragraphs
-        for page in (p.page_start, p.page_end)
-        if page is not None
-    ]
+    page_values: set[int] = set()
+    for paragraph in paragraphs:
+        if paragraph.page_start is None or paragraph.page_end is None:
+            continue
+        page_values.update(range(paragraph.page_start, paragraph.page_end + 1))
+
     stats = {
         "sourceId": source["id"],
-        "pagesSeen": len(set(page_values)),
+        "pagesSeen": len(page_values),
         "pageMin": min(page_values) if page_values else None,
         "pageMax": max(page_values) if page_values else None,
         "paragraphsRetained": len(paragraphs),
