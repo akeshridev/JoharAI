@@ -21,8 +21,8 @@ internal class SourceCrawler(
         val rootSuccesses = crawlEntity(root)
         check(rootSuccesses > 0) { "No source succeeded for root ${root.name}" }
 
-        crawlPendingKeywords()
-        crawlPendingEntities(excludingEntityId = root.entityId)
+        crawlPendingKeywords(target)
+        crawlPendingEntities(target, excludingEntityId = root.entityId)
 
         return store.stats().also { stats ->
             Log.i(
@@ -33,9 +33,10 @@ internal class SourceCrawler(
         }
     }
 
-    private fun crawlPendingKeywords() {
+    private fun crawlPendingKeywords(target: CrawlTarget) {
         val staleBefore = System.currentTimeMillis() - KEYWORD_STALE_MILLIS
-        store.nextKeywordsToCrawl(staleBefore, MAX_KEYWORDS_PER_RUN).forEach { keyword ->
+        val limit = if (target == CrawlTarget.RANCHI) RANCHI_KEYWORDS_PER_RUN else DEFAULT_KEYWORDS_PER_RUN
+        store.nextKeywordsToCrawl(staleBefore, limit).forEach { keyword ->
             if (keyword.discoveredFrom != BOOTSTRAP_SOURCE) {
                 store.markKeywordCrawled(keyword.id)
                 return@forEach
@@ -70,9 +71,10 @@ internal class SourceCrawler(
         return BROAD_OSM_TERMS.any(term::contains)
     }
 
-    private fun crawlPendingEntities(excludingEntityId: String?) {
+    private fun crawlPendingEntities(target: CrawlTarget, excludingEntityId: String?) {
         val staleBefore = System.currentTimeMillis() - ENTITY_STALE_MILLIS
-        store.nextEntitiesToCrawl(staleBefore, MAX_ENTITIES_PER_RUN)
+        val limit = if (target == CrawlTarget.RANCHI) RANCHI_ENTITIES_PER_RUN else DEFAULT_ENTITIES_PER_RUN
+        store.nextEntitiesToCrawl(staleBefore, limit)
             .filterNot { it.entityId == excludingEntityId }
             .forEach(::crawlEntity)
     }
@@ -108,8 +110,14 @@ internal class SourceCrawler(
         private const val TAG = "JoharCrawl"
         private const val BOOTSTRAP_SOURCE = "bootstrap"
         private const val OPENSTREETMAP_ADAPTER_ID = "openstreetmap"
-        private const val MAX_ENTITIES_PER_RUN = 6
-        private const val MAX_KEYWORDS_PER_RUN = 3
+
+        // Ranchi V1 is a prototype breadth pass. Keep the budget bounded so public sources are
+        // treated politely, but large enough that manual crawl runs produce useful coverage.
+        private const val RANCHI_ENTITIES_PER_RUN = 12
+        private const val RANCHI_KEYWORDS_PER_RUN = 8
+        private const val DEFAULT_ENTITIES_PER_RUN = 6
+        private const val DEFAULT_KEYWORDS_PER_RUN = 3
+
         private const val MAX_DISCOVERY_DEPTH = 2
         private const val ENTITY_STALE_MILLIS = 24L * 60L * 60L * 1_000L
         private const val KEYWORD_STALE_MILLIS = 30L * 24L * 60L * 60L * 1_000L
