@@ -17,8 +17,15 @@
     "scandataUrl": "https://archive.org/download/dli.csl.5314/5314_scandata.xml",
     "expectedScandataSha256": "72cf556924fc74a6a66784d68f2ff86f7427d2aa4f9c063caf2aa1be4db71e50"
   },
+  "extraction": {
+    "contentStartPatterns": [
+      "^INTRODUCTION\\.?$",
+      "^CHAPTER\\s+I\\b"
+    ],
+    "pageReferencePolicy": "Use numeric printed pages when reliable scandata labels exist; otherwise preserve exact 1-based scan/PDF page indices and label them SCAN_PAGE_1_BASED."
+  },
   "districts": [],
   "entities": ["Munda", "Chota Nagpur"],
   "topics": ["Munda", "history", "geography", "customs", "social organization", "land tenure", "religion", "language", "Chota Nagpur"],
-  "notes": "Public-domain 1912 historical source. Wikimedia Commons identifies the scan as public domain and traces it to the Central Secretariat Library / Internet Archive. Internet Archive DjVu OCR and scandata derivatives are filename- and SHA-256-pinned before processing. Treat colonial/period terminology and ethnographic claims as attributed historical evidence rather than present-day fact. OCR derivatives must pass page-mapping and text-quality checks before ingestion."
+  "notes": "Public-domain 1912 historical source. Wikimedia Commons identifies the scan as public domain and traces it to the Central Secretariat Library / Internet Archive. Internet Archive DjVu OCR and scandata derivatives are filename- and SHA-256-pinned before processing. Front index/navigation material is excluded by a source-specific real-content start boundary. OCR heading detection is conservative to avoid turning footnotes/index terms into retrieval section labels. Treat colonial/period terminology and ethnographic claims as attributed historical evidence rather than present-day fact."
 }
