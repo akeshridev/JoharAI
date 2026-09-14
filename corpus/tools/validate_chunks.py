@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+from collections import Counter
 from pathlib import Path
 
 
@@ -61,9 +62,79 @@ def sample(record: dict) -> dict:
         "chapterOrSection": record.get("chapterOrSection"),
         "pageStart": record.get("pageStart"),
         "pageEnd": record.get("pageEnd"),
+        "pageReferenceType": record.get("pageReferenceType"),
         "wordCount": word_count(text),
-        "preview": text[:320].replace("\n", " "),
+        "preview": text[:480].replace("\n", " "),
     }
+
+
+def evenly_spaced_indexes(length: int) -> list[int]:
+    if length <= 0:
+        return []
+    fractions = (0.0, 0.1, 0.25, 0.5, 0.75, 0.9, 1.0)
+    return sorted({min(length - 1, round((length - 1) * fraction)) for fraction in fractions})
+
+
+def page_samples(records: list[dict], page_min: int | None, page_max: int | None) -> list[dict]:
+    if not records or page_min is None or page_max is None:
+        return []
+    if page_max <= page_min:
+        targets = [page_min]
+    else:
+        targets = [
+            round(page_min + (page_max - page_min) * fraction)
+            for fraction in (0.05, 0.15, 0.3, 0.5, 0.7, 0.85, 0.95)
+        ]
+
+    usable = [
+        record
+        for record in records
+        if isinstance(record.get("pageStart"), int) and isinstance(record.get("pageEnd"), int)
+    ]
+    chosen: list[dict] = []
+    used_ids: set[str] = set()
+    for target in targets:
+        containing = [
+            record
+            for record in usable
+            if record["pageStart"] <= target <= record["pageEnd"]
+        ]
+        if containing:
+            record = min(containing, key=lambda item: word_count(item.get("text") or ""))
+        else:
+            record = min(
+                usable,
+                key=lambda item: min(abs(item["pageStart"] - target), abs(item["pageEnd"] - target)),
+            )
+        chunk_id = record.get("chunkId")
+        if chunk_id in used_ids:
+            continue
+        used_ids.add(chunk_id)
+        value = sample(record)
+        value["targetPage"] = target
+        chosen.append(value)
+    return chosen
+
+
+def short_chunk_page_bands(short_records: list[dict], page_min: int | None, page_max: int | None) -> list[dict]:
+    if page_min is None or page_max is None or not short_records:
+        return []
+    span = max(1, page_max - page_min + 1)
+    band_count = 5
+    bands: list[dict] = []
+    for index in range(band_count):
+        start = page_min + (span * index) // band_count
+        end = page_min + (span * (index + 1)) // band_count - 1
+        if index == band_count - 1:
+            end = page_max
+        count = sum(
+            1
+            for record in short_records
+            if isinstance(record.get("pageStart"), int)
+            and start <= record["pageStart"] <= end
+        )
+        bands.append({"pageStart": start, "pageEnd": end, "shortChunkCount": count})
+    return bands
 
 
 def main() -> None:
@@ -96,6 +167,7 @@ def main() -> None:
     sections: set[str] = set()
     pages: set[int] = set()
     word_counts: list[int] = []
+    section_counts: Counter[str] = Counter()
 
     for index, record in enumerate(records, 1):
         absent = [field for field in REQUIRED_FIELDS if field not in record]
@@ -137,7 +209,9 @@ def main() -> None:
 
         section = record.get("chapterOrSection")
         if isinstance(section, str) and section.strip():
-            sections.add(section.strip())
+            section = section.strip()
+            sections.add(section)
+            section_counts[section] += 1
 
     if len(records) < args.min_chunks:
         failures.append(f"only {len(records)} chunks; minimum is {args.min_chunks}")
@@ -174,31 +248,36 @@ def main() -> None:
             f"stats ragChunkBytes={stats.get('ragChunkBytes')} but file is {args.chunks.stat().st_size} bytes"
         )
 
-    sample_records: list[dict] = []
-    if records:
-        indexes = sorted({0, len(records) // 2, len(records) - 1})
-        sample_records = [sample(records[i]) for i in indexes]
+    page_min = min(pages) if pages else None
+    page_max = max(pages) if pages else None
+    position_records = [sample(records[i]) for i in evenly_spaced_indexes(len(records))]
 
     report = {
         "sourceId": source.get("id"),
         "passed": not failures,
         "chunkCount": len(records),
         "pageCountRepresented": len(pages),
-        "pageMin": min(pages) if pages else None,
-        "pageMax": max(pages) if pages else None,
+        "pageMin": page_min,
+        "pageMax": page_max,
         "sectionCount": len(sections),
+        "mostFrequentSections": [
+            {"section": section, "chunkCount": count}
+            for section, count in section_counts.most_common(12)
+        ],
         "chunkWordMin": min(word_counts) if word_counts else 0,
         "chunkWordMax": max(word_counts) if word_counts else 0,
         "chunkWordAverage": round(sum(word_counts) / len(word_counts), 1) if word_counts else 0,
         "shortChunkCount": short_chunks,
-        "shortChunkSamples": [sample(record) for record in short_records],
+        "shortChunkPageBands": short_chunk_page_bands(short_records, page_min, page_max),
+        "shortChunkSamples": [sample(record) for record in short_records[:30]],
         "duplicateChunkIdCount": duplicate_chunk_ids,
         "duplicateTextCount": duplicate_texts,
         "missingPageCount": missing_pages,
         "ragChunkBytes": args.chunks.stat().st_size,
         "warnings": warnings,
         "failures": failures,
-        "reviewSamples": sample_records,
+        "positionSamples": position_records,
+        "pageSamples": page_samples(records, page_min, page_max),
     }
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
