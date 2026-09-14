@@ -32,17 +32,23 @@ fun JoharLocalPickCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(JoharRadius.Large),
+        shape = RoundedCornerShape(JoharRadius.ExtraLarge),
         colors = CardDefaults.cardColors(
             containerColor = JoharColors.SoftOrange,
             contentColor = JoharColors.Forest,
         ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.75f)),
+        border = BorderStroke(1.dp, JoharColors.Rust.copy(alpha = 0.18f)),
     ) {
-        Column(Modifier.padding(JoharSpacing.Lg)) {
-            JoharStatusBadge(label = "Local Pick", tone = JoharInfoTone.NORMAL)
-            Spacer(Modifier.height(JoharSpacing.Md))
-            Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        Column(Modifier.padding(JoharSpacing.Xl)) {
+            Text(
+                "LOCAL RANCHI",
+                style = MaterialTheme.typography.labelSmall,
+                color = JoharColors.Rust,
+                fontWeight = FontWeight.Bold,
+            )
+            Spacer(Modifier.height(JoharSpacing.Xs))
+            Text(title, style = MaterialTheme.typography.titleLarge)
+            Spacer(Modifier.height(2.dp))
             Text(subtitle, style = MaterialTheme.typography.bodyMedium)
             detail?.let {
                 Spacer(Modifier.height(JoharSpacing.Sm))
@@ -67,17 +73,17 @@ fun JoharUtilityCard(
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(JoharRadius.Medium),
+        shape = RoundedCornerShape(JoharRadius.Large),
         color = MaterialTheme.colorScheme.surface,
         tonalElevation = JoharElevation.Flat,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.8f)),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.75f)),
     ) {
-        Column(Modifier.padding(JoharSpacing.Md)) {
-            Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+        Column(Modifier.padding(JoharSpacing.Lg)) {
+            Text(title, style = MaterialTheme.typography.titleMedium)
             Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             metadata?.let {
                 Spacer(Modifier.height(JoharSpacing.Sm))
-                Text(it, style = MaterialTheme.typography.bodyMedium)
+                Text(it, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
             }
             if (actions.isNotEmpty()) {
                 Spacer(Modifier.height(JoharSpacing.Md))
@@ -103,35 +109,37 @@ fun JoharComparisonCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(JoharRadius.Large),
+        shape = RoundedCornerShape(JoharRadius.ExtraLarge),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.9f)),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.78f)),
     ) {
         Column(Modifier.padding(JoharSpacing.Lg)) {
+            Text("WHICH ONE FITS?", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(JoharSpacing.Md))
             Row(Modifier.fillMaxWidth()) {
-                Text("", modifier = Modifier.weight(0.75f))
-                Text(leftTitle, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
-                Text(rightTitle, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                Text("", modifier = Modifier.weight(0.72f))
+                Text(leftTitle, style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
+                Text(rightTitle, style = MaterialTheme.typography.labelLarge, modifier = Modifier.weight(1f))
             }
             Spacer(Modifier.height(JoharSpacing.Md))
             rows.forEach { item ->
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Text(item.label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(0.75f))
+                    Text(item.label, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(0.72f))
                     Text(item.leftValue, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
-                    Text(item.rightValue, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+                    Text(item.rightValue, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
                 }
                 Spacer(Modifier.height(JoharSpacing.Sm))
             }
             recommendation?.let {
                 Spacer(Modifier.height(JoharSpacing.Md))
                 Surface(
-                    shape = RoundedCornerShape(JoharRadius.Medium),
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
+                    shape = RoundedCornerShape(JoharRadius.Large),
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.09f),
                 ) {
-                    Column(Modifier.padding(JoharSpacing.Md)) {
-                        Text("Johar pick", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
+                    Column(Modifier.padding(JoharSpacing.Lg)) {
+                        Text("JOHAR PICK", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
                         Spacer(Modifier.height(JoharSpacing.Xs))
-                        Text(it, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                        Text(it, style = MaterialTheme.typography.titleSmall)
                     }
                 }
             }
@@ -147,20 +155,20 @@ fun JoharSuggestionCard(
     onSuggestionClick: (String) -> Unit = {},
 ) {
     Column(modifier.fillMaxWidth()) {
-        Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+        Text(title, style = MaterialTheme.typography.titleMedium)
         Spacer(Modifier.height(JoharSpacing.Md))
         suggestions.forEach { suggestion ->
             Surface(
                 modifier = Modifier.fillMaxWidth().widthIn(min = 0.dp),
                 onClick = { onSuggestionClick(suggestion) },
-                shape = RoundedCornerShape(JoharRadius.Medium),
+                shape = RoundedCornerShape(JoharRadius.Large),
                 color = MaterialTheme.colorScheme.surface,
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.75f)),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.68f)),
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = JoharSpacing.Lg, vertical = JoharSpacing.Lg),
+                        .padding(horizontal = JoharSpacing.Lg, vertical = 18.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
@@ -168,7 +176,7 @@ fun JoharSuggestionCard(
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.weight(1f),
                     )
-                    Text("›", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("→", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.secondary)
                 }
             }
             Spacer(Modifier.height(JoharSpacing.Sm))
