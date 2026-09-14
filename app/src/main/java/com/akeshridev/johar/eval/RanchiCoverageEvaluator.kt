@@ -28,8 +28,20 @@ class RanchiCoverageEvaluator(
     private fun evaluate(case: RanchiCoverageCase): RanchiCoverageResult {
         val effectiveQuery = buildEffectiveQuery(case)
         val hits = retriever.retrieve(effectiveQuery, limit = 5)
-        val gaps = linkedSetOf<String>()
 
+        if (case.expectNoAnswer) {
+            val gaps = if (hits.isEmpty()) emptyList() else listOf(GAP_OUT_OF_DOMAIN_LEAK)
+            return RanchiCoverageResult(
+                case = case,
+                effectiveQuery = effectiveQuery,
+                status = if (hits.isEmpty()) RanchiCoverageStatus.PASS else RanchiCoverageStatus.GAP,
+                gaps = gaps,
+                actual = hits.map { it.name },
+                actualPackTypes = hits.mapNotNull { it.packType }.distinct(),
+            )
+        }
+
+        val gaps = linkedSetOf<String>()
         if (case.requiresLocationContext && case.locationContext.isNullOrBlank()) {
             gaps += GAP_LOCATION_CONTEXT_REQUIRED
         }
@@ -96,17 +108,19 @@ class RanchiCoverageEvaluator(
 
     private fun parseCase(line: String): RanchiCoverageCase {
         val json = JSONObject(line)
+        val category = json.getString("category")
         return RanchiCoverageCase(
             id = json.getString("id"),
             persona = json.optString("persona", "general"),
             query = json.getString("query"),
-            category = json.getString("category"),
+            category = category,
             locationContext = json.optString("locationContext").takeIf(String::isNotBlank),
             requiresLocationContext = json.optBoolean("requiresLocationContext", false),
             expectedPackTypes = json.stringList("expectedPackTypes").toSet(),
             minHits = json.optInt("minHits", 1).coerceAtLeast(1),
             requiredFactGroups = json.stringList("requiredFactGroups"),
             requiresCurrentData = json.optBoolean("requiresCurrentData", false),
+            expectNoAnswer = json.optBoolean("expectNoAnswer", category == "out-of-domain"),
         )
     }
 
@@ -138,6 +152,7 @@ class RanchiCoverageEvaluator(
         const val GAP_WRONG_RESULT_TYPE = "WRONG_RESULT_TYPE"
         const val GAP_LIVE_FRESHNESS_REQUIRED = "LIVE_FRESHNESS_REQUIRED"
         const val GAP_LOCATION_CONTEXT_REQUIRED = "LOCATION_CONTEXT_REQUIRED"
+        const val GAP_OUT_OF_DOMAIN_LEAK = "OUT_OF_DOMAIN_LEAK"
 
         private val FACT_GROUP_ALIASES = mapOf(
             "ADDRESS" to listOf("address", "locality", "located", "location", "village", "road"),
@@ -172,6 +187,7 @@ data class RanchiCoverageCase(
     val minHits: Int,
     val requiredFactGroups: List<String>,
     val requiresCurrentData: Boolean,
+    val expectNoAnswer: Boolean,
 )
 
 data class RanchiCoverageResult(
