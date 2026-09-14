@@ -67,7 +67,7 @@ fun RanchiMapCard(
             Text(destination.type.replace('_', ' ').lowercase())
 
             if (mapFile == null) {
-                Text("Ranchi offline map pack is not installed in this build.")
+                Text("Map preview unavailable.")
             } else {
                 OfflineMap(
                     mapFile = mapFile,
@@ -191,7 +191,11 @@ private fun styleJson(mapFile: File): String {
           "version": 8,
           "name": "Johar Ranchi Offline",
           "sources": {
-            "ranchi": { "type": "vector", "url": "$source" }
+            "ranchi": {
+              "type": "vector",
+              "url": "$source",
+              "attribution": "© OpenStreetMap contributors"
+            }
           },
           "layers": [
             { "id": "background", "type": "background", "paint": { "background-color": "#f6f4ed" } },
@@ -206,17 +210,20 @@ private fun styleJson(mapFile: File): String {
 }
 
 private fun openNavigation(context: android.content.Context, destination: RanchiCoordinate) {
-    val googleNavigation = Uri.parse(
-        "google.navigation:q=${destination.latitude},${destination.longitude}",
+    val candidates = listOf(
+        Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse("google.navigation:q=${destination.latitude},${destination.longitude}"),
+        ),
+        Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse(
+                "geo:${destination.latitude},${destination.longitude}?q=${destination.latitude},${destination.longitude}",
+            ),
+        ),
     )
-    val navigationIntent = Intent(Intent.ACTION_VIEW, googleNavigation)
-    if (navigationIntent.resolveActivity(context.packageManager) != null) {
-        context.startActivity(navigationIntent)
-        return
-    }
 
-    val geo = Uri.parse("geo:${destination.latitude},${destination.longitude}?q=${destination.latitude},${destination.longitude}")
-    context.startActivity(Intent(Intent.ACTION_VIEW, geo))
+    candidates.firstOrNull { it.resolveActivity(context.packageManager) != null }?.let(context::startActivity)
 }
 
 private const val PIN_SOURCE = "johar-pins"
