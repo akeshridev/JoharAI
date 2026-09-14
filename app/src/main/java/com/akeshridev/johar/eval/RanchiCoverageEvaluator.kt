@@ -46,25 +46,34 @@ class RanchiCoverageEvaluator(
             gaps += GAP_LOCATION_CONTEXT_REQUIRED
         }
 
+        val scoringHits = hits.filterNot { hit -> isGenericContextOnly(case, hit) }
         if (hits.isEmpty()) {
             gaps += GAP_NO_OFFLINE_EVIDENCE
+        } else if (scoringHits.isEmpty()) {
+            gaps += GAP_GENERIC_ONLY_RESULT
         } else {
-            if (hits.size < case.minHits) gaps += GAP_THIN_OFFLINE_COVERAGE
+            if (scoringHits.size < case.minHits) gaps += GAP_THIN_OFFLINE_COVERAGE
             if (
                 case.expectedPackTypes.isNotEmpty() &&
-                hits.none { hit -> hit.packType?.let(case.expectedPackTypes::contains) == true }
+                scoringHits.none { hit -> hit.packType?.let(case.expectedPackTypes::contains) == true }
             ) {
                 gaps += GAP_WRONG_RESULT_TYPE
             }
             case.requiredFactGroups.forEach { group ->
-                if (!hasFactGroup(group, hits)) gaps += "MISSING_$group"
+                if (!hasFactGroup(group, scoringHits)) gaps += "MISSING_$group"
             }
         }
 
         if (case.requiresCurrentData) gaps += GAP_LIVE_FRESHNESS_REQUIRED
 
+        val fatalEvidenceGap =
+            hits.isEmpty() ||
+                scoringHits.isEmpty() ||
+                GAP_WRONG_RESULT_TYPE in gaps ||
+                GAP_LOCATION_CONTEXT_REQUIRED in gaps
+
         val status = when {
-            hits.isEmpty() -> RanchiCoverageStatus.GAP
+            fatalEvidenceGap -> RanchiCoverageStatus.GAP
             gaps.isEmpty() -> RanchiCoverageStatus.PASS
             else -> RanchiCoverageStatus.PARTIAL
         }
@@ -77,6 +86,14 @@ class RanchiCoverageEvaluator(
             actual = hits.map { it.name },
             actualPackTypes = hits.mapNotNull { it.packType }.distinct(),
         )
+    }
+
+    private fun isGenericContextOnly(
+        case: RanchiCoverageCase,
+        hit: OfflineKnowledgeHit,
+    ): Boolean {
+        if (case.category in GENERIC_GEOGRAPHY_ALLOWED_CATEGORIES) return false
+        return hit.packType in GENERIC_GEOGRAPHY_PACK_TYPES
     }
 
     private fun buildEffectiveQuery(case: RanchiCoverageCase): String {
@@ -148,11 +165,30 @@ class RanchiCoverageEvaluator(
 
     companion object {
         const val GAP_NO_OFFLINE_EVIDENCE = "NO_OFFLINE_EVIDENCE"
+        const val GAP_GENERIC_ONLY_RESULT = "GENERIC_ONLY_RESULT"
         const val GAP_THIN_OFFLINE_COVERAGE = "THIN_OFFLINE_COVERAGE"
         const val GAP_WRONG_RESULT_TYPE = "WRONG_RESULT_TYPE"
         const val GAP_LIVE_FRESHNESS_REQUIRED = "LIVE_FRESHNESS_REQUIRED"
         const val GAP_LOCATION_CONTEXT_REQUIRED = "LOCATION_CONTEXT_REQUIRED"
         const val GAP_OUT_OF_DOMAIN_LEAK = "OUT_OF_DOMAIN_LEAK"
+
+        private val GENERIC_GEOGRAPHY_PACK_TYPES = setOf(
+            "CITY",
+            "DISTRICT",
+            "REGION",
+            "SUBDIVISION",
+        )
+
+        // These questions can legitimately be answered by facts attached to Ranchi itself.
+        // Discovery/recommendation/service questions are deliberately excluded so a generic
+        // Ranchi row cannot masquerade as a restaurant, route, attraction or local service.
+        private val GENERIC_GEOGRAPHY_ALLOWED_CATEGORIES = setOf(
+            "climate",
+            "weather-live",
+            "traffic-live",
+            "government-live",
+            "event-live",
+        )
 
         private val FACT_GROUP_ALIASES = mapOf(
             "ADDRESS" to listOf("address", "locality", "located", "location", "village", "road"),
