@@ -65,10 +65,22 @@ class MainViewModel(
         }
     }
 
-    fun testOnDeviceLlm() {
+    fun testOnDeviceLlm(rawQuery: String) {
+        val query = rawQuery.trim()
+        if (query.isEmpty()) return
+
         viewModelScope.launch(Dispatchers.IO) {
-            val query = LLM_TEST_QUERY
             val context = ragContextBuilder.build(query)
+            Log.i(LLM_TAG, "QUERY query=\"$query\" hits=${context.hits.size}")
+            context.hits.forEachIndexed { index, hit ->
+                val factSummary = hit.facts.joinToString(" | ") { "${it.field}=${it.value}" }
+                Log.i(
+                    LLM_TAG,
+                    "RETRIEVAL #${index + 1} score=${hit.score} name=${hit.name} " +
+                        "type=${hit.type} packType=${hit.packType.orEmpty()} facts=[$factSummary]",
+                )
+            }
+
             val startedAt = SystemClock.elapsedRealtime()
             try {
                 val answer = synthesizer.synthesize(context)
@@ -139,15 +151,19 @@ class MainViewModel(
         private const val EVAL_TAG = "JoharEval"
         private const val ANSWER_TAG = "JoharAnswer"
         private const val LLM_TAG = "JoharLLM"
-        private const val LLM_TEST_QUERY = "Rugra Jharkhand me special kyun hai?"
 
         private fun formatPercent(value: Double): String = "%.1f%%".format(value * 100.0)
 
         private val TEST_QUERIES = listOf(
             "Rugra kya hai?",
+            "Rugra monsoon me kyun milta hai?",
             "Jharkhand ka state animal?",
+            "Sarhul kya hai?",
+            "Jharkhand ka traditional dance kya hai?",
             "Deoghar me temple?",
             "Ranchi ke paas waterfall?",
+            "Patratu Dam kahan hai?",
+            "Rajmahal historical kyun hai?",
         )
 
         private val ANSWER_TEST_QUERIES = listOf(
