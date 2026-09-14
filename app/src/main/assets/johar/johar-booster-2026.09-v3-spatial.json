@@ -1,0 +1,285 @@
+{
+  "version": "2026.09-v3-spatial",
+  "description": "Ranchi-only spatial seed for offline place resolution, nearby search and chat map cards.",
+  "entities": [
+    {
+      "key": "ranchi-spatial",
+      "name": "Ranchi",
+      "type": "CITY",
+      "packType": "CITY",
+      "aliases": ["Ranchi city"],
+      "description": "Ranchi city, capital of Jharkhand.",
+      "latitude": 23.3701,
+      "longitude": 85.3250,
+      "region": "Ranchi",
+      "country": "India",
+      "externalRefs": {
+        "joharDiscoveryScope": "Ranchi",
+        "coordinateSourceUrl": "https://www.openstreetmap.org/node/2510123017"
+      }
+    },
+    {
+      "key": "lalpur-spatial",
+      "name": "Lalpur",
+      "type": "PLACE",
+      "packType": "LOCALITY",
+      "aliases": ["Lalpur Ranchi"],
+      "description": "Locality in Ranchi city.",
+      "latitude": 23.3684534,
+      "longitude": 85.3459178,
+      "region": "Ranchi",
+      "country": "India",
+      "externalRefs": {
+        "joharDiscoveryScope": "Ranchi",
+        "coordinateSourceUrl": "https://indiamapia.com/Ranchi/Lalpur.html"
+      }
+    },
+    {
+      "key": "morabadi-spatial",
+      "name": "Morabadi",
+      "type": "PLACE",
+      "packType": "LOCALITY",
+      "aliases": ["Morabadi Ranchi", "Morhabadi"],
+      "description": "Locality in Ranchi known for Morabadi Maidan and Tagore Hill area.",
+      "latitude": 23.399217,
+      "longitude": 85.3317053,
+      "region": "Ranchi",
+      "country": "India",
+      "externalRefs": {
+        "joharDiscoveryScope": "Ranchi",
+        "coordinateSourceUrl": "https://indiamapia.com/Ranchi/Morabadi.html"
+      }
+    },
+    {
+      "key": "bariatu-spatial",
+      "name": "Bariatu",
+      "type": "PLACE",
+      "packType": "LOCALITY",
+      "aliases": ["Bariatu Ranchi"],
+      "description": "Suburb in Ranchi district.",
+      "latitude": 23.39584,
+      "longitude": 85.35285,
+      "region": "Ranchi",
+      "country": "India",
+      "externalRefs": {
+        "joharDiscoveryScope": "Ranchi",
+        "coordinateSourceUrl": "https://www.openstreetmap.org/node/9288713323"
+      }
+    },
+    {
+      "key": "kanke-spatial",
+      "name": "Kanke",
+      "type": "PLACE",
+      "packType": "LOCALITY",
+      "aliases": ["Kanke Ranchi"],
+      "description": "Settlement in Ranchi district.",
+      "latitude": 23.42986,
+      "longitude": 85.32758,
+      "region": "Ranchi",
+      "country": "India",
+      "externalRefs": {
+        "joharDiscoveryScope": "Ranchi",
+        "coordinateSourceUrl": "https://www.openstreetmap.org/node/245713644"
+      }
+    },
+    {
+      "key": "hinoo-spatial",
+      "name": "Hinoo",
+      "type": "PLACE",
+      "packType": "LOCALITY",
+      "aliases": ["Hinoo Ranchi"],
+      "description": "Suburb in Ranchi near Birsa Munda Airport.",
+      "latitude": 23.32894,
+      "longitude": 85.31701,
+      "region": "Ranchi",
+      "country": "India",
+      "externalRefs": {
+        "joharDiscoveryScope": "Ranchi",
+        "coordinateSourceUrl": "https://www.openstreetmap.org/node/9287906556"
+      }
+    },
+    {
+      "key": "ranchi-junction-spatial",
+      "name": "Ranchi Junction railway station",
+      "type": "RAILWAY_STATION",
+      "packType": "RAILWAY_STATION",
+      "aliases": ["Ranchi Junction", "Ranchi railway station", "Ranchi station"],
+      "description": "Main railway station serving Ranchi.",
+      "latitude": 23.34932,
+      "longitude": 85.33557,
+      "region": "Ranchi",
+      "country": "India",
+      "externalRefs": {
+        "joharDiscoveryScope": "Ranchi",
+        "osm": "node:9234091686",
+        "wikidata": "Q7290801",
+        "coordinateSourceUrl": "https://www.openstreetmap.org/node/9234091686"
+      }
+    },
+    {
+      "key": "birsa-airport-spatial",
+      "name": "Birsa Munda Airport",
+      "type": "AIRPORT",
+      "packType": "AIRPORT",
+      "aliases": ["Ranchi Airport", "IXR"],
+      "description": "Airport serving Ranchi, located in Hinoo.",
+      "latitude": 23.31417,
+      "longitude": 85.32167,
+      "region": "Ranchi",
+      "country": "India",
+      "externalRefs": {
+        "joharDiscoveryScope": "Ranchi",
+        "wikidata": "Q598231",
+        "coordinateSourceUrl": "https://www.wikidata.org/wiki/Q598231"
+      }
+    },
+    {
+      "key": "pahari-mandir-spatial",
+      "name": "Pahari Mandir",
+      "type": "TOURIST_ATTRACTION",
+      "packType": "TEMPLE",
+      "aliases": ["Ranchi Pahari Mandir", "Pahari Temple"],
+      "description": "Shiva temple on a hill in Ranchi.",
+      "latitude": 23.375,
+      "longitude": 85.311,
+      "region": "Ranchi",
+      "country": "India",
+      "externalRefs": {
+        "joharDiscoveryScope": "Ranchi",
+        "wikidata": "Q85791801",
+        "officialUrl": "https://paharimandirranchi.com/",
+        "coordinateSourceUrl": "https://commons.wikimedia.org/wiki/Category:Pahari_Mandir"
+      }
+    },
+    {
+      "key": "tagore-hill-spatial",
+      "name": "Tagore Hill",
+      "type": "TOURIST_ATTRACTION",
+      "packType": "HILL",
+      "aliases": ["Morabadi Hill", "Tagore hill"],
+      "description": "Hill and tourist attraction in Morabadi, Ranchi.",
+      "latitude": 23.4014,
+      "longitude": 85.3380,
+      "region": "Ranchi",
+      "country": "India",
+      "externalRefs": {
+        "joharDiscoveryScope": "Ranchi",
+        "osm": "node:4613994091",
+        "wikidata": "Q7675310",
+        "officialUrl": "https://ranchi.nic.in/tourist-place/tagore-hill/",
+        "coordinateSourceUrl": "https://www.openstreetmap.org/node/4613994091"
+      }
+    },
+    {
+      "key": "jagannath-ranchi-spatial",
+      "name": "Jagannath Mandir Ranchi",
+      "type": "TOURIST_ATTRACTION",
+      "packType": "TEMPLE",
+      "aliases": ["Jagannath Temple Ranchi", "Jagannathpur Temple"],
+      "description": "Historic hilltop Jagannath temple in Ranchi.",
+      "latitude": 23.316944,
+      "longitude": 85.281667,
+      "region": "Ranchi",
+      "country": "India",
+      "externalRefs": {
+        "joharDiscoveryScope": "Ranchi",
+        "wikidata": "Q4500786",
+        "coordinateSourceUrl": "https://www.wikidata.org/wiki/Q4500786"
+      }
+    },
+    {
+      "key": "rock-garden-spatial",
+      "name": "Rock Garden",
+      "type": "TOURIST_ATTRACTION",
+      "packType": "PARK",
+      "aliases": ["Rock Garden Ranchi"],
+      "description": "Rock Garden in Gandhi Nagar, Ranchi.",
+      "latitude": 23.40339,
+      "longitude": 85.31290,
+      "region": "Ranchi",
+      "country": "India",
+      "externalRefs": {
+        "joharDiscoveryScope": "Ranchi",
+        "officialUrl": "https://ranchi.nic.in/gallery/rock-garden/",
+        "coordinateSourceUrl": "https://www.mypacer.com/parks/336353/rock-garden-ranchi"
+      }
+    },
+    {
+      "key": "deori-spatial",
+      "name": "Deori Mandir",
+      "type": "TOURIST_ATTRACTION",
+      "packType": "TEMPLE",
+      "aliases": ["Maa Dewri Temple", "Deori Temple", "Dewri Mandir"],
+      "description": "Temple near Tamar in Ranchi district.",
+      "latitude": 23.046111,
+      "longitude": 85.682778,
+      "region": "Ranchi",
+      "country": "India",
+      "externalRefs": {
+        "joharDiscoveryScope": "Ranchi",
+        "wikidata": "Q24931314",
+        "coordinateSourceUrl": "https://www.wikidata.org/wiki/Q24931314"
+      }
+    },
+    {
+      "key": "jsca-stadium-spatial",
+      "name": "JSCA International Cricket Stadium",
+      "type": "FACILITY",
+      "packType": "STADIUM",
+      "aliases": ["JSCA Stadium", "Ranchi cricket stadium"],
+      "description": "International cricket stadium in Ranchi.",
+      "latitude": 23.3100528,
+      "longitude": 85.2748861,
+      "region": "Ranchi",
+      "country": "India",
+      "externalRefs": {
+        "joharDiscoveryScope": "Ranchi",
+        "wikidata": "Q15229080",
+        "coordinateSourceUrl": "https://www.wikidata.org/wiki/Q15229080"
+      }
+    }
+  ],
+  "facts": [
+    {
+      "entityKey": "pahari-mandir-spatial",
+      "field": "darshanTiming",
+      "value": "4:30 am to 9:00 pm",
+      "domain": "FACILITIES",
+      "sourceUrl": "https://paharimandirranchi.com/",
+      "publisher": "Ranchi Pahari Mandir Vikas Samiti",
+      "freshness": "SEMI_DYNAMIC",
+      "evidence": "The official Pahari Mandir website lists darshan timing as 4:30 am to 9:00 pm."
+    },
+    {
+      "entityKey": "pahari-mandir-spatial",
+      "field": "address",
+      "value": "Pahari Mandir, Ratu Road, Ranchi, Jharkhand, India",
+      "domain": "GEOGRAPHY",
+      "sourceUrl": "https://paharimandirranchi.com/",
+      "publisher": "Ranchi Pahari Mandir Vikas Samiti",
+      "freshness": "EVERGREEN",
+      "evidence": "The official temple website lists Pahari Mandir at Ratu Road, Ranchi."
+    },
+    {
+      "entityKey": "tagore-hill-spatial",
+      "field": "locality",
+      "value": "Morabadi",
+      "domain": "GEOGRAPHY",
+      "sourceUrl": "https://ranchi.nic.in/tourist-place/tagore-hill/",
+      "publisher": "District Administration Ranchi",
+      "freshness": "EVERGREEN",
+      "evidence": "District Ranchi describes Tagore Hill as situated in Morabadi."
+    },
+    {
+      "entityKey": "tagore-hill-spatial",
+      "field": "localTransport",
+      "value": "Rickshaw, taxi and auto-rickshaw are listed as ways to reach Tagore Hill from the city.",
+      "domain": "TRANSPORT",
+      "sourceUrl": "https://ranchi.nic.in/tourist-place/tagore-hill/",
+      "publisher": "District Administration Ranchi",
+      "freshness": "SEMI_DYNAMIC",
+      "evidence": "District Ranchi says rickshaws, taxis and auto-rickshaws can be hired from the city to reach Tagore Hill."
+    }
+  ],
+  "relationships": []
+}
