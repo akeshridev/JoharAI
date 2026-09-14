@@ -64,3 +64,6 @@ When adding a component:
 3. Check light and dark themes.
 4. Check compact mobile width and touch targets.
 5. Keep the public API independent of app/data implementation classes.
+
+## Product integration
+App owns conversation orchestration and mapping from `RanchiSpatialEngine` into these UI models. Card actions are opaque presentation events handled by app. The real map stays in app; catalog map examples are not a production map implementation. Keep the catalog limited to isolated visual component work.

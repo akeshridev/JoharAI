@@ -172,7 +172,13 @@ Pure Kotlin/JVM model and storage-independent contracts. No Android, HTTP, Room,
 Source adapters, discovery/crawl orchestration, refresh, persistence and WorkManager scheduling.
 
 ### `app`
-Thin composition/developer harness today; V1 product remains one chat screen.
+Owns branded chat, conversation orchestration, data-to-presentation mapping, and inline map integration. V1 remains one chat screen.
+
+### `johar-design-system`
+Presentation-only components and UI models. No Room, retrieval, spatial/routing engines, ViewModels, LLM or app-state dependencies. App maps RanchiSpatialEngine results into these models. Use text first and structured UI only when useful; never fabricate live/changeable facts.
+
+### `johar-design-catalog`
+Isolated component development and examples, not product business logic.
 
 ## Architecture rules
 - Single responsibility.

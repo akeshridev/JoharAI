@@ -1,25 +1,31 @@
 package com.akeshridev.johar.ui.chat
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.akeshridev.johar.data.retrieval.DeterministicJoharAnswerGenerator
-import com.akeshridev.johar.data.retrieval.OfflineKnowledgeRetriever
+import com.akeshridev.johar.conversation.JoharContentMapper
+import com.akeshridev.johar.conversation.JoharQueryRouter
+import com.akeshridev.johar.conversation.JoharQueryResult
+import com.akeshridev.johar.data.spatial.RanchiSpatialPlace
+import com.akeshridev.johar.designsystem.JoharCardAction
 import com.akeshridev.johar.ui.model.JoharContent
 import com.akeshridev.johar.ui.model.JoharMessageUiModel
 import com.akeshridev.johar.ui.model.Sender
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.UUID
 
 class JoharChatViewModel(
-    offlineKnowledgeRetriever: OfflineKnowledgeRetriever,
+    private val router: JoharQueryRouter,
 ) : ViewModel() {
 
-    private val answerGenerator = DeterministicJoharAnswerGenerator(offlineKnowledgeRetriever)
+    private val mapTargets = mutableMapOf<String, RanchiSpatialPlace>()
 
     private val _messages = MutableStateFlow(
         listOf(
@@ -48,23 +54,32 @@ class JoharChatViewModel(
         )
         _isThinking.value = true
 
-        viewModelScope.launch(Dispatchers.IO) {
-            val content = runCatching {
-                val answer = answerGenerator.answer(query)
-                JoharContent.Text(answer.text)
-            }.getOrElse {
-                JoharContent.Text("Abhi answer nikalne mein dikkat aa rahi hai. Ek baar phir try karein.")
+        viewModelScope.launch {
+            try {
+                val result = withContext(Dispatchers.IO) { router.answer(query) }
+                if (result is JoharQueryResult.Places) {
+                    result.places.forEach { mapTargets[JoharContentMapper.mapActionId(it.id)] = it }
+                }
+                appendAnswer(JoharContentMapper.map(result))
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                Log.e("JoharChat", "Query failed", error)
+                appendAnswer(JoharContent.Text("Abhi answer nikalne mein dikkat aa rahi hai. Ek baar phir try karein."))
+            } finally {
+                _isThinking.value = false
             }
-
-            appendMessage(
-                JoharMessageUiModel(
-                    id = UUID.randomUUID().toString(),
-                    sender = Sender.JOHAR,
-                    content = content,
-                ),
-            )
-            _isThinking.value = false
         }
+    }
+
+    fun onAction(action: JoharCardAction) {
+        // Only actions from actual resolved results can select a map destination.
+        val place = mapTargets[action.id] ?: return
+        appendAnswer(JoharContent.Map(place))
+    }
+
+    private fun appendAnswer(content: JoharContent) {
+        appendMessage(JoharMessageUiModel(UUID.randomUUID().toString(), Sender.JOHAR, content))
     }
 
     private fun appendMessage(message: JoharMessageUiModel) {
@@ -72,12 +87,12 @@ class JoharChatViewModel(
     }
 
     class Factory(
-        private val offlineKnowledgeRetriever: OfflineKnowledgeRetriever,
+        private val router: JoharQueryRouter,
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             require(modelClass.isAssignableFrom(JoharChatViewModel::class.java))
             @Suppress("UNCHECKED_CAST")
-            return JoharChatViewModel(offlineKnowledgeRetriever) as T
+            return JoharChatViewModel(router) as T
         }
     }
 }

@@ -38,6 +38,8 @@ import com.akeshridev.johar.designsystem.JoharDrummerMascot
 import com.akeshridev.johar.designsystem.JoharInfoCard
 import com.akeshridev.johar.designsystem.JoharItineraryCard
 import com.akeshridev.johar.designsystem.JoharNagadaThinkingBubble
+import com.akeshridev.johar.map.RanchiMapCard
+import com.akeshridev.johar.designsystem.JoharPlaceCarousel
 import com.akeshridev.johar.designsystem.JoharPlaceCard
 import com.akeshridev.johar.designsystem.JoharPrimaryButton
 import com.akeshridev.johar.designsystem.JoharRouteCard
@@ -96,9 +98,9 @@ fun JoharBrandedChatScreen(
                             JoharSuggestionCard(
                                 title = "Try asking Johar",
                                 suggestions = listOf(
-                                    "Parents ke saath kam walking wali jagah?",
-                                    "Lalpur ke paas achha local food kya hai?",
-                                    "Ranchi ke paas peaceful waterfall batao",
+                                    "Rugra kya hai?",
+                                    "Tagore Hill kahan hai?",
+                                    "Lalpur ke paas mandir",
                                 ),
                                 onSuggestionClick = onSend,
                             )
@@ -261,10 +263,13 @@ private fun JoharBubble(content: JoharContent, onAction: (JoharCardAction) -> Un
                 content.intro?.let {
                     Text(it, style = MaterialTheme.typography.bodyLarge)
                 }
-                content.items.forEach {
-                    JoharPlaceCard(model = it, onAction = onAction)
+                if (content.items.size == 1) {
+                    JoharPlaceCard(model = content.items.single(), onAction = onAction)
+                } else {
+                    JoharPlaceCarousel(title = "Jagah", places = content.items, onAction = onAction)
                 }
             }
+            is JoharContent.Map -> RanchiMapCard(destination = content.destination)
             is JoharContent.Route -> JoharRouteCard(model = content.route, onAction = onAction)
             is JoharContent.Itinerary -> JoharItineraryCard(model = content.plan, onAction = onAction)
             is JoharContent.Info -> JoharInfoCard(

@@ -1,6 +1,7 @@
 package com.akeshridev.johar.map
 
 import android.content.Intent
+import android.content.ActivityNotFoundException
 import android.graphics.Color
 import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
@@ -15,6 +16,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -56,7 +63,12 @@ fun RanchiMapCard(
     route: List<RanchiCoordinate> = emptyList(),
 ) {
     val context = LocalContext.current
-    val mapFile = remember { RanchiMapPackStore(context).ensureInstalled() }
+    var mapLoaded by remember { mutableStateOf(false) }
+    var navigationUnavailable by remember { mutableStateOf(false) }
+    val mapFile by produceState<File?>(null, context) {
+        value = withContext(Dispatchers.IO) { RanchiMapPackStore(context).ensureInstalled() }
+        mapLoaded = true
+    }
 
     Card(modifier = modifier.fillMaxWidth()) {
         Column(
@@ -66,11 +78,12 @@ fun RanchiMapCard(
             Text(destination.name)
             Text(destination.type.replace('_', ' ').lowercase())
 
-            if (mapFile == null) {
-                Text("Map preview unavailable.")
+            val installedMap = mapFile
+            if (installedMap == null) {
+                Text(if (mapLoaded) "Offline map unavailable. The Ranchi map pack is not installed." else "Loading offline map…")
             } else {
                 OfflineMap(
-                    mapFile = mapFile,
+                    mapFile = installedMap,
                     destination = destination.coordinate,
                     origin = origin,
                     route = route,
@@ -81,10 +94,11 @@ fun RanchiMapCard(
             }
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = { openNavigation(context, destination.coordinate) }) {
+                Button(onClick = { navigationUnavailable = !openNavigation(context, destination.coordinate) }) {
                     Text("Navigate")
                 }
             }
+            if (navigationUnavailable) Text("No navigation app is available on this device.")
             Text("© OpenStreetMap contributors")
         }
     }
@@ -115,9 +129,13 @@ private fun OfflineMap(
                 else -> Unit
             }
         }
+        if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) mapView.onStart()
+        if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) mapView.onResume()
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
+            if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) mapView.onPause()
+            if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) mapView.onStop()
             mapView.onDestroy()
         }
     }
@@ -209,7 +227,7 @@ private fun styleJson(mapFile: File): String {
     """.trimIndent()
 }
 
-private fun openNavigation(context: android.content.Context, destination: RanchiCoordinate) {
+private fun openNavigation(context: android.content.Context, destination: RanchiCoordinate): Boolean {
     val candidates = listOf(
         Intent(
             Intent.ACTION_VIEW,
@@ -223,7 +241,15 @@ private fun openNavigation(context: android.content.Context, destination: Ranchi
         ),
     )
 
-    candidates.firstOrNull { it.resolveActivity(context.packageManager) != null }?.let(context::startActivity)
+    for (intent in candidates) {
+        try {
+            context.startActivity(intent)
+            return true
+        } catch (_: ActivityNotFoundException) {
+            // Try a generic geo intent if Google navigation is unavailable.
+        }
+    }
+    return false
 }
 
 private const val PIN_SOURCE = "johar-pins"

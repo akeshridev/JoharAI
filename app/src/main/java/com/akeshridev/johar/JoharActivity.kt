@@ -25,7 +25,7 @@ class JoharActivity : ComponentActivity() {
     private val chatViewModel by lazy {
         ViewModelProvider(
             this,
-            JoharChatViewModel.Factory(graph.offlineKnowledgeRetriever),
+            JoharChatViewModel.Factory(graph.conversationRouter()),
         )[JoharChatViewModel::class.java]
     }
 
@@ -58,7 +58,7 @@ private fun JoharRoot(viewModel: JoharChatViewModel) {
             messages = messages,
             isThinking = isThinking,
             onSend = viewModel::sendQuery,
-            onAction = {},
+            onAction = viewModel::onAction,
         )
     }
 }
