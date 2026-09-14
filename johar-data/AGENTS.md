@@ -6,7 +6,7 @@ Read root `AGENTS.md` first.
 Android data/runtime module. Depends on `johar-domain` and owns the prebuilt knowledge database, offline retrieval, source discovery, crawling, parsing/extraction, refresh, Room persistence, and WorkManager scheduling for Johar's V1 knowledge database.
 
 ## Knowledge bootstrap architecture
-Johar now starts from a prebuilt Room-compatible SQLite seed database rather than importing a JSON pack row-by-row at runtime.
+Johar starts from a prebuilt Room-compatible SQLite seed database rather than importing the historical mega JSON pack row-by-row at runtime.
 
 - Packaged asset name: `johar-base-2026.09.db`.
 - The current app supplies it from `app/src/main/assets/johar-base-2026.09.db`.
@@ -17,15 +17,26 @@ Johar now starts from a prebuilt Room-compatible SQLite seed database rather tha
 - Stable/slow-changing knowledge belongs in the seed. Weather, opening/status information, transport schedules, temporary closures, changing contacts, and other volatile facts belong to live refresh.
 - The seed is an offline baseline, not evidence of current availability. Market/shop metadata never proves live stock.
 
+### Query-experiment knowledge boosters
+Small versioned boosters may enrich the working database between binary seed rebuilds so answer/retrieval experiments can move quickly without making the historical JSON pack the runtime source of truth.
+
+- Current booster asset: `app/src/main/assets/johar/johar-booster-2026.09-v1.json`.
+- `JoharBoosterLoader` applies a booster exactly once per version and records an `asset://johar-booster/<version>` marker in `crawled_sources`.
+- Existing entities are resolved by normalized name first; the booster should enrich those entities rather than create duplicates. New entities receive stable `booster:<key>` IDs.
+- Booster facts must be source-backed and preserve publisher, source URL, evidence text, freshness, and retrieval time.
+- Booster content is for evergreen or slow-changing facts used in controlled query experiments. Do not put live weather, current opening status, transport schedules, temporary closures, live inventory, or other volatile claims in a booster.
+- A booster is not a replacement for the prebuilt seed or crawler. When a booster becomes mature and stable, fold it into the next generated prebuilt database and retire the old booster version.
+
 ## Offline retrieval
 The first retrieval layer lives in `data/retrieval/` and reads the working Room database only; it must work with no network.
 
 Current V1 retrieval is intentionally simple and inspectable:
-- normalize natural-language queries;
+- normalize natural-language queries and known Hinglish/local aliases;
 - remove common English/Hinglish stop words;
-- score entity name, aliases, description, facts, and broad entity type hints;
+- score entity name, aliases, description, source-backed facts, broad entity type hints, and rich pack-type hints;
+- support explicit intents across food, festivals, temples, waterfalls, dams/lakes/hills, culture/dance, tribes, heritage, markets, emergency facilities, airports/railway stations, rivers, cities, and districts;
 - return the highest-ranked entities together with their source-backed facts;
-- use Logcat-based representative queries before introducing LLM answer generation.
+- keep representative Logcat/evaluation queries before introducing more complex retrieval machinery.
 
 Do not treat this lexical scorer as the final RAG design. The intended progression is lexical/structured retrieval -> FTS/hybrid retrieval -> optional vector semantic retrieval where it materially improves vague queries. Retrieval should remain independently replaceable and must preserve source/freshness metadata for answer generation.
 
@@ -33,7 +44,7 @@ Do not treat this lexical scorer as the final RAG design. The intended progressi
 - `source/` — source adapters that resolve/fetch open data dynamically.
 - `remote/` — generic identified HTTP fetching.
 - `parser/` — source-specific parsing/cleaning helpers where needed.
-- `local/` — Room database, DAOs, source snapshots, entities, facts, relationships, media, crawl keywords, and mappers.
+- `local/` — Room database, DAOs, source snapshots, entities, facts, relationships, media, crawl keywords, mappers, and versioned booster application.
 - `retrieval/` — offline query normalization/ranking over the working Room knowledge base.
 - `crawl/` — bootstrap vocabulary, stable IDs, persistent crawl store, queue/orchestration, and crawl budgets.
 - `work/` — immediate and periodic WorkManager execution.
@@ -76,7 +87,7 @@ Do not use the public Nominatim service as a periodic/bulk statewide crawler. If
 ## Persistent discovery loop
 The crawler is resumable and self-expanding:
 
-`seed database + root/category refresh -> bounded discovery -> entities/facts/relationships/media -> later refresh`
+`seed database + versioned booster + root/category refresh -> bounded discovery -> entities/facts/relationships/media -> later refresh`
 
 Room persists:
 - `knowledge_entities`
@@ -109,7 +120,7 @@ Manual enqueue performs an immediate crawl and ensures a unique 24-hour statewid
 - No Compose/ViewModel/UI code here.
 - No Android/network/database types in `johar-domain`.
 - Presentation never imports source adapters or DAOs directly.
-- Keep seed creation, retrieval, source fetching, extraction, storage, discovery, and scheduling independently replaceable.
+- Keep seed creation, booster enrichment, retrieval, source fetching, extraction, storage, discovery, and scheduling independently replaceable.
 
 ## Local answer synthesis runtime
 - `LiteRtLmAnswerSynthesizer` consumes the existing evidence prompt; retrieval and frozen evaluation stay independent. Empty retrieval never invokes the model.
