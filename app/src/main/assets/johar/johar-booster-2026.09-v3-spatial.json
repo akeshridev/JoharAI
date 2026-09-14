@@ -247,7 +247,7 @@
       "domain": "FACILITIES",
       "sourceUrl": "https://paharimandirranchi.com/",
       "publisher": "Ranchi Pahari Mandir Vikas Samiti",
-      "freshness": "SEMI_DYNAMIC",
+      "freshness": "LIVE",
       "evidence": "The official Pahari Mandir website lists darshan timing as 4:30 am to 9:00 pm."
     },
     {
@@ -274,10 +274,10 @@
       "entityKey": "tagore-hill-spatial",
       "field": "localTransport",
       "value": "Rickshaw, taxi and auto-rickshaw are listed as ways to reach Tagore Hill from the city.",
-      "domain": "TRANSPORT",
+      "domain": "TRAVEL_LOGISTICS",
       "sourceUrl": "https://ranchi.nic.in/tourist-place/tagore-hill/",
       "publisher": "District Administration Ranchi",
-      "freshness": "SEMI_DYNAMIC",
+      "freshness": "LIVE",
       "evidence": "District Ranchi says rickshaws, taxis and auto-rickshaws can be hired from the city to reach Tagore Hill."
     }
   ],
