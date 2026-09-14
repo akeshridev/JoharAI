@@ -10,6 +10,56 @@
   "chunkWordMax": 695,
   "chunkWordAverage": 512.8,
   "shortChunkCount": 6,
+  "shortChunkSamples": [
+    {
+      "chunkId": "book_santal_folk_tales_1891:00011:bc8b4b327e5c",
+      "chapterOrSection": "The Two Brothers, Jhorea, and Jhore.",
+      "pageStart": 14,
+      "pageEnd": 15,
+      "wordCount": 149,
+      "preview": "Jhore was next seen seated in a fig-tree eating the fruit. Some cattle merchants, passing under the tree with a large herd of cattle, saw him eating the figs, and asked him what it was he was eating. He replied, “Beat the bullock that is going last, and you shall find it.” So they beat the bullock till it fell down. In"
+    },
+    {
+      "chunkId": "book_santal_folk_tales_1891:00022:9d6315816abd",
+      "chapterOrSection": "The Story of Bitaram.",
+      "pageStart": 29,
+      "pageEnd": 30,
+      "wordCount": 99,
+      "preview": "Bitaram and his wife lived happily together, and every thing they took in hand prospered, so that before long they were richer than the king himself. One great source of Bitaram's wealth was a cow which the princess had brought him as part of her dowry. Being envious of their good fortune, the raja and his sons resolve"
+    },
+    {
+      "chunkId": "book_santal_folk_tales_1891:00049:a4483410bd59",
+      "chapterOrSection": "The Story of Lelha. — II.",
+      "pageStart": 72,
+      "pageEnd": 73,
+      "wordCount": 53,
+      "preview": "It so happened that as the raja gazed upon the fairy scene around him, Koema Jugi turned up, and addressing the raja said, “You are lost in wonder, but if you hang hiras and manis on the branches the whole country will be resplendent. Then your wonder and amazement will be increased twentyfold.”"
+    },
+    {
+      "chunkId": "book_santal_folk_tales_1891:00055:dc94adf0a802",
+      "chapterOrSection": "The Story of Lelha. — V.",
+      "pageStart": 81,
+      "pageEnd": 82,
+      "wordCount": 154,
+      "preview": "They then returned to their boat and rowed back to the place from which they had started. From there they went to the house of Lelha's bride. When she heard of their arrival she ordered refreshments to be prepared for them. Her servants also all came, and gave Lelha and his brothers oil, and sent them to bathe. On thei"
+    },
+    {
+      "chunkId": "book_santal_folk_tales_1891:00068:6a0c7357e0dd",
+      "chapterOrSection": "The Greatest Cheat of Seven.",
+      "pageStart": 101,
+      "pageEnd": 102,
+      "wordCount": 117,
+      "preview": "Then the seven brothers killed each his youngest wife, and carried the bodies to a distant country to dispose of them. When the people of that country knew the object for which they had come they said to them, “What sort of men are you hawking corpses about the towns and villages? You must be the worst, or else most st"
+    },
+    {
+      "chunkId": "book_santal_folk_tales_1891:00071:8f9efb3c40e5",
+      "chapterOrSection": "The Story of Two Princesses.",
+      "pageStart": 105,
+      "pageEnd": 106,
+      "wordCount": 216,
+      "preview": "The rani hid the jugi's banjo in her own room, because she knew her sister to be in it. Whenever the raja and rani went out to walk the girl left the banjo and having bathed and dressed her hair, cooked the family meal, and then returned to the banjo. This happened so often that at last, it came to the knowledge of the"
+    }
+  ],
   "duplicateChunkIdCount": 0,
   "duplicateTextCount": 0,
   "missingPageCount": 0,
