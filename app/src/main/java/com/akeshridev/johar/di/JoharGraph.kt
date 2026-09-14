@@ -17,13 +17,17 @@ class JoharGraph(context: Context) {
     val offlineKnowledgeRetriever by lazy { OfflineKnowledgeRetriever(appContext) }
     val ranchiSpatialEngine by lazy { RanchiSpatialEngine(appContext) }
     val ranchiOfflineRouter by lazy { RanchiOfflineRouter(appContext) }
-    fun conversationRouter() = JoharQueryRouter(
-        resolvePlace = { ranchiSpatialEngine.resolvePlace(it, limit = 20) },
-        nearby = { origin, types -> ranchiSpatialEngine.nearby(origin, radiusKm = 5.0, types = types, limit = 100) },
-        knowledgeAnswer = { DeterministicJoharAnswerGenerator(offlineKnowledgeRetriever).answer(it).text },
-        routeInstalled = { ranchiOfflineRouter.isInstalled() },
-        route = { origin, destination -> ranchiOfflineRouter.route(origin, destination) },
-    )
+
+    fun conversationRouter(): JoharQueryRouter {
+        val answerGenerator = DeterministicJoharAnswerGenerator(offlineKnowledgeRetriever)
+        return JoharQueryRouter(
+            resolvePlace = { ranchiSpatialEngine.resolvePlace(it, limit = 20) },
+            nearby = { origin, types -> ranchiSpatialEngine.nearby(origin, radiusKm = 5.0, types = types, limit = 100) },
+            knowledgeAnswer = { answerGenerator.answer(it) },
+            routeInstalled = { ranchiOfflineRouter.isInstalled() },
+            route = { origin, destination -> ranchiOfflineRouter.route(origin, destination) },
+        )
+    }
 
     val scheduleSourceCrawlUseCase = ScheduleSourceCrawlUseCase(scheduler)
 }
