@@ -20,12 +20,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.akeshridev.johar.designsystem.JoharCardAction
+import com.akeshridev.johar.designsystem.JoharComparisonCard
+import com.akeshridev.johar.designsystem.JoharComparisonItem
 import com.akeshridev.johar.designsystem.JoharConstraintSummary
 import com.akeshridev.johar.designsystem.JoharInfoCard
 import com.akeshridev.johar.designsystem.JoharInfoTone
 import com.akeshridev.johar.designsystem.JoharItineraryCard
 import com.akeshridev.johar.designsystem.JoharItineraryCardModel
 import com.akeshridev.johar.designsystem.JoharItineraryStop
+import com.akeshridev.johar.designsystem.JoharLocalPickCard
 import com.akeshridev.johar.designsystem.JoharMapPreviewCard
 import com.akeshridev.johar.designsystem.JoharPlaceCard
 import com.akeshridev.johar.designsystem.JoharPlaceCardModel
@@ -35,7 +38,9 @@ import com.akeshridev.johar.designsystem.JoharRouteCard
 import com.akeshridev.johar.designsystem.JoharRouteCardModel
 import com.akeshridev.johar.designsystem.JoharRouteStop
 import com.akeshridev.johar.designsystem.JoharSourceRow
+import com.akeshridev.johar.designsystem.JoharSuggestionCard
 import com.akeshridev.johar.designsystem.JoharTheme
+import com.akeshridev.johar.designsystem.JoharUtilityCard
 
 class DesignCatalogActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,9 +72,7 @@ private fun DesignCatalogScreen() {
                 )
             }
 
-            CatalogSection("Place card") {
-                JoharPlaceCard(model = MockJoharData.rockGarden)
-            }
+            CatalogSection("Place card") { JoharPlaceCard(model = MockJoharData.rockGarden) }
 
             CatalogSection("Nearby carousel", horizontalPadding = false) {
                 Column(Modifier.padding(start = 20.dp)) {
@@ -81,13 +84,8 @@ private fun DesignCatalogScreen() {
                 }
             }
 
-            CatalogSection("Route card") {
-                JoharRouteCard(model = MockJoharData.airportRoute)
-            }
-
-            CatalogSection("Itinerary") {
-                JoharItineraryCard(model = MockJoharData.familyDay)
-            }
+            CatalogSection("Route card") { JoharRouteCard(model = MockJoharData.airportRoute) }
+            CatalogSection("Itinerary") { JoharItineraryCard(model = MockJoharData.familyDay) }
 
             CatalogSection("Map preview") {
                 JoharMapPreviewCard(
@@ -96,6 +94,41 @@ private fun DesignCatalogScreen() {
                     markerLabel = "Airport",
                     routeSummary = "Lalpur → Doranda → Hinoo → Airport",
                     action = JoharCardAction("expand-map", "Expand Map", primary = true),
+                )
+            }
+
+            CatalogSection("Local discovery") {
+                JoharLocalPickCard(
+                    title = "Dhuska + Ghugni",
+                    subtitle = "A classic Jharkhand snack combo",
+                    detail = "Great when you want something that feels more local than a generic cafe stop.",
+                    action = JoharCardAction("find-local", "Find Nearby", primary = true),
+                )
+            }
+
+            CatalogSection("Utility") {
+                JoharUtilityCard(
+                    title = "Petrol Pump",
+                    subtitle = "Hinoo Main Road",
+                    metadata = "1.8 km • On your route",
+                    actions = listOf(
+                        JoharCardAction("directions", "Directions"),
+                        JoharCardAction("add-stop", "Add Stop", primary = true),
+                    ),
+                )
+            }
+
+            CatalogSection("Comparison") {
+                JoharComparisonCard(
+                    leftTitle = "Rock Garden",
+                    rightTitle = "Biodiversity Park",
+                    rows = listOf(
+                        JoharComparisonItem("Kids", "Good", "Great"),
+                        JoharComparisonItem("Walking", "Medium", "Low–Medium"),
+                        JoharComparisonItem("Nature", "Yes", "Yes"),
+                        JoharComparisonItem("Views", "Yes", "—"),
+                    ),
+                    recommendation = "Biodiversity Park for younger kids.",
                 )
             }
 
@@ -129,6 +162,16 @@ private fun DesignCatalogScreen() {
 
             CatalogSection("Source row") {
                 JoharSourceRow(sourceName = "Ranchi District official source", verified = true)
+            }
+
+            CatalogSection("Suggestions") {
+                JoharSuggestionCard(
+                    suggestions = listOf(
+                        "Mujhe tourist wali Ranchi nahi, local wali Ranchi dikhao",
+                        "Kids bore ho rahe hain, nearby kya hai?",
+                        "Lalpur se airport ja raha hu, raste me lunch kaha karu?",
+                    ),
+                )
             }
 
             Spacer(Modifier.height(24.dp))
