@@ -13,11 +13,13 @@ Connect one Android device/emulator, then run:
 bash tests/agent/run.sh
 ```
 
-The script runs `:app:connectedDebugAndroidTest`, drives the real `JoharActivity` through Compose semantics, pulls the generated report from the app's private debug storage with `run-as`, writes it to `tests/agent/results.jsonl`, and prints a status summary.
+The script runs `:app:connectedDebugAndroidTest`, drives the real `JoharActivity` through Compose semantics, captures one structured `JoharAgent` log row per command, writes the 200 rows to `tests/agent/results.jsonl`, validates the row count, and prints a status summary.
+
+The runner expands the device logcat buffer before the suite starts because the full 200-case run takes about 11 minutes; this prevents early result rows from being evicted before export. The instrumentation test does not clear or depend on an app-private results file.
 
 Runtime flow:
 
-`test id -> fresh JoharActivity -> johar_chat_input -> type query -> johar_send_button -> wait -> inspect johar_latest_answer + result tag -> classify -> append JSONL`
+`test id -> fresh JoharActivity -> johar_chat_input -> type query -> johar_send_button -> wait -> inspect johar_latest_answer + result tag -> classify -> emit JSON log row -> host exports results.jsonl`
 
 Each parameterized test case launches a fresh activity so conversation state from an earlier command does not intentionally influence the next command. Stateful conversation behavior should be tested separately when required.
 
