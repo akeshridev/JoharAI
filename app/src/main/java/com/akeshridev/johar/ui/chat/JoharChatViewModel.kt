@@ -27,15 +27,7 @@ class JoharChatViewModel(
 
     private val mapTargets = mutableMapOf<String, RanchiSpatialPlace>()
 
-    private val _messages = MutableStateFlow(
-        listOf(
-            JoharMessageUiModel(
-                id = "welcome",
-                sender = Sender.JOHAR,
-                content = JoharContent.Text("Johar! 👋 Ranchi ke baare mein kya jaana hai?"),
-            ),
-        ),
-    )
+    private val _messages = MutableStateFlow(listOf(welcomeMessage()))
     val messages: StateFlow<List<JoharMessageUiModel>> = _messages.asStateFlow()
 
     private val _isThinking = MutableStateFlow(false)
@@ -78,6 +70,17 @@ class JoharChatViewModel(
         appendAnswer(JoharContent.Map(place))
     }
 
+    /**
+     * Evaluation-only session reset. Keeps repositories/router dependencies warm while
+     * removing UI messages, map targets, and ephemeral router clarification context.
+     */
+    fun resetConversationForTesting() {
+        check(!_isThinking.value) { "Cannot reset Johar while a query is still running." }
+        mapTargets.clear()
+        router.resetConversationState()
+        _messages.value = listOf(welcomeMessage())
+    }
+
     private fun appendAnswer(content: JoharContent) {
         appendMessage(JoharMessageUiModel(UUID.randomUUID().toString(), Sender.JOHAR, content))
     }
@@ -94,5 +97,13 @@ class JoharChatViewModel(
             @Suppress("UNCHECKED_CAST")
             return JoharChatViewModel(router) as T
         }
+    }
+
+    companion object {
+        private fun welcomeMessage() = JoharMessageUiModel(
+            id = "welcome",
+            sender = Sender.JOHAR,
+            content = JoharContent.Text("Johar! 👋 Ranchi ke baare mein kya jaana hai?"),
+        )
     }
 }
