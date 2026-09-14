@@ -75,7 +75,7 @@ class SourceCrawlWorker(
             val entityAdapters = buildList {
                 if (target == CrawlTarget.RANCHI) add(ranchiOfficial)
                 add(wikidata)
-                if (target != CrawlTarget.JHARKAND) add(overpass)
+                if (target != CrawlTarget.JHARKHAND) add(overpass)
                 add(wikipedia)
                 add(wikivoyage)
                 add(commons)
