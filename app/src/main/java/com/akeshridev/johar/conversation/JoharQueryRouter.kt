@@ -19,6 +19,11 @@ class JoharQueryRouter(
 ) {
     private var pendingCategory: Category? = null
 
+    /** Clears only ephemeral conversational context; repositories and routing stay warm. */
+    fun resetConversationState() {
+        pendingCategory = null
+    }
+
     fun answer(query: String): JoharQueryResult {
         val words = words(query)
 
