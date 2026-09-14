@@ -1,0 +1,20 @@
+{
+  "id": "book_santal_folk_tales_1891",
+  "title": "Santal Folk Tales",
+  "authorOrPublisher": "A. Campbell / Santal Mission Press",
+  "year": 1891,
+  "sourceType": "BOOK",
+  "historicalOrCurrent": "HISTORICAL_PRIMARY_OR_PERIOD_SOURCE",
+  "rightsClass": "PUBLIC_DOMAIN",
+  "sourceUrl": "https://www.gutenberg.org/ebooks/35060",
+  "upstreamMachineReadableSource": {
+    "repository": "GutenbergSource/35060-Campbell-Santal-Folk-Tales",
+    "path": "SantalFolkTales-1.0.tei",
+    "ref": "master",
+    "sha": "36b276b4f100395b949751939b929d92fccc80a9"
+  },
+  "districts": [],
+  "entities": ["Santal"],
+  "topics": ["Santal", "folklore", "oral traditions", "culture", "Santali literature"],
+  "notes": "Translated historical folklore collection. Preserve as period/folklore evidence; do not turn narrative or the translator's period commentary into unqualified present-day cultural facts. Project Gutenberg states the source was produced from public-domain scanned material."
+}
