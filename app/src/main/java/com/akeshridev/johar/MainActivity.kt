@@ -25,12 +25,17 @@ import androidx.lifecycle.ViewModelProvider
 import com.akeshridev.johar.data.retrieval.LocalModelStore
 import com.akeshridev.johar.di.JoharGraph
 import com.akeshridev.johar.eval.OfflineRetrievalEvaluator
+import com.akeshridev.johar.eval.TouristSimulationEvaluator
 
 class MainActivity : ComponentActivity() {
     private val graph by lazy { JoharGraph(applicationContext) }
 
     private val viewModel by lazy {
         val evaluator = OfflineRetrievalEvaluator(
+            context = applicationContext,
+            retriever = graph.offlineKnowledgeRetriever,
+        )
+        val touristEvaluator = TouristSimulationEvaluator(
             context = applicationContext,
             retriever = graph.offlineKnowledgeRetriever,
         )
@@ -41,6 +46,7 @@ class MainActivity : ComponentActivity() {
                 scheduleSourceCrawl = graph.scheduleSourceCrawlUseCase,
                 offlineKnowledgeRetriever = graph.offlineKnowledgeRetriever,
                 offlineRetrievalEvaluator = evaluator,
+                touristSimulationEvaluator = touristEvaluator,
                 localModelStore = localModelStore,
             ),
         )[MainViewModel::class.java]
@@ -55,6 +61,7 @@ class MainActivity : ComponentActivity() {
                     onTestAnswersClick = viewModel::testDeterministicAnswers,
                     onTestLlmClick = viewModel::testOnDeviceLlm,
                     onRunEvalClick = viewModel::runOfflineRetrievalEval,
+                    onRunTouristEvalClick = viewModel::runTouristSimulationEval,
                     onCrawlClick = viewModel::crawlKnowledge,
                 )
             }
@@ -68,6 +75,7 @@ private fun DeveloperHarness(
     onTestAnswersClick: () -> Unit,
     onTestLlmClick: (String) -> Unit,
     onRunEvalClick: () -> Unit,
+    onRunTouristEvalClick: () -> Unit,
     onCrawlClick: () -> Unit,
 ) {
     var query by rememberSaveable { mutableStateOf("Rugra Jharkhand me special kyun hai?") }
@@ -102,6 +110,9 @@ private fun DeveloperHarness(
             }
             Button(onClick = onRunEvalClick) {
                 Text("Run Retrieval Eval → Logcat")
+            }
+            Button(onClick = onRunTouristEvalClick) {
+                Text("Run Tourist Gap Eval → Logcat")
             }
             Button(onClick = onCrawlClick) {
                 Text("Crawl Live Jharkhand → Room + Logcat")
