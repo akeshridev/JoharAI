@@ -2,7 +2,9 @@ package com.akeshridev.johar.data.routing
 
 import android.content.Context
 import com.akeshridev.johar.data.spatial.RanchiCoordinate
+import java.io.BufferedInputStream
 import java.io.BufferedReader
+import java.io.InputStream
 import java.io.InputStreamReader
 import java.util.PriorityQueue
 import java.util.zip.GZIPInputStream
@@ -24,7 +26,7 @@ class RanchiOfflineRouter(
     @Volatile private var graph: RoutingGraph? = null
 
     fun isInstalled(): Boolean = runCatching {
-        context.assets.open(assetPath).close()
+        openRoutingAsset().close()
         true
     }.getOrDefault(false)
 
@@ -90,9 +92,9 @@ class RanchiOfflineRouter(
     private fun loadGraph(): RoutingGraph {
         val nodes = HashMap<Int, RoutingNode>()
         val edges = HashMap<Int, MutableList<RoutingEdge>>()
-        context.assets.open(assetPath).use { raw ->
-            GZIPInputStream(raw).use { gzip ->
-                BufferedReader(InputStreamReader(gzip)).useLines { lines ->
+        openRoutingAsset().use { asset ->
+            openDecodedStream(asset).use { decoded ->
+                BufferedReader(InputStreamReader(decoded)).useLines { lines ->
                     lines.forEach { line ->
                         if (line.isBlank() || line.startsWith('#')) return@forEach
                         val parts = line.split('\t')
@@ -128,8 +130,33 @@ class RanchiOfflineRouter(
         return RoutingGraph(nodes, edges)
     }
 
+    private fun openRoutingAsset(): InputStream {
+        return runCatching { context.assets.open(assetPath) }
+            .recoverCatching {
+                if (assetPath == DEFAULT_ASSET) context.assets.open(LEGACY_GZIP_ASSET) else throw it
+            }
+            .getOrThrow()
+    }
+
+    /**
+     * AAPT may expose a source `.tsv.gz` asset in the APK as `.tsv` after transparent decompression.
+     * Sniff the gzip magic bytes instead of assuming compression from the packaged filename.
+     */
+    private fun openDecodedStream(input: InputStream): InputStream {
+        val buffered = BufferedInputStream(input)
+        buffered.mark(2)
+        val first = buffered.read()
+        val second = buffered.read()
+        buffered.reset()
+        return if (first == GZIP_MAGIC_1 && second == GZIP_MAGIC_2) GZIPInputStream(buffered) else buffered
+    }
+
     companion object {
-        const val DEFAULT_ASSET = "routing/ranchi-routing-v1.tsv.gz"
+        // Android packaging exposes the generated `.tsv.gz` asset under this decompressed APK name.
+        const val DEFAULT_ASSET = "routing/ranchi-routing-v1.tsv"
+        private const val LEGACY_GZIP_ASSET = "routing/ranchi-routing-v1.tsv.gz"
+        private const val GZIP_MAGIC_1 = 0x1f
+        private const val GZIP_MAGIC_2 = 0x8b
     }
 }
 
