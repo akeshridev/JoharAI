@@ -2,20 +2,61 @@
 
 Temporary workspace for automated end-to-end validation of the installed Johar Android app.
 
-Canonical test inventory: `docs/johar-200-command-validation.md`.
+Canonical behavior inventory: `docs/johar-200-command-validation.md`.
+Executable command input: `tests/agent/assets/johar-200-commands.tsv`.
 
-The goal is to let an agent run the full command matrix against the real UI, using stable Compose semantics/test tags, then write machine-readable observations into `results.jsonl`.
+## One-command flow
 
-## Planned flow
+Connect one Android device/emulator, then run:
 
-`test id -> enter query -> tap Send -> wait for Johar -> inspect tagged result -> classify -> append JSONL result`
+```bash
+bash tests/agent/run.sh
+```
 
-This directory is not product code and is not a permanent benchmark store. Delete it after the 200-command validation cycle and failure analysis are complete.
+The script runs `:app:connectedDebugAndroidTest`, drives the real `JoharActivity` through Compose semantics, pulls the generated report from the app's private debug storage with `run-as`, writes it to `tests/agent/results.jsonl`, and prints a status summary.
 
-## Result ownership
+Runtime flow:
 
-`results.jsonl` is the scratch output file for the test agent/Codex-style runner. It may be overwritten or regenerated during test runs. Do not use it as source-of-truth product data.
+`test id -> fresh JoharActivity -> johar_chat_input -> type query -> johar_send_button -> wait -> inspect johar_latest_answer + result tag -> classify -> append JSONL`
 
-## Next implementation
+Each parameterized test case launches a fresh activity so conversation state from an earlier command does not intentionally influence the next command. Stateful conversation behavior should be tested separately when required.
 
-Expose stable tags in the branded chat UI and add the runner that consumes the 200-command inventory. The runner should avoid screen-coordinate automation wherever a semantic target is available.
+## Stable UI contract
+
+Production UI exposes automation semantics without changing product behavior:
+
+- `johar_root`
+- `johar_chat_list`
+- `johar_chat_input`
+- `johar_send_button`
+- `johar_thinking`
+- `johar_answer`
+- `johar_latest_answer`
+- `johar_text_answer`
+- `johar_grounded_answer`
+- `johar_place_card`
+- `johar_utility_card`
+- `johar_route_card`
+- `johar_map_card`
+- `johar_info_card`
+- `johar_itinerary_card`
+- `johar_comparison_card`
+- `johar_clarification`
+
+`testTagsAsResourceId` is enabled at the chat root so external UI agents may also use these IDs. Do not automate with pixel coordinates when a semantic ID exists.
+
+## Result file
+
+`results.jsonl` is scratch output. One line represents one command and contains:
+
+- id
+- query
+- detected result type
+- visible response text
+- automated classification
+- elapsed milliseconds
+- expected-family note
+
+Automated classification is triage, not the final product verdict. Review non-pass cases before changing product code, especially to distinguish a missing-data result from a parser defect.
+
+This folder is intentionally temporary and may be deleted after the 200-command validation/fix cycle is complete.
