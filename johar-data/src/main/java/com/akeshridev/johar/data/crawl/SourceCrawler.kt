@@ -14,8 +14,8 @@ internal class SourceCrawler(
 ) {
     fun crawl(target: CrawlTarget): CrawlStats {
         val root = store.ensureSeed(target.seed)
-        if (target == CrawlTarget.JHARKHAND) {
-            store.insertKeywords(CrawlBootstrap.rootKeywords(requireNotNull(root.entityId)))
+        if (target == CrawlTarget.RANCHI || target == CrawlTarget.JHARKHAND) {
+            store.insertKeywords(CrawlBootstrap.rootKeywords(requireNotNull(root.entityId), target))
         }
 
         val rootSuccesses = crawlEntity(root)
@@ -36,8 +36,6 @@ internal class SourceCrawler(
     private fun crawlPendingKeywords() {
         val staleBefore = System.currentTimeMillis() - KEYWORD_STALE_MILLIS
         store.nextKeywordsToCrawl(staleBefore, MAX_KEYWORDS_PER_RUN).forEach { keyword ->
-            // Entity names/aliases are retained as discovered vocabulary, but the entity queue already
-            // resolves them across every source. Re-searching those terms here creates duplicate entities.
             if (keyword.discoveredFrom != BOOTSTRAP_SOURCE) {
                 store.markKeywordCrawled(keyword.id)
                 return@forEach
@@ -66,11 +64,6 @@ internal class SourceCrawler(
         }
     }
 
-    /**
-     * Overpass is excellent for targeted/local enrichment, but broad statewide scans such as all
-     * villages or rivers can time out on public instances. Let Wikidata/MediaWiki discover those
-     * broad entities; OSM can still contribute bounded keyword discovery and focused enrichment.
-     */
     private fun shouldSkipDiscovery(adapterId: String, keyword: CrawlKeyword): Boolean {
         if (adapterId != OPENSTREETMAP_ADAPTER_ID) return false
         val term = normalizeText(keyword.term)
