@@ -13,7 +13,7 @@
   "duplicateChunkIdCount": 0,
   "duplicateTextCount": 0,
   "missingPageCount": 0,
-  "ragChunkBytes": 282284,
+  "ragChunkBytes": 282692,
   "warnings": [
     "6 chunks are below 250 words; allowed at semantic/section boundaries but should be sampled."
   ],
