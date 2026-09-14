@@ -11,7 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.akeshridev.johar.designsystem.JoharSplash
+import com.akeshridev.johar.designsystem.JoharSplashScreen
 import com.akeshridev.johar.designsystem.JoharTheme
 import com.akeshridev.johar.di.JoharGraph
 import com.akeshridev.johar.ui.chat.JoharBrandedChatScreen
@@ -50,7 +50,7 @@ private fun JoharRoot(viewModel: JoharChatViewModel) {
     }
 
     if (showSplash) {
-        JoharSplash()
+        JoharSplashScreen()
     } else {
         JoharBrandedChatScreen(
             messages = messages,
