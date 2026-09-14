@@ -1,5 +1,6 @@
 package com.akeshridev.johar
 
+import android.util.Log
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -103,7 +104,8 @@ class Johar200CommandUiTest(
             .filter(String::isNotBlank)
             .joinToString(" | ")
             .replace(Regex("\\s+"), " ")
-            .take(4_000)
+            // Keep each JSON row comfortably below Android's per-log-entry limit.
+            .take(1_500)
     }
 
     private fun classify(id: Int, type: String, response: String): String {
@@ -200,12 +202,17 @@ class Johar200CommandUiTest(
             .put("notes", notes)
             .toString()
         synchronized(REPORT_LOCK) {
+            // Keep the app-private copy for local diagnosis, but do not depend on it for export.
             file.appendText(row + "\n")
+            // The host runner reads this stable prefix from adb logcat after Gradle finishes.
+            Log.i(LOG_TAG, LOG_PREFIX + row)
         }
     }
 
     companion object {
         private const val REPORT_FILE = "johar-agent-results.jsonl"
+        private const val LOG_TAG = "JoharAgent"
+        private const val LOG_PREFIX = "JOHAR_AGENT_RESULT "
         private val REPORT_LOCK = Any()
 
         @JvmStatic
