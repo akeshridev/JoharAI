@@ -17,7 +17,9 @@ fi
 
 : > "$LOCAL_REPORT"
 
-# Keep only this run's machine-readable result rows.
+# The full suite takes about 11 minutes. Increase the device log buffer so
+# early result rows are still available when the run finishes.
+adb logcat -G 16M >/dev/null 2>&1 || true
 adb logcat -c
 
 echo "Running Johar 200-command UI automation..."
