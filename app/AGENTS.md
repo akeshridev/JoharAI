@@ -33,4 +33,5 @@ The harness runs retrieval, deterministic answers, frozen retrieval evaluation, 
 - Nearby search requires a resolved, explicitly supplied origin. A pending category supports `mere aas paas mandir?` followed by `Lalpur`. Never infer GPS/current user location. Distances are computed straight-line distances within 5 km, not road distances.
 - Weak spatial matches and unsupported requests fall back to the unchanged knowledge pipeline. Never fabricate ratings, hours, prices, safety, availability or live status.
 - Database construction/querying and map-pack installation run off the UI thread. The map requires `maps/ranchi.pmtiles`; missing packs have a contextual unavailable state. External navigation tries installed handlers and reports when none is available.
-- Design catalog is for isolated component work, never product business logic. No new test classes were added for this milestone per user instruction.
+- Design catalog is for isolated component work, never product business logic.
+- Keep app-level unit tests around query routing behavior. Cover text-first knowledge queries, strong spatial matches, nearby follow-up state, weak-match fallback, and live-status guardrails without changing frozen retrieval evaluation fixtures.

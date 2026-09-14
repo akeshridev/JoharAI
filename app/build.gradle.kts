@@ -43,5 +43,7 @@ dependencies {
     // Offline Ranchi map rendering. Local PMTiles support is built into MapLibre Native.
     implementation("org.maplibre.gl:android-sdk:13.6.1")
 
+    testImplementation("junit:junit:4.13.2")
+
     debugImplementation("androidx.compose.ui:ui-tooling")
 }
