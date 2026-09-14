@@ -21,12 +21,12 @@ internal class OverpassFailoverHttpTextFetcher(
     ): String {
         if (!isOverpass(url)) return delegate.postForm(url, form, headers)
 
-        var lastFailure: Throwable? = null
-        val candidates = (listOf(url) + endpoints).distinct()
+        var lastFailure: Exception? = null
+        val candidates = (endpoints + url).distinct()
         for (endpoint in candidates) {
             try {
                 return delegate.postForm(endpoint, form, headers)
-            } catch (error: Throwable) {
+            } catch (error: Exception) {
                 lastFailure = error
             }
         }
