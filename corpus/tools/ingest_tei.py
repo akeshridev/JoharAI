@@ -1,16 +1,9 @@
 #!/usr/bin/env python3
 """Convert TEI/SGML-like book sources into Johar AI RAG chunks.
 
-The ingester intentionally uses only the Python standard library so it can run
-in a clean checkout. It is designed for Project Gutenberg / Distributed
-Proofreaders TEI where page breaks are represented with <pb n=...> tags and
-paragraphs may use SGML-style unclosed <p> tags.
-
-Example:
-  python corpus/tools/ingest_tei.py \
-    --input /tmp/SantalFolkTales-1.0.tei \
-    --source corpus/sources/book_santal_folk_tales_1891.json \
-    --out-dir corpus/processed/book_santal_folk_tales_1891
+Uses only the Python standard library. Designed for Project Gutenberg /
+Distributed Proofreaders TEI where page breaks use <pb n=...> and paragraphs
+may be SGML-style/unclosed.
 """
 
 from __future__ import annotations
@@ -25,9 +18,9 @@ from html.parser import HTMLParser
 from pathlib import Path
 from typing import Iterable
 
-
 SPACE_RE = re.compile(r"[ \t\r\f\v]+")
 SENTENCE_RE = re.compile(r"(?<=[.!?])\s+")
+DIV_RE = re.compile(r"div(\d+)$")
 
 
 @dataclass
@@ -43,6 +36,10 @@ class ParseState:
     in_text: bool = False
     current_page: int | None = None
     current_section: str = "Untitled section"
+    current_div_level: int = 0
+    primary_section: str = ""
+    subsections: dict[int, str] = field(default_factory=dict)
+    heading_level: int = 0
     heading_parts: list[str] = field(default_factory=list)
     paragraph_parts: list[str] = field(default_factory=list)
     paragraph_page_start: int | None = None
@@ -62,13 +59,16 @@ def clean_text(value: str) -> str:
 
 def parse_page(attrs: list[tuple[str, str | None]]) -> int | None:
     raw = dict(attrs).get("n")
-    if raw and raw.isdigit():
-        return int(raw)
-    return None
+    return int(raw) if raw and raw.isdigit() else None
+
+
+def parse_div_level(tag: str) -> int | None:
+    match = DIV_RE.fullmatch(tag)
+    return int(match.group(1)) if match else None
 
 
 class TeiParser(HTMLParser):
-    """Small tolerant parser for TEI-Lite / SGML-ish Gutenberg sources."""
+    """Tolerant parser for TEI-Lite / SGML-ish Gutenberg sources."""
 
     def __init__(self) -> None:
         super().__init__(convert_charrefs=False)
@@ -81,11 +81,21 @@ class TeiParser(HTMLParser):
             return
         if not self.state.in_text:
             return
-        if tag.startswith("div"):
-            # Gutenberg's TEI is SGML-like and often leaves <p> unclosed.
-            # A new division is therefore a hard semantic boundary.
+
+        div_level = parse_div_level(tag)
+        if div_level is not None:
             self._flush_paragraph()
+            self.state.current_div_level = div_level
+            if div_level == 1:
+                self.state.primary_section = ""
+                self.state.subsections.clear()
+            else:
+                for level in list(self.state.subsections):
+                    if level >= div_level:
+                        del self.state.subsections[level]
+            self._refresh_section()
             return
+
         if tag == "pb":
             page = parse_page(attrs)
             if page is not None:
@@ -93,15 +103,15 @@ class TeiParser(HTMLParser):
                 if self.state.collecting_paragraph:
                     self.state.paragraph_page_end = page
             return
+
         if tag == "head":
-            # A heading starts a new semantic section. Flush any SGML-style
-            # unclosed paragraph before changing current_section, otherwise
-            # text from the previous story can be mislabeled as the next one.
             self._flush_paragraph()
             self._flush_heading()
             self.state.collecting_heading = True
             self.state.heading_parts = []
+            self.state.heading_level = max(self.state.current_div_level, 1)
             return
+
         if tag == "p":
             self._flush_paragraph()
             self.state.collecting_paragraph = True
@@ -109,6 +119,7 @@ class TeiParser(HTMLParser):
             self.state.paragraph_page_start = self.state.current_page
             self.state.paragraph_page_end = self.state.current_page
             return
+
         if tag == "lb":
             self._append_text("\n")
 
@@ -118,12 +129,27 @@ class TeiParser(HTMLParser):
             self._flush_heading()
             self._flush_paragraph()
             self.state.in_text = False
-        elif tag == "head":
+            return
+        if not self.state.in_text:
+            return
+        if tag == "head":
             self._flush_heading()
         elif tag == "p":
             self._flush_paragraph()
-        elif tag.startswith("div"):
-            self._flush_paragraph()
+        else:
+            div_level = parse_div_level(tag)
+            if div_level is not None:
+                self._flush_paragraph()
+                if div_level == 1:
+                    self.state.primary_section = ""
+                    self.state.subsections.clear()
+                    self.state.current_div_level = 0
+                else:
+                    for level in list(self.state.subsections):
+                        if level >= div_level:
+                            del self.state.subsections[level]
+                    self.state.current_div_level = max(div_level - 1, 1)
+                self._refresh_section()
 
     def handle_data(self, data: str) -> None:
         if self.state.in_text:
@@ -143,14 +169,35 @@ class TeiParser(HTMLParser):
         if self.state.collecting_paragraph:
             self.state.paragraph_parts.append(data)
 
+    def _refresh_section(self) -> None:
+        parts: list[str] = []
+        if self.state.primary_section:
+            parts.append(self.state.primary_section)
+        parts.extend(
+            self.state.subsections[level]
+            for level in sorted(self.state.subsections)
+            if self.state.subsections[level]
+        )
+        self.state.current_section = " — ".join(parts) if parts else "Untitled section"
+
     def _flush_heading(self) -> None:
         if not self.state.collecting_heading:
             return
         text = clean_text("".join(self.state.heading_parts))
+        level = max(self.state.heading_level, 1)
         if text:
-            self.state.current_section = text
+            if level == 1:
+                self.state.primary_section = text
+                self.state.subsections.clear()
+            else:
+                for nested in list(self.state.subsections):
+                    if nested >= level:
+                        del self.state.subsections[nested]
+                self.state.subsections[level] = text
+            self._refresh_section()
         self.state.collecting_heading = False
         self.state.heading_parts = []
+        self.state.heading_level = 0
 
     def _flush_paragraph(self) -> None:
         if not self.state.collecting_paragraph:
@@ -202,16 +249,11 @@ def split_long_paragraph(paragraph: Paragraph, max_words: int) -> list[Paragraph
     for sentence in sentences:
         sentence_words = sentence.split()
         count = len(sentence_words)
-
-        # Sentence segmentation is best-effort. If a source contains an
-        # extremely long sentence, hard-split it so max_words remains a real
-        # contract instead of a preference.
         if count > max_words:
             flush_current()
             for start in range(0, count, max_words):
                 pieces.append(make_piece(" ".join(sentence_words[start : start + max_words])))
             continue
-
         if current and current_words + count > max_words:
             flush_current()
         current.append(sentence)
@@ -245,12 +287,8 @@ def chunk_paragraphs(
         p_words = word_count(paragraph.text)
         if current and paragraph.section != current_section:
             flush()
-
-        # max_words is a hard bound. A short current chunk may remain short
-        # rather than absorbing the next paragraph and exceeding the limit.
         if current and current_words + p_words > max_words:
             flush()
-
         current.append(paragraph)
         current_words += p_words
         current_section = paragraph.section
@@ -261,11 +299,7 @@ def chunk_paragraphs(
     return chunks
 
 
-def build_chunk(
-    source: dict,
-    paragraphs: list[Paragraph],
-    ordinal: int,
-) -> dict:
+def build_chunk(source: dict, paragraphs: list[Paragraph], ordinal: int) -> dict:
     text = "\n\n".join(p.text for p in paragraphs).strip()
     pages = [p.page_start for p in paragraphs if p.page_start is not None]
     pages += [p.page_end for p in paragraphs if p.page_end is not None]
@@ -275,7 +309,6 @@ def build_chunk(
     digest = hashlib.sha1(
         f"{source['id']}|{section}|{page_start}|{page_end}|{text}".encode("utf-8")
     ).hexdigest()[:12]
-
     return {
         "chunkId": f"{source['id']}:{ordinal:05d}:{digest}",
         "sourceId": source["id"],
@@ -354,7 +387,6 @@ def main() -> None:
     }
     write_json(args.out_dir / "stats.json", stats)
     write_json(args.out_dir / "source.json", source)
-
     print(json.dumps(stats, indent=2))
 
 
