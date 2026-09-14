@@ -31,7 +31,10 @@ internal object JoharDatabaseProvider {
                 },
             )
             .build()
-            .also { instance = it }
+            .also { database ->
+                JoharBoosterLoader.applyIfNeeded(appContext, database)
+                instance = database
+            }
     }
 
     private fun logSeedDiagnostics(
