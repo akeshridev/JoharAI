@@ -33,7 +33,10 @@ fun JoharLocalPickCard(
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(JoharRadius.Large),
-        colors = CardDefaults.cardColors(containerColor = JoharColors.SoftOrange),
+        colors = CardDefaults.cardColors(
+            containerColor = JoharColors.SoftOrange,
+            contentColor = JoharColors.Forest,
+        ),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.75f)),
     ) {
         Column(Modifier.padding(JoharSpacing.Lg)) {
@@ -43,7 +46,7 @@ fun JoharLocalPickCard(
             Text(subtitle, style = MaterialTheme.typography.bodyMedium)
             detail?.let {
                 Spacer(Modifier.height(JoharSpacing.Sm))
-                Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(it, style = MaterialTheme.typography.bodySmall, color = JoharColors.Muted)
             }
             action?.let {
                 Spacer(Modifier.height(JoharSpacing.Lg))
