@@ -1,5 +1,6 @@
 package com.akeshridev.johar.ui.model
 
+import com.akeshridev.johar.data.spatial.RanchiCoordinate
 import com.akeshridev.johar.data.spatial.RanchiSpatialPlace
 import com.akeshridev.johar.designsystem.JoharCardAction
 import com.akeshridev.johar.designsystem.JoharInfoTone
@@ -21,6 +22,9 @@ sealed interface JoharContent {
 
     data class Route(
         val route: JoharRouteCardModel,
+        val origin: RanchiSpatialPlace,
+        val destination: RanchiSpatialPlace,
+        val routePoints: List<RanchiCoordinate>,
     ) : JoharContent
 
     data class Itinerary(
