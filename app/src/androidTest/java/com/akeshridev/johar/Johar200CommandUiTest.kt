@@ -11,12 +11,10 @@ import androidx.compose.ui.test.performTextReplacement
 import androidx.test.platform.app.InstrumentationRegistry
 import com.akeshridev.johar.ui.chat.JoharTestTags
 import org.json.JSONObject
-import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.io.File
 
 @RunWith(Parameterized::class)
 class Johar200CommandUiTest(
@@ -65,7 +63,7 @@ class Johar200CommandUiTest(
         } catch (t: Throwable) {
             notes = "${t::class.java.simpleName}: ${t.message.orEmpty()}".take(1_000)
         } finally {
-            appendResult(
+            emitResult(
                 id = case.id,
                 query = case.query,
                 resultType = resultType,
@@ -181,7 +179,7 @@ class Johar200CommandUiTest(
         else -> "expected=NEGATIVE_FALLBACK"
     }
 
-    private fun appendResult(
+    private fun emitResult(
         id: Int,
         query: String,
         resultType: String,
@@ -190,8 +188,6 @@ class Johar200CommandUiTest(
         elapsedMs: Long,
         notes: String,
     ) {
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val file = File(context.filesDir, REPORT_FILE)
         val row = JSONObject()
             .put("id", id)
             .put("query", query)
@@ -201,26 +197,14 @@ class Johar200CommandUiTest(
             .put("elapsedMs", elapsedMs)
             .put("notes", notes)
             .toString()
-        synchronized(REPORT_LOCK) {
-            // Keep the app-private copy for local diagnosis, but do not depend on it for export.
-            file.appendText(row + "\n")
-            // The host runner reads this stable prefix from adb logcat after Gradle finishes.
-            Log.i(LOG_TAG, LOG_PREFIX + row)
-        }
+
+        // Host-side runner captures these rows continuously while instrumentation is running.
+        Log.i(LOG_TAG, LOG_PREFIX + row)
     }
 
     companion object {
-        private const val REPORT_FILE = "johar-agent-results.jsonl"
         private const val LOG_TAG = "JoharAgent"
         private const val LOG_PREFIX = "JOHAR_AGENT_RESULT "
-        private val REPORT_LOCK = Any()
-
-        @JvmStatic
-        @BeforeClass
-        fun clearPreviousReport() {
-            val context = InstrumentationRegistry.getInstrumentation().targetContext
-            File(context.filesDir, REPORT_FILE).delete()
-        }
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
