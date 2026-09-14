@@ -14,18 +14,19 @@ import com.akeshridev.johar.ui.chat.JoharTestTags
 import org.json.JSONObject
 import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 
-@RunWith(Parameterized::class)
-class Johar1000CommandUiTest(
-    private val case: EvaluationCase,
-) {
+class Johar1000CommandUiTest {
     @get:Rule
     val composeRule = createAndroidComposeRule<JoharActivity>()
 
     @Test
-    fun runCommand() {
+    fun runShard() {
+        val cases = loadCasesForShard()
+        waitForInput()
+        cases.forEach(::runCase)
+    }
+
+    private fun runCase(case: EvaluationCase) {
         val startedAt = System.currentTimeMillis()
         var resultType = "HARNESS_ERROR"
         var response = ""
@@ -33,14 +34,14 @@ class Johar1000CommandUiTest(
         var notes = ""
 
         try {
-            waitForInput()
+            resetConversation()
             case.turns.forEach(::submitTurn)
 
             val latest = composeRule
                 .onNodeWithTag(JoharTestTags.LATEST_ANSWER, useUnmergedTree = true)
                 .fetchSemanticsNode()
             response = collectText(latest)
-            resultType = detectResultType()
+            resultType = detectResultType(latest)
             status = classify(case, resultType, response)
             notes = "expected=${case.family}; contract=${case.behavior}; allowed=${case.expectedTypes.joinToString("|")}" +
                 if (case.stateGroup.isNotBlank()) "; state=${case.stateGroup}" else ""
@@ -66,6 +67,22 @@ class Johar1000CommandUiTest(
         }
     }
 
+    private fun resetConversation() {
+        composeRule.runOnUiThread {
+            composeRule.activity.resetConversationForTesting()
+        }
+        composeRule.waitForIdle()
+        composeRule.waitUntil(timeoutMillis = 5_000) {
+            val answers = composeRule
+                .onAllNodesWithTag(JoharTestTags.ANSWER, useUnmergedTree = true)
+                .fetchSemanticsNodes().size
+            val thinkingGone = composeRule
+                .onAllNodesWithTag(JoharTestTags.THINKING, useUnmergedTree = true)
+                .fetchSemanticsNodes().isEmpty()
+            answers == 1 && thinkingGone
+        }
+    }
+
     private fun submitTurn(query: String) {
         val answersBefore = composeRule
             .onAllNodesWithTag(JoharTestTags.ANSWER, useUnmergedTree = true)
@@ -87,7 +104,7 @@ class Johar1000CommandUiTest(
         }
     }
 
-    private fun detectResultType(): String {
+    private fun detectResultType(latest: SemanticsNode): String {
         val ordered = listOf(
             JoharTestTags.ROUTE_CARD to "ROUTE",
             JoharTestTags.ITINERARY_CARD to "ITINERARY",
@@ -100,10 +117,16 @@ class Johar1000CommandUiTest(
             JoharTestTags.GROUNDED to "GROUNDED",
             JoharTestTags.TEXT to "TEXT",
         )
-        return ordered.firstOrNull { (tag, _) ->
-            composeRule.onAllNodesWithTag(tag, useUnmergedTree = true)
-                .fetchSemanticsNodes().isNotEmpty()
-        }?.second ?: "UNKNOWN"
+        val tags = collectTags(latest)
+        return ordered.firstOrNull { (tag, _) -> tag in tags }?.second ?: "UNKNOWN"
+    }
+
+    private fun collectTags(node: SemanticsNode): Set<String> {
+        val own = node.config.getOrNull(SemanticsProperties.TestTag)
+        return buildSet {
+            if (own != null) add(own)
+            node.children.forEach { addAll(collectTags(it)) }
+        }
     }
 
     private fun collectText(node: SemanticsNode): String {
@@ -209,53 +232,38 @@ class Johar1000CommandUiTest(
         Log.i(LOG_TAG, LOG_PREFIX + row)
     }
 
+    private fun loadCasesForShard(): List<EvaluationCase> {
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        val args = InstrumentationRegistry.getArguments()
+        val startId = args.getString("startId")?.toIntOrNull() ?: 1
+        val endId = args.getString("endId")?.toIntOrNull() ?: 1_000
+
+        val cases = instrumentation.context.assets.open("johar-1000-cases.tsv")
+            .bufferedReader()
+            .useLines { lines ->
+                lines.filter(String::isNotBlank).map { line ->
+                    val split = line.split('\t', limit = 6)
+                    require(split.size == 6) { "Expected 6 TSV columns, got ${split.size}: $line" }
+                    EvaluationCase(
+                        id = split[0].toInt(),
+                        family = split[1],
+                        rawQuery = split[2],
+                        expectedTypes = split[3].split('|').toSet(),
+                        behavior = split[4],
+                        stateGroup = split[5],
+                    )
+                }.filter { it.id in startId..endId }.toList()
+            }
+
+        require(cases.size == endId - startId + 1) {
+            "Expected ${endId - startId + 1} cases for shard $startId-$endId, got ${cases.size}"
+        }
+        return cases
+    }
+
     companion object {
         private const val LOG_TAG = "JoharAgent"
         private const val LOG_PREFIX = "JOHAR_AGENT_RESULT "
-
-        @JvmStatic
-        @Parameterized.Parameters(name = "{0}")
-        fun cases(): List<Array<Any>> {
-            val instrumentation = InstrumentationRegistry.getInstrumentation()
-            val arguments = InstrumentationRegistry.getArguments()
-            val startId = arguments.getString("startId")?.toIntOrNull() ?: 1
-            val endId = arguments.getString("endId")?.toIntOrNull() ?: 1_000
-
-            require(startId in 1..1_000 && endId in 1..1_000 && startId <= endId) {
-                "Invalid case range: $startId..$endId"
-            }
-
-            val allCases = instrumentation.context.assets.open("johar-1000-cases.tsv")
-                .bufferedReader()
-                .useLines { lines ->
-                    lines.filter(String::isNotBlank).map { line ->
-                        val split = line.split('\t')
-                        require(split.size == 6) { "Expected 6 TSV columns, got ${split.size}: $line" }
-                        EvaluationCase(
-                            id = split[0].toInt(),
-                            family = split[1],
-                            rawQuery = split[2],
-                            expectedTypes = split[3].split('|').toSet(),
-                            behavior = split[4],
-                            stateGroup = split[5],
-                        )
-                    }.toList()
-                }
-
-            require(allCases.size == 1_000) { "Expected 1000 evaluation cases, got ${allCases.size}" }
-
-            return allCases
-                .asSequence()
-                .filter { it.id in startId..endId }
-                .map { arrayOf<Any>(it) }
-                .toList()
-                .also {
-                    val expected = endId - startId + 1
-                    require(it.size == expected) {
-                        "Expected $expected cases for range $startId..$endId, got ${it.size}"
-                    }
-                }
-        }
     }
 }
 
@@ -268,6 +276,4 @@ data class EvaluationCase(
     val stateGroup: String,
 ) {
     val turns: List<String> = rawQuery.split("|||").map(String::trim).filter(String::isNotBlank)
-
-    override fun toString(): String = "%04d %s %s".format(id, family, rawQuery.take(44))
 }
