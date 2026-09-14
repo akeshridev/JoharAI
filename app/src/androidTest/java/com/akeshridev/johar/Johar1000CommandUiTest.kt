@@ -73,20 +73,21 @@ class Johar1000CommandUiTest {
         }
         composeRule.waitForIdle()
         composeRule.waitUntil(timeoutMillis = 5_000) {
-            val answers = composeRule
+            val latestAnswers = composeRule
+                .onAllNodesWithTag(JoharTestTags.LATEST_ANSWER, useUnmergedTree = true)
+                .fetchSemanticsNodes().size
+            val priorAnswers = composeRule
                 .onAllNodesWithTag(JoharTestTags.ANSWER, useUnmergedTree = true)
                 .fetchSemanticsNodes().size
             val thinkingGone = composeRule
                 .onAllNodesWithTag(JoharTestTags.THINKING, useUnmergedTree = true)
                 .fetchSemanticsNodes().isEmpty()
-            answers == 1 && thinkingGone
+            latestAnswers == 1 && priorAnswers == 0 && thinkingGone
         }
     }
 
     private fun submitTurn(query: String) {
-        val answersBefore = composeRule
-            .onAllNodesWithTag(JoharTestTags.ANSWER, useUnmergedTree = true)
-            .fetchSemanticsNodes().size
+        val answersBefore = totalJoharAnswers()
 
         composeRule.onNodeWithTag(JoharTestTags.CHAT_INPUT, useUnmergedTree = true)
             .performTextReplacement(query)
@@ -94,14 +95,22 @@ class Johar1000CommandUiTest {
             .performClick()
 
         composeRule.waitUntil(timeoutMillis = 45_000) {
-            val answersNow = composeRule
-                .onAllNodesWithTag(JoharTestTags.ANSWER, useUnmergedTree = true)
-                .fetchSemanticsNodes().size
+            val answersNow = totalJoharAnswers()
             val thinkingGone = composeRule
                 .onAllNodesWithTag(JoharTestTags.THINKING, useUnmergedTree = true)
                 .fetchSemanticsNodes().isEmpty()
             answersNow > answersBefore && thinkingGone
         }
+    }
+
+    private fun totalJoharAnswers(): Int {
+        val prior = composeRule
+            .onAllNodesWithTag(JoharTestTags.ANSWER, useUnmergedTree = true)
+            .fetchSemanticsNodes().size
+        val latest = composeRule
+            .onAllNodesWithTag(JoharTestTags.LATEST_ANSWER, useUnmergedTree = true)
+            .fetchSemanticsNodes().size
+        return prior + latest
     }
 
     private fun detectResultType(latest: SemanticsNode): String {
