@@ -62,6 +62,12 @@ The latest-answer subtree is used for result-type detection, so earlier turns in
 
 It does **not** recreate repositories, Room, routing graph, offline data, or the Activity. Production query behavior is unchanged.
 
+The welcome message itself is tagged `johar_latest_answer`, not `johar_answer`. Therefore the reset-ready condition is exactly one `johar_latest_answer`, zero prior `johar_answer` nodes, and no thinking indicator. Query completion counts both prior and latest Johar-answer tags so the harness can detect a newly rendered answer while reusing the same Activity.
+
+## Harness failure note
+
+An earlier warm-activity run exported 1000 `HARNESS_ERROR` rows because the reset wait incorrectly expected one `johar_answer` node after reset. The UI correctly rendered the welcome message as `johar_latest_answer`, so every case timed out before sending its query. That run is invalid as a product baseline and must not be used for Johar quality statistics.
+
 ## Result capture
 
 Every case emits one structured `JoharAgent` JSON log row. `tests/agent/run.sh` verifies exactly 50 rows per shard and exactly 1000 rows overall before accepting the baseline. Final output is written to:
@@ -70,4 +76,4 @@ Every case emits one structured `JoharAgent` JSON log row. `tests/agent/run.sh` 
 
 Each row includes ID, query/turn sequence, detected final result type, visible response, classification, elapsed milliseconds and the expected behavior contract.
 
-Automated classifications are triage, not the final product verdict. Review non-pass and suspicious PASS cases before product changes. Freeze the first complete 1000-row run as **Baseline V1**.
+Automated classifications are triage, not the final product verdict. Review non-pass and suspicious PASS cases before product changes. Freeze the first complete valid 1000-row run as **Baseline V1**.
