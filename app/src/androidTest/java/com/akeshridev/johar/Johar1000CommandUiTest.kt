@@ -217,25 +217,44 @@ class Johar1000CommandUiTest(
         @Parameterized.Parameters(name = "{0}")
         fun cases(): List<Array<Any>> {
             val instrumentation = InstrumentationRegistry.getInstrumentation()
-            return instrumentation.context.assets.open("johar-1000-cases.tsv")
+            val arguments = InstrumentationRegistry.getArguments()
+            val startId = arguments.getString("startId")?.toIntOrNull() ?: 1
+            val endId = arguments.getString("endId")?.toIntOrNull() ?: 1_000
+
+            require(startId in 1..1_000 && endId in 1..1_000 && startId <= endId) {
+                "Invalid case range: $startId..$endId"
+            }
+
+            val allCases = instrumentation.context.assets.open("johar-1000-cases.tsv")
                 .bufferedReader()
                 .useLines { lines ->
                     lines.filter(String::isNotBlank).map { line ->
                         val split = line.split('\t')
                         require(split.size == 6) { "Expected 6 TSV columns, got ${split.size}: $line" }
-                        arrayOf<Any>(
-                            EvaluationCase(
-                                id = split[0].toInt(),
-                                family = split[1],
-                                rawQuery = split[2],
-                                expectedTypes = split[3].split('|').toSet(),
-                                behavior = split[4],
-                                stateGroup = split[5],
-                            ),
+                        EvaluationCase(
+                            id = split[0].toInt(),
+                            family = split[1],
+                            rawQuery = split[2],
+                            expectedTypes = split[3].split('|').toSet(),
+                            behavior = split[4],
+                            stateGroup = split[5],
                         )
                     }.toList()
                 }
-                .also { require(it.size == 1_000) { "Expected 1000 evaluation cases, got ${it.size}" } }
+
+            require(allCases.size == 1_000) { "Expected 1000 evaluation cases, got ${allCases.size}" }
+
+            return allCases
+                .asSequence()
+                .filter { it.id in startId..endId }
+                .map { arrayOf<Any>(it) }
+                .toList()
+                .also {
+                    val expected = endId - startId + 1
+                    require(it.size == expected) {
+                        "Expected $expected cases for range $startId..$endId, got ${it.size}"
+                    }
+                }
         }
     }
 }
