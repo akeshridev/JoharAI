@@ -169,11 +169,11 @@ class OfflineKnowledgeRetriever(context: Context) {
     }
 
     private fun preferredTypes(query: String): Set<String> = buildSet {
-        if (containsAny(query, "rugra", "food", "dish", "cuisine", "khana", "snack")) add("FOOD")
+        if (containsAny(query, "rugra", "food", "dish", "cuisine", "khana", "snack", "sweet")) add("FOOD")
         if (containsAny(query, "festival", "parab", "mela", "puja")) add("FESTIVAL")
         if (containsAny(query, "temple", "mandir", "dham", "pilgrimage", "religious place", "spiritual place")) add("TOURIST_ATTRACTION")
-        if (containsAny(query, "waterfall", "falls", "jharna", "dam", "reservoir", "lake", "hill", "pahar")) add("NATURAL_FEATURE")
-        if (containsAny(query, "culture", "cultural", "dance", "art", "tradition")) add("CULTURAL_PRACTICE")
+        if (containsAny(query, "waterfall", "falls", "jharna", "dam", "reservoir", "lake", "hill", "pahar", "forest", "wildlife", "sanctuary", "national park")) add("NATURAL_FEATURE")
+        if (containsAny(query, "culture", "cultural", "dance", "art", "painting", "craft", "handicraft", "tradition")) add("CULTURAL_PRACTICE")
         if (containsAny(query, "market", "bazar", "bazaar", "haat", "mandi")) add("MARKET")
         if (containsAny(query, "hospital", "clinic")) add("HOSPITAL")
         if (containsAny(query, "police", "thana")) add("POLICE_STATION")
@@ -186,20 +186,22 @@ class OfflineKnowledgeRetriever(context: Context) {
 
     private fun preferredPackTypes(query: String): Set<String> = buildSet {
         if (containsAny(query, "temple", "mandir", "dham", "religious place", "spiritual place")) add("TEMPLE")
-        if (containsAny(query, "pilgrimage", "religious place", "spiritual place")) add("PILGRIMAGE")
+        if (containsAny(query, "pilgrimage", "religious place", "spiritual place", "shikharji")) add("PILGRIMAGE")
         if (containsAny(query, "waterfall", "falls", "jharna")) add("WATERFALL")
         if (containsAny(query, "dam", "reservoir")) add("DAM")
         if (query.contains("lake")) add("LAKE")
         if (containsAny(query, "hill", "pahar")) add("HILL")
-        if (containsAny(query, "viewpoint", "view point", "sunset point")) add("VIEWPOINT")
+        if (containsAny(query, "viewpoint", "view point", "sunset point", "sunrise point")) add("VIEWPOINT")
         if (query.contains("forest")) add("FOREST")
-        if (containsAny(query, "wildlife", "sanctuary")) add("WILDLIFE_SANCTUARY")
+        if (containsAny(query, "wildlife", "sanctuary", "elephant")) add("WILDLIFE_SANCTUARY")
         if (query.contains("tiger reserve")) add("TIGER_RESERVE")
-        if (containsAny(query, "national park", "park")) add("NATIONAL_PARK")
+        if (containsAny(query, "national park", "betla")) add("NATIONAL_PARK")
         if (query.contains("park")) add("PARK")
         if (containsAny(query, "heritage", "historic", "history", "historical")) add("HERITAGE_SITE")
         if (query.contains("museum")) add("MUSEUM")
         if (containsAny(query, "dance", "chhau")) add("DANCE")
+        if (containsAny(query, "art", "painting", "sohrai art", "khovar", "kohvar", "paitkar")) add("ART")
+        if (containsAny(query, "craft", "handicraft", "dokra", "dhokra")) add("CRAFT")
         if (containsAny(query, "tribe", "tribal", "adivasi")) add("TRIBE")
         if (query.contains("language")) add("LANGUAGE")
         if (containsAny(query, "market", "bazar", "bazaar", "haat", "mandi")) {
@@ -219,6 +221,8 @@ class OfflineKnowledgeRetriever(context: Context) {
         .replace("rugda", "rugra")
         .replace("rugdha", "rugra")
         .replace("baba dham", "baidyanath dham")
+        .replace("dhokra", "dokra")
+        .replace("kohvar", "khovar")
         .replace("gautamdhara waterfall", "jonha falls")
         .replace("gautamdhara", "jonha falls")
         .replace("jonha waterfall", "jonha falls")
@@ -257,7 +261,7 @@ class OfflineKnowledgeRetriever(context: Context) {
         private val CONTRASTING_PACK_TYPES = setOf(
             "DAM", "LAKE", "WATERFALL", "TEMPLE", "PILGRIMAGE", "ASHRAM", "MUSEUM",
             "HERITAGE_SITE", "VIEWPOINT", "PARK", "FOREST", "WILDLIFE_SANCTUARY", "TIGER_RESERVE", "NATIONAL_PARK",
-            "HILL", "DANCE", "TRIBE", "MARKET_COLLECTION", "MARKET_TYPE",
+            "HILL", "DANCE", "ART", "CRAFT", "TRIBE", "MARKET_COLLECTION", "MARKET_TYPE",
         )
         private val STOP_WORDS = setOf(
             "what", "is", "are", "the", "a", "an", "of", "in", "near", "nearby", "me", "tell", "about",
