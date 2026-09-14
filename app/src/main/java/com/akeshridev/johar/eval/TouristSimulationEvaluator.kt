@@ -44,7 +44,10 @@ class TouristSimulationEvaluator(
                 gaps += GAP_THIN_OFFLINE_COVERAGE
             }
 
-            if (case.expectedPackTypes.isNotEmpty() && hits.none { it.packType in case.expectedPackTypes }) {
+            if (
+                case.expectedPackTypes.isNotEmpty() &&
+                hits.none { hit -> hit.packType?.let(case.expectedPackTypes::contains) == true }
+            ) {
                 gaps += GAP_WRONG_RESULT_TYPE
             }
 
