@@ -22,7 +22,13 @@ internal class SourceCrawler(
         check(rootSuccesses > 0) { "No source succeeded for root ${root.name}" }
 
         crawlPendingKeywords(target)
-        crawlPendingEntities(target, excludingEntityId = root.entityId)
+        // Ranchi V1 is intentionally bounded. The packaged/base database still contains statewide
+        // entities, and crawling the global pending queue here causes Ranchi runs to wander into
+        // Palamu, Latehar, Bokaro, etc. Ranchi discovery already persists the entities it finds;
+        // enrichment of arbitrary pending entities is reserved for explicit non-Ranchi targets.
+        if (target != CrawlTarget.RANCHI) {
+            crawlPendingEntities(target, excludingEntityId = root.entityId)
+        }
 
         return store.stats().also { stats ->
             Log.i(
