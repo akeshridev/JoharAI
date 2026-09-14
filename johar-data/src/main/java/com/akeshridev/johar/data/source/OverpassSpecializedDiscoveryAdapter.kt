@@ -27,9 +27,10 @@ internal class OverpassSpecializedDiscoveryAdapter(
 
     override fun discover(keyword: CrawlKeyword): DiscoveryResult {
         val selector = requireNotNull(selectorFor(keyword))
+        val scope = discoveryScope(keyword)
         val query = """
             [out:json][timeout:30];
-            ${areaStatement(keyword)}
+            ${areaStatement(scope)}
             (
               $selector
             );
@@ -45,6 +46,7 @@ internal class OverpassSpecializedDiscoveryAdapter(
                 val point = coordinates(element)
                 val refs = buildMap {
                     put("osm", "${element.optString("type")}:${element.optLong("id")}")
+                    put("joharDiscoveryScope", scope)
                     packTypeFor(keyword, tags)?.let { put("joharPackType", it) }
                 }
                 add(
@@ -52,7 +54,7 @@ internal class OverpassSpecializedDiscoveryAdapter(
                         id = osmEntityId(element),
                         name = name,
                         type = typeFor(keyword, tags),
-                        description = description(tags),
+                        description = description(tags, scope),
                         latitude = point?.first,
                         longitude = point?.second,
                         region = "Jharkhand",
@@ -72,14 +74,11 @@ internal class OverpassSpecializedDiscoveryAdapter(
         )
     }
 
-    private fun areaStatement(keyword: CrawlKeyword): String {
-        val term = normalizeText(keyword.term)
-        return if ("ranchi" in term) {
-            "area[\"boundary\"=\"administrative\"][\"name\"=\"Ranchi\"]->.searchArea;"
-        } else {
-            "area[\"boundary\"=\"administrative\"][\"name\"=\"Jharkhand\"]->.searchArea;"
-        }
-    }
+    private fun discoveryScope(keyword: CrawlKeyword): String =
+        if ("ranchi" in normalizeText(keyword.term)) "Ranchi" else "Jharkhand"
+
+    private fun areaStatement(scope: String): String =
+        "area[\"boundary\"=\"administrative\"][\"name\"=\"$scope\"]->.searchArea;"
 
     private fun selectorFor(keyword: CrawlKeyword): String? {
         val term = normalizeText(keyword.term)
@@ -197,7 +196,7 @@ internal class OverpassSpecializedDiscoveryAdapter(
         return when {
             amenity in setOf("hospital", "clinic") -> EntityType.HOSPITAL
             amenity == "police" -> EntityType.POLICE_STATION
-            amenity in setOf("fire_station") || tags.optString("emergency") == "ambulance_station" ->
+            amenity == "fire_station" || tags.optString("emergency") == "ambulance_station" ->
                 EntityType.EMERGENCY_SERVICE
             amenity == "marketplace" -> EntityType.MARKET
             amenity in setOf("restaurant", "cafe", "fast_food") -> EntityType.RESTAURANT
@@ -260,7 +259,6 @@ internal class OverpassSpecializedDiscoveryAdapter(
             "haat" in term || "bazar" in term || "market" in term || "mandi" in term -> "MARKET_COLLECTION"
             "handicraft" in term -> "HANDICRAFT_SHOP"
             "mall" in term -> "MALL"
-            "bank" in term && tags.optString("amenity") == "atm" -> "ATM"
             "bank" in term || "atm" in term -> if (tags.optString("amenity") == "atm") "ATM" else "BANK"
             "petrol" in term || "fuel" in term -> "FUEL"
             "charging" in term || "ev " in "$term " -> "EV_CHARGING"
@@ -284,19 +282,20 @@ internal class OverpassSpecializedDiscoveryAdapter(
     private fun osmEntityId(element: JSONObject): String =
         "osm:${element.optString("type")}:${element.optLong("id")}"
 
-    private fun description(tags: JSONObject): String? {
+    private fun description(tags: JSONObject, scope: String): String {
         val address = listOf(
             tags.optString("addr:housenumber"),
             tags.optString("addr:street"),
             tags.optString("addr:suburb"),
             tags.optString("addr:city"),
         ).filter(String::isNotBlank).joinToString(", ")
-        return sequenceOf(
+        val sourceDescription = sequenceOf(
             tags.optString("description"),
             tags.optString("description:en"),
             address,
             tags.optString("operator"),
         ).firstOrNull(String::isNotBlank)
+        return listOfNotNull(sourceDescription, "Located in $scope discovery area").joinToString(". ")
     }
 
     private fun aliases(tags: JSONObject): List<String> = buildList {
