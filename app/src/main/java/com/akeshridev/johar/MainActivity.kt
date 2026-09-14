@@ -45,6 +45,7 @@ class MainActivity : ComponentActivity() {
             MainViewModel.Factory(
                 scheduleSourceCrawl = graph.scheduleSourceCrawlUseCase,
                 offlineKnowledgeRetriever = graph.offlineKnowledgeRetriever,
+                ranchiSpatialEngine = graph.ranchiSpatialEngine,
                 offlineRetrievalEvaluator = evaluator,
                 ranchiCoverageEvaluator = ranchiCoverageEvaluator,
                 localModelStore = localModelStore,
@@ -58,6 +59,7 @@ class MainActivity : ComponentActivity() {
             MaterialTheme {
                 DeveloperHarness(
                     onTestOfflineClick = viewModel::testOfflineRetrieval,
+                    onTestSpatialClick = viewModel::testRanchiSpatial,
                     onTestAnswersClick = viewModel::testDeterministicAnswers,
                     onTestLlmClick = viewModel::testOnDeviceLlm,
                     onRunEvalClick = viewModel::runOfflineRetrievalEval,
@@ -72,6 +74,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun DeveloperHarness(
     onTestOfflineClick: () -> Unit,
+    onTestSpatialClick: () -> Unit,
     onTestAnswersClick: () -> Unit,
     onTestLlmClick: (String) -> Unit,
     onRunEvalClick: () -> Unit,
@@ -104,6 +107,9 @@ private fun DeveloperHarness(
             }
             Button(onClick = onTestOfflineClick) {
                 Text("Test Ranchi RAG Retrieval → Logcat")
+            }
+            Button(onClick = onTestSpatialClick) {
+                Text("Test Ranchi Spatial → Logcat")
             }
             Button(onClick = onTestAnswersClick) {
                 Text("Test Deterministic Answers → Logcat")
