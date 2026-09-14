@@ -45,19 +45,19 @@ bash tests/agent/run.sh
 The script:
 
 1. regenerates and validates the deterministic 1000-case matrix;
-2. expands and clears logcat;
-3. runs only `Johar1000CommandUiTest` through the real installed app;
-4. drives Compose UI semantics instead of calling the router directly;
-5. emits one structured `JoharAgent` JSON log row per case;
-6. exports exactly 1000 rows to `tests/agent/results.jsonl`;
-7. fails explicitly if fewer or more than 1000 rows are captured;
-8. prints the status summary.
+2. executes the baseline in 50-case shards;
+3. force-stops the target app between shards so UI/map/native resources cannot accumulate across the entire 1000-case run;
+4. runs only `Johar1000CommandUiTest` through the real installed app;
+5. drives Compose UI semantics instead of calling the router directly;
+6. emits one structured `JoharAgent` JSON log row per case;
+7. validates each shard before appending it to `tests/agent/results.jsonl`;
+8. requires exactly 1000 final rows before printing the status summary.
 
-The expected runtime is much longer than the legacy 200-case run. The 200-case suite took roughly 11 minutes on the existing emulator, so budget approximately an hour for the first full baseline.
+Why shard the suite: a single long-lived instrumentation/app process hit the Android app heap limit around case 95 during route/map-heavy coverage. A test harness must not turn process-lifetime resource accumulation into a product-quality failure. Restarting the process every 50 cases keeps each case behavior unchanged while bounding harness memory. An actual OOM that reproduces within a shard should still be treated as a real failure and investigated.
 
 Runtime flow:
 
-`case -> fresh JoharActivity -> each turn -> johar_chat_input -> send -> wait for answer count to increase and thinking to disappear -> inspect final johar_latest_answer + result tag -> classify -> emit JSON log row -> host exports results.jsonl`
+`50-case shard -> fresh app process -> case -> fresh JoharActivity -> each turn -> johar_chat_input -> send -> wait for answer count to increase and thinking to disappear -> inspect final johar_latest_answer + result tag -> classify -> emit JSON log row -> validate shard -> append host results`
 
 All non-stateful cases start from a fresh activity. Stateful cases keep their own turns together in one activity but do not share state with other cases.
 
