@@ -11,10 +11,14 @@ import com.akeshridev.johar.data.retrieval.LocalModelStore
 import com.akeshridev.johar.data.retrieval.OfflineKnowledgeRetriever
 import com.akeshridev.johar.data.retrieval.OfflineRagContextBuilder
 import com.akeshridev.johar.data.spatial.RanchiSpatialEngine
+import com.akeshridev.johar.data.spatial.RanchiSpatialPlace
 import com.akeshridev.johar.domain.crawl.ScheduleSourceCrawlUseCase
 import com.akeshridev.johar.eval.OfflineRetrievalEvaluator
 import com.akeshridev.johar.eval.RanchiCoverageEvaluator
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class MainViewModel(
@@ -30,9 +34,20 @@ class MainViewModel(
     private val synthesizer = LiteRtLmAnswerSynthesizer(localModelStore.modelFile.absolutePath)
     private val answerGenerator = DeterministicJoharAnswerGenerator(offlineKnowledgeRetriever)
 
+    private val _mapPreview = MutableStateFlow<RanchiSpatialPlace?>(null)
+    val mapPreview: StateFlow<RanchiSpatialPlace?> = _mapPreview.asStateFlow()
+
     override fun onCleared() {
         synthesizer.close()
         super.onCleared()
+    }
+
+    fun previewRanchiMap(rawQuery: String) {
+        val query = rawQuery.trim()
+        if (query.isEmpty()) return
+        viewModelScope.launch(Dispatchers.IO) {
+            _mapPreview.value = ranchiSpatialEngine.resolvePlace(query, limit = 1).firstOrNull()
+        }
     }
 
     fun testOfflineRetrieval() {
