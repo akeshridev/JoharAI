@@ -10,6 +10,7 @@ import com.akeshridev.johar.data.retrieval.LiteRtLmAnswerSynthesizer
 import com.akeshridev.johar.data.retrieval.LocalModelStore
 import com.akeshridev.johar.data.retrieval.OfflineKnowledgeRetriever
 import com.akeshridev.johar.data.retrieval.OfflineRagContextBuilder
+import com.akeshridev.johar.data.spatial.RanchiSpatialEngine
 import com.akeshridev.johar.domain.crawl.ScheduleSourceCrawlUseCase
 import com.akeshridev.johar.eval.OfflineRetrievalEvaluator
 import com.akeshridev.johar.eval.RanchiCoverageEvaluator
@@ -19,6 +20,7 @@ import kotlinx.coroutines.launch
 class MainViewModel(
     private val scheduleSourceCrawl: ScheduleSourceCrawlUseCase,
     private val offlineKnowledgeRetriever: OfflineKnowledgeRetriever,
+    private val ranchiSpatialEngine: RanchiSpatialEngine,
     private val offlineRetrievalEvaluator: OfflineRetrievalEvaluator,
     private val ranchiCoverageEvaluator: RanchiCoverageEvaluator,
     private val localModelStore: LocalModelStore,
@@ -50,6 +52,22 @@ class MainViewModel(
                 Log.i(TAG, "RAG_CONTEXT_BEGIN query=\"$query\"")
                 Log.i(TAG, context.prompt)
                 Log.i(TAG, "RAG_CONTEXT_END query=\"$query\"")
+            }
+        }
+    }
+
+    fun testRanchiSpatial() {
+        viewModelScope.launch(Dispatchers.IO) {
+            SPATIAL_TEST_QUERIES.forEach { query ->
+                val places = ranchiSpatialEngine.resolvePlace(query)
+                Log.i(SPATIAL_TAG, "query=\"$query\" matches=${places.size}")
+                places.forEachIndexed { index, place ->
+                    Log.i(
+                        SPATIAL_TAG,
+                        "  #${index + 1} name=${place.name} type=${place.type} " +
+                            "lat=${place.coordinate.latitude} lon=${place.coordinate.longitude} region=${place.region.orEmpty()}",
+                    )
+                }
             }
         }
     }
@@ -154,6 +172,7 @@ class MainViewModel(
     class Factory(
         private val scheduleSourceCrawl: ScheduleSourceCrawlUseCase,
         private val offlineKnowledgeRetriever: OfflineKnowledgeRetriever,
+        private val ranchiSpatialEngine: RanchiSpatialEngine,
         private val offlineRetrievalEvaluator: OfflineRetrievalEvaluator,
         private val ranchiCoverageEvaluator: RanchiCoverageEvaluator,
         private val localModelStore: LocalModelStore,
@@ -164,6 +183,7 @@ class MainViewModel(
             return MainViewModel(
                 scheduleSourceCrawl = scheduleSourceCrawl,
                 offlineKnowledgeRetriever = offlineKnowledgeRetriever,
+                ranchiSpatialEngine = ranchiSpatialEngine,
                 offlineRetrievalEvaluator = offlineRetrievalEvaluator,
                 ranchiCoverageEvaluator = ranchiCoverageEvaluator,
                 localModelStore = localModelStore,
@@ -175,6 +195,7 @@ class MainViewModel(
         private const val TAG = "JoharRAG"
         private const val EVAL_TAG = "JoharEval"
         private const val RANCHI_EVAL_TAG = "JoharRanchiEval"
+        private const val SPATIAL_TAG = "JoharSpatial"
         private const val ANSWER_TAG = "JoharAnswer"
         private const val LLM_TAG = "JoharLLM"
 
@@ -190,6 +211,14 @@ class MainViewModel(
             "Ranchi me emergency hospital kahan hai?",
             "Ranchi me major colleges kaun se hain?",
             "Ranchi ke major business areas kaun se hain?",
+        )
+
+        private val SPATIAL_TEST_QUERIES = listOf(
+            "Tagore Hill",
+            "Ranchi railway station",
+            "Pahari Mandir",
+            "Lalpur",
+            "Bariatu",
         )
 
         private val ANSWER_TEST_QUERIES = listOf(
