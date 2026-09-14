@@ -13,6 +13,7 @@ import com.akeshridev.johar.data.source.MediaWikiTextSourceAdapter
 import com.akeshridev.johar.data.source.OpenMeteoSourceAdapter
 import com.akeshridev.johar.data.source.OverpassSourceAdapter
 import com.akeshridev.johar.data.source.OverpassSpecializedDiscoveryAdapter
+import com.akeshridev.johar.data.source.RanchiDistrictOfficialSourceAdapter
 import com.akeshridev.johar.data.source.TracingDiscoveryAdapter
 import com.akeshridev.johar.data.source.TracingSourceAdapter
 import com.akeshridev.johar.data.source.WikidataSourceAdapter
@@ -36,6 +37,7 @@ class SourceCrawlWorker(
             val wikidata = WikidataSourceAdapter(fetcher)
             val overpass = OverpassSourceAdapter(fetcher)
             val specializedOverpass = OverpassSpecializedDiscoveryAdapter(fetcher)
+            val ranchiOfficial = RanchiDistrictOfficialSourceAdapter(fetcher)
             val wikipedia = MediaWikiTextSourceAdapter(
                 id = "wikipedia",
                 host = "en.wikipedia.org",
@@ -71,6 +73,7 @@ class SourceCrawlWorker(
             )
 
             val entityAdapters = buildList {
+                if (target == CrawlTarget.RANCHI) add(ranchiOfficial)
                 add(wikidata)
                 if (target != CrawlTarget.JHARKHAND) add(overpass)
                 add(wikipedia)
