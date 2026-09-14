@@ -38,36 +38,47 @@ The corpus should deliberately span:
 **The Mundas and Their Country — Sarat Chandra Roy, 1912**
 - Public-domain scan available through Wikimedia Commons / Internet Archive.
 - Strong coverage for Munda history, geography, social organization, customs and Chota Nagpur context.
-- Wikimedia Commons scan metadata reports 662 pages and approximately 45 MB.
 - Treat historical descriptions as historical evidence, not current demographic/cultural claims.
 
 **The Oraons of Chota Nagpur — Sarat Chandra Roy, 1915**
 - Public-domain scan available through Wikimedia Commons / Internet Archive.
+- Wikimedia Commons metadata identifies a 553-page scan of approximately 320.81 MB and marks the scan/publication as public domain.
 - Coverage: history, economic life, social organization, customs and regional geography.
-- A Commons scan is over 500 pages; raw scan size is much larger than processed text.
+- Wikisource also exposes page-level text, useful as a secondary extraction/check source.
+
+**Oraon Religion and Customs — Sarat Chandra Roy**
+- Public-domain digitized edition available through Wikisource/Wikimedia sources.
+- Strong complementary coverage for religious practice, ritual, folklore and customary life.
+- Keep period-specific terminology in provenance and normalize only in user-facing summaries.
 
 **The Birhors — Sarat Chandra Roy, 1925**
-- Digitized through Internet Archive/Open Library.
-- Coverage: Birhor society, customs, folklore and material culture.
+- Public-domain digitized copies are available online.
+- Coverage: Birhor society, customs, folklore, material culture, hunting/forest life and social organization.
+- Use the original/public-domain edition rather than relying on later copyrighted reprints.
 
 **The Tribes and Castes of Bengal: Ethnographic Glossary — H. H. Risley, 1892**
-- Two volumes; public-domain copies indexed by The Online Books Page with Archive.org/Google/HathiTrust editions.
+- Public-domain copies exist through major digital-book repositories.
 - Use selectively for Jharkhand-region communities and historical terminology.
 - High caution for period-specific colonial classification and language.
 
 ### Historical district / place knowledge
 
 **Bengal District Gazetteers: Singhbhum, Saraikela and Kharsawan**
-- Digitized PDF available from IGNCA.
 - Useful for historical geography, settlements, routes, rivers, administration, communities, economy and heritage.
+- Prefer a public-domain/government-hosted digitized copy and preserve edition/year metadata.
 
 **Bengal / Bihar and Orissa District Gazetteer: Hazaribagh — E. Lister, 1917**
-- British Library catalogue record confirms the historical district gazetteer.
-- Use digitized/public copy when available.
+- Historical district gazetteer; useful for geography, administration, settlements, economy, communities, routes and notable places.
+- Use a public-domain digitized copy when available.
 
-**Bengal District Gazetteers: Ranchi — historical statistical volumes**
-- British Library catalogue records include Ranchi statistics volumes from 1901/02 and 1900/01–1910/11.
-- Useful as historical administrative/statistical context when a digitized copy is accessible.
+**Hazaribag District Gazetteer — Government of Jharkhand digital edition**
+- The official Hazaribag district website currently provides the gazetteer as Introduction, Index, 17 chapters, Appendix, subject index and picture PDF downloads.
+- This is a particularly good ingestion target because it is official, chapter-separated and already exposed as discrete PDFs.
+- Ingest chapter-by-chapter so page/source provenance remains exact.
+
+**Ranchi historical gazetteers/statistical volumes**
+- Useful for historical administrative/statistical context, settlements, infrastructure and regional history.
+- Only ingest copies whose rights and provenance are clear.
 
 ### Modern official district knowledge
 
@@ -76,17 +87,46 @@ The corpus should deliberately span:
 - Part A: Village and Town Directory.
 - Part B: Primary Census Abstract.
 - These volumes include demographic, village/town, infrastructure, education, medical, transport, communication, water, electricity and administrative context.
-- Initial verified district landing pages include Ranchi, Deoghar, Pashchimi Singhbhum, Saraikela Kharsawan, Lohardaga, Dhanbad, Bokaro, Garhwa, Sahibganj and Simdega.
 - Extend to all 24 Jharkhand districts.
 
 ### Tourism / modern context
 
-**Jharkhand Tourism — Nature’s Hidden Jewel**
-- Official Department of Tourism e-magazine / tourism publication.
+**Jharkhand Tourism official publications**
+- Use official tourism magazines, downloadable brochures, destination publications and policy material where available.
 - Useful for destinations, tourism circuits, official descriptions and travel framing.
+- Current operational details such as fees/hours still require freshness handling.
 
 **Jharkhand Tourism Policy 2021 and official tourism downloads**
 - Use for tourism policy, definitions, circuits and official development context; not as a substitute for destination facts when more direct sources exist.
+
+## Acquisition priority
+
+### Batch A — highest value first
+1. Hazaribag official District Gazetteer, all chapters.
+2. The Mundas and Their Country.
+3. The Oraons of Chota Nagpur.
+4. Oraon Religion and Customs.
+5. The Birhors.
+6. Singhbhum/Saraikela/Kharsawan historical gazetteers.
+7. Ranchi historical gazetteer/statistical material.
+8. Census 2011 District Census Handbooks for all 24 districts.
+
+### Batch B — breadth expansion
+- Santhal/Santal history and folklore sources.
+- Ho community history/language sources.
+- Kharia, Asur, Paharia and other Jharkhand community references.
+- Chota Nagpur regional history and freedom-movement material.
+- Forest, flora, wildlife and ethnobotany books.
+- Geology, minerals and mining-history publications.
+- Archaeology, megalith and heritage studies.
+- Folk music, dance, Sohrai/Khovar and craft references.
+- Food, forest produce and agricultural traditions.
+- Hindi/Nagpuri/Khortha/Kurukh/Mundari/Santali language and vocabulary material where rights permit.
+
+### Batch C — civic/political history
+- Government reports, assembly/government historical records, election-statistics publications, scheme documents and official biographies.
+- Store date, office, government, source and time period explicitly.
+- No party receives preferential inclusion, ranking or wording.
 
 ## Processing model
 
@@ -157,3 +197,7 @@ Political knowledge is factual, source-backed and non-partisan. Do not train the
 - ~200 MB: freeze Phase 1, build a large evaluation set, then tune retrieval and grounded answer synthesis.
 
 Do not pad the corpus to hit a size milestone. A smaller high-quality pack is preferable to duplicated or irrelevant text.
+
+## Source tracking
+
+A machine-readable acquisition manifest lives at `corpus/phase1-source-manifest.json`. Every source should move through statuses such as `DISCOVERED`, `RIGHTS_VERIFIED`, `READY_TO_INGEST`, `INGESTED`, `REJECTED`, with notes explaining any exclusion or historical-use restriction.
