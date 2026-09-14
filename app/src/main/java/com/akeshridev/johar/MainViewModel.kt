@@ -12,7 +12,7 @@ import com.akeshridev.johar.data.retrieval.OfflineKnowledgeRetriever
 import com.akeshridev.johar.data.retrieval.OfflineRagContextBuilder
 import com.akeshridev.johar.domain.crawl.ScheduleSourceCrawlUseCase
 import com.akeshridev.johar.eval.OfflineRetrievalEvaluator
-import com.akeshridev.johar.eval.TouristSimulationEvaluator
+import com.akeshridev.johar.eval.RanchiCoverageEvaluator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -20,19 +20,18 @@ class MainViewModel(
     private val scheduleSourceCrawl: ScheduleSourceCrawlUseCase,
     private val offlineKnowledgeRetriever: OfflineKnowledgeRetriever,
     private val offlineRetrievalEvaluator: OfflineRetrievalEvaluator,
-    private val touristSimulationEvaluator: TouristSimulationEvaluator,
+    private val ranchiCoverageEvaluator: RanchiCoverageEvaluator,
     private val localModelStore: LocalModelStore,
 ) : ViewModel() {
 
     private val ragContextBuilder = OfflineRagContextBuilder(offlineKnowledgeRetriever)
     private val synthesizer = LiteRtLmAnswerSynthesizer(localModelStore.modelFile.absolutePath)
+    private val answerGenerator = DeterministicJoharAnswerGenerator(offlineKnowledgeRetriever)
 
     override fun onCleared() {
         synthesizer.close()
         super.onCleared()
     }
-
-    private val answerGenerator = DeterministicJoharAnswerGenerator(offlineKnowledgeRetriever)
 
     fun testOfflineRetrieval() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -126,20 +125,23 @@ class MainViewModel(
         }
     }
 
-    fun runTouristSimulationEval() {
+    fun runRanchiCoverageEval() {
         viewModelScope.launch(Dispatchers.IO) {
-            val report = touristSimulationEvaluator.run()
+            val report = ranchiCoverageEvaluator.run()
             Log.i(
-                TOURIST_EVAL_TAG,
+                RANCHI_EVAL_TAG,
                 "SUMMARY total=${report.total} pass=${report.pass} partial=${report.partial} " +
                     "gap=${report.gap} gapCounts=${report.gapCounts}",
             )
+            Log.i(RANCHI_EVAL_TAG, "CATEGORY_COUNTS ${report.categoryCounts}")
+            Log.i(RANCHI_EVAL_TAG, "PERSONA_COUNTS ${report.personaCounts}")
             report.results.forEach { result ->
                 Log.i(
-                    TOURIST_EVAL_TAG,
-                    "${result.case.id} status=${result.status} category=${result.case.category} " +
-                        "query=\"${result.case.query}\" effectiveQuery=\"${result.effectiveQuery}\" " +
-                        "gaps=${result.gaps} actual=${result.actual} packTypes=${result.actualPackTypes}",
+                    RANCHI_EVAL_TAG,
+                    "${result.case.id} status=${result.status} persona=${result.case.persona} " +
+                        "category=${result.case.category} query=\"${result.case.query}\" " +
+                        "effectiveQuery=\"${result.effectiveQuery}\" gaps=${result.gaps} " +
+                        "actual=${result.actual} packTypes=${result.actualPackTypes}",
                 )
             }
         }
@@ -153,7 +155,7 @@ class MainViewModel(
         private val scheduleSourceCrawl: ScheduleSourceCrawlUseCase,
         private val offlineKnowledgeRetriever: OfflineKnowledgeRetriever,
         private val offlineRetrievalEvaluator: OfflineRetrievalEvaluator,
-        private val touristSimulationEvaluator: TouristSimulationEvaluator,
+        private val ranchiCoverageEvaluator: RanchiCoverageEvaluator,
         private val localModelStore: LocalModelStore,
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -163,7 +165,7 @@ class MainViewModel(
                 scheduleSourceCrawl = scheduleSourceCrawl,
                 offlineKnowledgeRetriever = offlineKnowledgeRetriever,
                 offlineRetrievalEvaluator = offlineRetrievalEvaluator,
-                touristSimulationEvaluator = touristSimulationEvaluator,
+                ranchiCoverageEvaluator = ranchiCoverageEvaluator,
                 localModelStore = localModelStore,
             ) as T
         }
@@ -172,29 +174,29 @@ class MainViewModel(
     companion object {
         private const val TAG = "JoharRAG"
         private const val EVAL_TAG = "JoharEval"
-        private const val TOURIST_EVAL_TAG = "JoharTouristEval"
+        private const val RANCHI_EVAL_TAG = "JoharRanchiEval"
         private const val ANSWER_TAG = "JoharAnswer"
         private const val LLM_TAG = "JoharLLM"
 
         private fun formatPercent(value: Double): String = "%.1f%%".format(value * 100.0)
 
         private val TEST_QUERIES = listOf(
-            "Rugra kya hai?",
-            "Rugra monsoon me kyun milta hai?",
-            "Jharkhand ka state animal?",
-            "Sarhul kya hai?",
-            "Jharkhand ka traditional dance kya hai?",
-            "Deoghar me temple?",
+            "Ranchi ke bazar",
+            "Ranchi me mutton kahan milega?",
+            "Lalpur ke paas mandir",
+            "parents ke saath Ranchi me kam walking wali jagah",
+            "Rugra kahan milega Ranchi me?",
             "Ranchi ke paas waterfall?",
-            "Patratu Dam kahan hai?",
-            "Rajmahal historical kyun hai?",
+            "Ranchi me emergency hospital kahan hai?",
+            "Ranchi me major colleges kaun se hain?",
+            "Ranchi ke major business areas kaun se hain?",
         )
 
         private val ANSWER_TEST_QUERIES = listOf(
             "Rugra kya hai?",
-            "Jharkhand ka state animal?",
-            "Deoghar me temple?",
+            "Deori Mandir kahan hai?",
             "Ranchi ke paas waterfall?",
+            "Lalpur ke paas mandir",
             "What is the capital of Australia?",
         )
     }
