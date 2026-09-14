@@ -34,16 +34,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.akeshridev.johar.designsystem.JoharCardAction
 import com.akeshridev.johar.designsystem.JoharColors
+import com.akeshridev.johar.designsystem.JoharComparisonCard
 import com.akeshridev.johar.designsystem.JoharDrummerMascot
 import com.akeshridev.johar.designsystem.JoharInfoCard
+import com.akeshridev.johar.designsystem.JoharInfoTone
 import com.akeshridev.johar.designsystem.JoharItineraryCard
 import com.akeshridev.johar.designsystem.JoharNagadaThinkingBubble
-import com.akeshridev.johar.map.RanchiMapCard
 import com.akeshridev.johar.designsystem.JoharPlaceCarousel
 import com.akeshridev.johar.designsystem.JoharPlaceCard
+import com.akeshridev.johar.designsystem.JoharPreferenceChips
 import com.akeshridev.johar.designsystem.JoharPrimaryButton
 import com.akeshridev.johar.designsystem.JoharRouteCard
+import com.akeshridev.johar.designsystem.JoharSourceRow
 import com.akeshridev.johar.designsystem.JoharSuggestionCard
+import com.akeshridev.johar.designsystem.JoharUtilityCard
+import com.akeshridev.johar.map.RanchiMapCard
 import com.akeshridev.johar.ui.model.JoharContent
 import com.akeshridev.johar.ui.model.JoharMessageUiModel
 import com.akeshridev.johar.ui.model.Sender
@@ -79,7 +84,7 @@ fun JoharBrandedChatScreen(
                 items(messages, key = { it.id }) { message ->
                     when (message.sender) {
                         Sender.USER -> UserBubble(message.content)
-                        Sender.JOHAR -> JoharBubble(message.content, onAction)
+                        Sender.JOHAR -> JoharBubble(message.content, onAction, onSend)
                     }
                 }
 
@@ -251,7 +256,11 @@ private fun UserBubble(content: JoharContent) {
 }
 
 @Composable
-private fun JoharBubble(content: JoharContent, onAction: (JoharCardAction) -> Unit) {
+private fun JoharBubble(
+    content: JoharContent,
+    onAction: (JoharCardAction) -> Unit,
+    onSend: (String) -> Unit,
+) {
     Column(Modifier.fillMaxWidth(0.94f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         when (content) {
             is JoharContent.Text -> Text(
@@ -259,14 +268,47 @@ private fun JoharBubble(content: JoharContent, onAction: (JoharCardAction) -> Un
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onBackground,
             )
-            is JoharContent.Places -> {
-                content.intro?.let {
-                    Text(it, style = MaterialTheme.typography.bodyLarge)
+            is JoharContent.Grounded -> {
+                if (content.tone == JoharInfoTone.NORMAL) {
+                    Text(
+                        text = content.text,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onBackground,
+                    )
+                } else {
+                    JoharInfoCard(
+                        title = when (content.tone) {
+                            JoharInfoTone.NOT_CONFIRMED -> "Current status not confirmed"
+                            JoharInfoTone.WARNING -> "Check"
+                            JoharInfoTone.OFFLINE -> "Offline"
+                            else -> "Johar"
+                        },
+                        text = content.text,
+                        tone = content.tone,
+                    )
                 }
+                content.sources.forEach { source ->
+                    JoharSourceRow(sourceName = source.sourceName, verified = source.verified)
+                }
+            }
+            is JoharContent.Places -> {
+                content.intro?.let { Text(it, style = MaterialTheme.typography.bodyLarge) }
                 if (content.items.size == 1) {
                     JoharPlaceCard(model = content.items.single(), onAction = onAction)
                 } else {
                     JoharPlaceCarousel(title = "Jagah", places = content.items, onAction = onAction)
+                }
+            }
+            is JoharContent.Utilities -> {
+                content.intro?.let { Text(it, style = MaterialTheme.typography.bodyLarge) }
+                content.items.forEach { item ->
+                    JoharUtilityCard(
+                        title = item.title,
+                        subtitle = item.subtitle,
+                        metadata = item.metadata,
+                        actions = item.actions,
+                        onAction = onAction,
+                    )
                 }
             }
             is JoharContent.Map -> RanchiMapCard(destination = content.destination)
@@ -279,6 +321,22 @@ private fun JoharBubble(content: JoharContent, onAction: (JoharCardAction) -> Un
                 )
             }
             is JoharContent.Itinerary -> JoharItineraryCard(model = content.plan, onAction = onAction)
+            is JoharContent.Comparison -> JoharComparisonCard(
+                leftTitle = content.leftTitle,
+                rightTitle = content.rightTitle,
+                rows = content.rows,
+                recommendation = content.recommendation,
+            )
+            is JoharContent.Clarification -> {
+                Text(content.prompt, style = MaterialTheme.typography.bodyLarge)
+                if (content.options.isNotEmpty()) {
+                    JoharPreferenceChips(
+                        title = "Choose an area",
+                        options = content.options,
+                        onOptionClick = onSend,
+                    )
+                }
+            }
             is JoharContent.Info -> JoharInfoCard(
                 title = content.title,
                 text = content.text,
