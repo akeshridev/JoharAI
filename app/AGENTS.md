@@ -27,11 +27,14 @@ The harness runs retrieval, deterministic answers, frozen retrieval evaluation, 
 `MainViewModel` retains one synthesizer across query runs and closes it in `onCleared`; the harness does not download models. This remains a developer-validation surface, not the final product UI.
 
 ## Real chat integration
-- `JoharGraph.conversationRouter()` wires `RanchiSpatialEngine` and the existing deterministic knowledge generator into app-owned `JoharQueryRouter`.
-- `JoharContentMapper` maps real spatial results to presentation-only card models. Text first; one place gets a card, multiple places a compact carousel.
+- `JoharGraph.conversationRouter()` wires `RanchiSpatialEngine`, the deterministic knowledge generator, and `RanchiOfflineRouter` into app-owned `JoharQueryRouter`.
+- `JoharContentMapper` maps real spatial and route results to presentation-only card models. Text first; one place gets a card, multiple places a compact carousel.
 - `JoharChatViewModel` owns messages, thinking state and validated map-action targets. `JoharCardAction` opens an inline `RanchiMapCard`; no product navigation screen is introduced.
 - Nearby search requires a resolved, explicitly supplied origin. A pending category supports `mere aas paas mandir?` followed by `Lalpur`. Never infer GPS/current user location. Distances are computed straight-line distances within 5 km, not road distances.
+- Route queries must resolve both origin and destination to exactly one real spatial entity before invoking `RanchiOfflineRouter`. Never guess either endpoint.
+- A route card may show distance/duration only when they come from `RanchiRouteResult.Success`. If the routing pack is absent or routing fails, return a contextual unavailable text response instead of fake ETA or geometry.
+- Route geometry stays in app UI models and may be rendered by `RanchiMapCard`; it must not enter `:johar-design-system`.
 - Weak spatial matches and unsupported requests fall back to the unchanged knowledge pipeline. Never fabricate ratings, hours, prices, safety, availability or live status.
 - Database construction/querying and map-pack installation run off the UI thread. The map requires `maps/ranchi.pmtiles`; missing packs have a contextual unavailable state. External navigation tries installed handlers and reports when none is available.
 - Design catalog is for isolated component work, never product business logic.
-- Keep app-level unit tests around query routing behavior. Cover text-first knowledge queries, strong spatial matches, nearby follow-up state, weak-match fallback, and live-status guardrails without changing frozen retrieval evaluation fixtures.
+- Keep app-level unit tests around query routing behavior. Cover text-first knowledge queries, strong spatial matches, nearby follow-up state, weak-match fallback, live-status guardrails, real route parsing, and missing-routing-pack behavior without changing frozen retrieval evaluation fixtures.
