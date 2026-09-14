@@ -1,0 +1,102 @@
+{
+  "manifestVersion": 1,
+  "targetProcessedBytes": 209715200,
+  "principle": "High-density, source-backed Jharkhand knowledge; do not pad for size.",
+  "statusValues": ["DISCOVERED", "RIGHTS_VERIFIED", "READY_TO_INGEST", "INGESTED", "REJECTED"],
+  "sources": [
+    {
+      "id": "book_mundas_1912",
+      "title": "The Mundas and Their Country",
+      "authorOrPublisher": "Sarat Chandra Roy",
+      "year": 1912,
+      "sourceType": "BOOK",
+      "historicalOrCurrent": "HISTORICAL_PRIMARY_OR_PERIOD_SOURCE",
+      "rightsClass": "PUBLIC_DOMAIN",
+      "status": "RIGHTS_VERIFIED",
+      "topics": ["Munda", "history", "geography", "customs", "social organization", "Chota Nagpur"],
+      "notes": "Use as historical evidence; do not convert period descriptions into current demographic/cultural claims."
+    },
+    {
+      "id": "book_oraons_1915",
+      "title": "The Oraons of Chota Nagpur",
+      "authorOrPublisher": "Sarat Chandra Roy",
+      "year": 1915,
+      "sourceType": "BOOK",
+      "historicalOrCurrent": "HISTORICAL_PRIMARY_OR_PERIOD_SOURCE",
+      "rightsClass": "PUBLIC_DOMAIN",
+      "status": "READY_TO_INGEST",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:The_Oraons_of_Chota_Nagpur.pdf",
+      "topics": ["Oraon", "Kurukh", "history", "economic life", "social organization", "customs", "Chota Nagpur"],
+      "rawScanMetadata": {"pages": 553, "approxBytes": 336393011},
+      "notes": "Wikimedia Commons marks the scan/publication public domain; preserve page-level provenance."
+    },
+    {
+      "id": "book_oraon_religion_customs",
+      "title": "Oraon Religion and Customs",
+      "authorOrPublisher": "Sarat Chandra Roy",
+      "sourceType": "BOOK",
+      "historicalOrCurrent": "HISTORICAL_PRIMARY_OR_PERIOD_SOURCE",
+      "rightsClass": "PUBLIC_DOMAIN_OR_OPEN_SCAN_TO_VERIFY_AT_DOWNLOAD",
+      "status": "DISCOVERED",
+      "sourceUrl": "https://en.wikisource.org/wiki/Page:Oraon_Religion_and_Customs.pdf/4",
+      "topics": ["Oraon", "religion", "ritual", "customs", "folklore"],
+      "notes": "Verify the exact edition/download rights before ingestion."
+    },
+    {
+      "id": "book_birhors_1925",
+      "title": "The Birhors: A Little-known Jungle Tribe of Chota Nagpur",
+      "authorOrPublisher": "Sarat Chandra Roy",
+      "year": 1925,
+      "sourceType": "BOOK",
+      "historicalOrCurrent": "HISTORICAL_PRIMARY_OR_PERIOD_SOURCE",
+      "rightsClass": "PUBLIC_DOMAIN",
+      "status": "DISCOVERED",
+      "topics": ["Birhor", "forest life", "customs", "folklore", "material culture", "social organization"],
+      "notes": "Prefer original public-domain scan, not later reprint editions."
+    },
+    {
+      "id": "gazetteer_hazaribag_official",
+      "title": "Hazaribag District Gazetteer",
+      "authorOrPublisher": "Hazaribag District, Government of Jharkhand",
+      "sourceType": "GOVERNMENT_GAZETTEER",
+      "historicalOrCurrent": "HISTORICAL_REFERENCE",
+      "rightsClass": "OFFICIAL_GOVERNMENT_PUBLICATION",
+      "status": "READY_TO_INGEST",
+      "sourceUrl": "https://hazaribag.nic.in/district-gazetteer/",
+      "topics": ["Hazaribag", "history", "geography", "administration", "settlements", "economy", "communities", "heritage"],
+      "notes": "Official page exposes Introduction, Index, 17 chapters, Appendix, subject index and picture PDFs; ingest chapter-by-chapter."
+    },
+    {
+      "id": "gazetteer_singhbhum_saraikela_kharsawan",
+      "title": "Bengal District Gazetteers: Singhbhum, Saraikela and Kharsawan",
+      "sourceType": "HISTORICAL_GAZETTEER",
+      "historicalOrCurrent": "HISTORICAL_PRIMARY_OR_PERIOD_SOURCE",
+      "rightsClass": "TO_VERIFY_AT_EXACT_DIGITIZED_COPY",
+      "status": "DISCOVERED",
+      "topics": ["Singhbhum", "Saraikela", "Kharsawan", "geography", "settlements", "routes", "rivers", "communities", "economy", "heritage"]
+    },
+    {
+      "id": "census_2011_jharkhand_dchb",
+      "title": "Census of India 2011 — Jharkhand District Census Handbooks",
+      "authorOrPublisher": "Directorate of Census Operations, Jharkhand",
+      "year": 2011,
+      "sourceType": "GOVERNMENT_CENSUS_HANDBOOK",
+      "historicalOrCurrent": "HISTORICAL_REFERENCE",
+      "rightsClass": "OFFICIAL_GOVERNMENT_PUBLICATION",
+      "status": "DISCOVERED",
+      "coverageGoal": "All 24 Jharkhand districts",
+      "topics": ["villages", "towns", "demography", "education", "medical", "transport", "communication", "water", "electricity", "administration"]
+    },
+    {
+      "id": "jharkhand_tourism_official_publications",
+      "title": "Jharkhand Tourism official publications and brochures",
+      "authorOrPublisher": "Department of Tourism, Government of Jharkhand",
+      "sourceType": "GOVERNMENT_TOURISM_PUBLICATION",
+      "historicalOrCurrent": "CURRENT_OFFICIAL",
+      "rightsClass": "OFFICIAL_GOVERNMENT_PUBLICATION",
+      "status": "DISCOVERED",
+      "topics": ["tourism", "destinations", "circuits", "travel", "culture"],
+      "notes": "Operational facts like hours/fees remain freshness-sensitive."
+    }
+  ]
+}
