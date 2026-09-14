@@ -1,0 +1,19 @@
+{
+  "sourceId": "book_mundas_1912",
+  "pagesSeen": 636,
+  "pageMin": 2,
+  "pageMax": 649,
+  "paragraphsRetained": 2938,
+  "chunksCreated": 393,
+  "chunkWordMin": 4,
+  "chunkWordMax": 700,
+  "chunkWordAverage": 372.0,
+  "ragChunkBytes": 1162429,
+  "completeSource": true,
+  "scanObjectsSeen": 649,
+  "printedPageLabelsAvailable": 0,
+  "pageReferenceType": "SCAN_PAGE_1_BASED",
+  "pagesMapped": 649,
+  "pagesWithoutUsableText": 5,
+  "ocrParagraphsRejectedAsNoise": 1764
+}

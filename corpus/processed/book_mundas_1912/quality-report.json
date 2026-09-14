@@ -1,0 +1,1193 @@
+{
+  "sourceId": "book_mundas_1912",
+  "passed": true,
+  "chunkCount": 393,
+  "pageCountRepresented": 639,
+  "pageMin": 2,
+  "pageMax": 649,
+  "sectionCount": 243,
+  "chunkWordMin": 4,
+  "chunkWordMax": 700,
+  "chunkWordAverage": 372.0,
+  "shortChunkCount": 143,
+  "shortChunkSamples": [
+    {
+      "chunkId": "book_mundas_1912:00001:39b340d12a9d",
+      "chapterOrSection": "With an Introduction BV",
+      "pageStart": 2,
+      "pageEnd": 2,
+      "wordCount": 6,
+      "preview": "E. A. GAIT Esq., I.C.S., C.I.E."
+    },
+    {
+      "chunkId": "book_mundas_1912:00002:1f5d706a293a",
+      "chapterOrSection": "Census Commissioner for India.",
+      "pageStart": 2,
+      "pageEnd": 3,
+      "wordCount": 34,
+      "preview": "A i l rj h ts r ese r vc d.  Price : Indian, Six Rupees* Foreign, Nine Shillings Six Pence .  the KU NT a line press.  61 & 62, Bowbazar Street, Calcutta."
+    },
+    {
+      "chunkId": "book_mundas_1912:00004:2cf84dd3bd49",
+      "chapterOrSection": "Introduction ... ... ... i",
+      "pageStart": 7,
+      "pageEnd": 7,
+      "wordCount": 10,
+      "preview": "Chap. I., The Origin of the Kol Tribes ... x"
+    },
+    {
+      "chunkId": "book_mundas_1912:00005:c06a7c1be2db",
+      "chapterOrSection": "App. IV. w , Epochs and Dates",
+      "pageStart": 8,
+      "pageEnd": 8,
+      "wordCount": 91,
+      "preview": "Acts, XX of 1854, 223; X of 1859, 289 ; V of 1861 ^ 290; XVI of 1864, 281 ; XX of 1866, 281 ; II (B.C.) of 1869, 270; VI of 1876, 290; VIII (B.C.> of 1878, 290; I (B.C.) of 1879, 289; V of 1884, 290; V (B.C.) of 1887, 290; V (B.C.) of 1897, 344; V (B.C.) of 1903, 279, 344 ; Vi (B.C.) of 1908, 347 ; III (B.C.) of 1909, "
+    },
+    {
+      "chunkId": "book_mundas_1912:00006:5f262b3686e6",
+      "chapterOrSection": "Anthropometric measurements—362-363.",
+      "pageStart": 8,
+      "pageEnd": 8,
+      "wordCount": 14,
+      "preview": "Asurs, 45. 143, 144- Attached Estates, App. IV.  Ba parob or Sarhul , 476."
+    },
+    {
+      "chunkId": "book_mundas_1912:00007:b6a788ef6d97",
+      "chapterOrSection": "Bhuinhari, App. III.",
+      "pageStart": 8,
+      "pageEnd": 8,
+      "wordCount": 13,
+      "preview": "Bhuinhari settlement, 272-273,—■•Defects of, 275—278*. Bijnagarh, 81-82.  Bin Rai sardar, 201, 208, 212."
+    },
+    {
+      "chunkId": "book_mundas_1912:00008:a08f4df06010",
+      "chapterOrSection": "Birsa rising, 325—343.",
+      "pageStart": 8,
+      "pageEnd": 8,
+      "wordCount": 17,
+      "preview": "Birth and its ceremonies, 456—460.  Biru family, 163-4 (foot-note). J . .  Boundaries, laying down of, 166."
+    },
+    {
+      "chunkId": "book_mundas_1912:00009:b35c935747f9",
+      "chapterOrSection": "Camac, Captain,—183, 184, 185.",
+      "pageStart": 9,
+      "pageEnd": 9,
+      "wordCount": 7,
+      "preview": "Catholic Mission, :go — 2 96, 306—325."
+    },
+    {
+      "chunkId": "book_mundas_1912:00010:127139ca74c4",
+      "chapterOrSection": "Chaitanya Charitamrita, 176.",
+      "pageStart": 9,
+      "pageEnd": 9,
+      "wordCount": 20,
+      "preview": "Chota Nagpur Raj family, origin of, 136—*39. Christianity, effects of, 226, 268.  Chutia, 132; 157, 361 ; App. I, viii."
+    },
+    {
+      "chunkId": "book_mundas_1912:00011:a1f084544dc5",
+      "chapterOrSection": "Chutia Nagpur, 360-361.",
+      "pageStart": 9,
+      "pageEnd": 9,
+      "wordCount": 9,
+      "preview": "Civilisation of ancient Kols, 55—59. Commissioners, list of, 224-225."
+    },
+    {
+      "chunkId": "book_mundas_1912:00012:2f26df3d7a09",
+      "chapterOrSection": "Deo Nath Sabi, Raja, 189.",
+      "pageStart": 9,
+      "pageEnd": 9,
+      "wordCount": 24,
+      "preview": "Dependant Rajas, 196—198, and App. HI. Deputy Commissioner, creation of, 216, 218;  -Lists of, 219-20 (foot-note).  Diseases, superstitions regarding, 487.. District Boards, App. IV."
+    },
+    {
+      "chunkId": "book_mundas_1912:00013:2afb88c89bd1",
+      "chapterOrSection": "Doisa, 152—157, 162.",
+      "pageStart": 9,
+      "pageEnd": 9,
+      "wordCount": 9,
+      "preview": "Doranda, origin of the name of, 143. Dormitories, 385,"
+    },
+    {
+      "chunkId": "book_mundas_1912:00014:585b26b89fe3",
+      "chapterOrSection": "Eclipse, superstition about, 489.",
+      "pageStart": 10,
+      "pageEnd": 10,
+      "wordCount": 12,
+      "preview": "Ekasipiri Terasibadi , 10, ir, and App. II. English Mission, 246—250, 258—267."
+    },
+    {
+      "chunkId": "book_mundas_1912:00015:3a3ccea7d88b",
+      "chapterOrSection": "Food-crops, 392—395.",
+      "pageStart": 10,
+      "pageEnd": 10,
+      "wordCount": 9,
+      "preview": "Fraser (Sir Andrew), his measures, 344—348. Funeral ceremonies, 460—467."
+    },
+    {
+      "chunkId": "book_mundas_1912:00016:b02635cca077",
+      "chapterOrSection": "German Mission, 226— 2x0, 238—238.",
+      "pageStart": 10,
+      "pageEnd": 10,
+      "wordCount": 6,
+      "preview": "Gobind Nath Sahi, Raja, 189, 190."
+    },
+    {
+      "chunkId": "book_mundas_1912:00017:593f28bff5bc",
+      "chapterOrSection": "Hari Brahmachari, 1^7.",
+      "pageStart": 10,
+      "pageEnd": 10,
+      "wordCount": 13,
+      "preview": "Hirdpiri, origin of the name of, 142.  Hinduised Mundas, 471. flon-ba festival, 477."
+    },
+    {
+      "chunkId": "book_mundas_1912:00018:ca3edace8329",
+      "chapterOrSection": "Hos, the,—19, 127-128.",
+      "pageStart": 10,
+      "pageEnd": 10,
+      "wordCount": 11,
+      "preview": "Household utensils and furniture, 374-377. Houses of the Mundas, 382—385. '"
+    },
+    {
+      "chunkId": "book_mundas_1912:00019:13b4e20f3f0d",
+      "chapterOrSection": "Jagarhath Sahi, Raja, 201.",
+      "pageStart": 10,
+      "pageEnd": 11,
+      "wordCount": 29,
+      "preview": "Jagirdars, 164, 165, 167, 195, 199, and App. HR Jharkhand, 114, 176, 359.  Joint ownership, 115, and App. III.  judicial Commissioners, creation of, 218 (foot-note).  -List of, 217-8 (foot-note)."
+    },
+    {
+      "chunkId": "book_mundas_1912:00020:6ecceae0df75",
+      "chapterOrSection": "Khorposhdars, X91, and App. III.",
+      "pageStart": 11,
+      "pageEnd": 11,
+      "wordCount": 27,
+      "preview": "Khukra, Kokrah, Kokerah,—151, 157, 162, 174, 359 * Khuntkatti , 115, II 9 - l6 7 > 279-280, 344. and  KM, 118, 173, 402—412, App. I, xvi-xvii."
+    },
+    {
+      "chunkId": "book_mundas_1912:00021:110265f6be78",
+      "chapterOrSection": "Korambe, 131-132, App. I, viii.",
+      "pageStart": 11,
+      "pageEnd": 11,
+      "wordCount": 6,
+      "preview": "Korumba Munda, 131, App. I, viii."
+    },
+    {
+      "chunkId": "book_mundas_1912:00022:194b43259f31",
+      "chapterOrSection": "Marhattas, 184, and App. IV,",
+      "pageStart": 12,
+      "pageEnd": 12,
+      "wordCount": 31,
+      "preview": "Marriage and its ceremonies, 436— 455 - Mathura Munda, 202.  Migrations of the Mundas, 61 ill, 12 J ~*’I 34 > 141—145, 128-129.  Minutes,- -Thomason’s, 160-161, 183—185; Sir John Shore’s, 360."
+    },
+    {
+      "chunkId": "book_mundas_1912:00023:2ccfe2e4c8b8",
+      "chapterOrSection": "Mon Khmer languages, 21.",
+      "pageStart": 12,
+      "pageEnd": 12,
+      "wordCount": 8,
+      "preview": "Mundari Khuntkattidars, 279-280, 344, and App Mundawar, 89."
+    },
+    {
+      "chunkId": "book_mundas_1912:00024:5f11f9652509",
+      "chapterOrSection": "Musical instruments, 377 — 379*",
+      "pageStart": 12,
+      "pageEnd": 12,
+      "wordCount": 11,
+      "preview": "Names of the Mundas, 358 ;  — of the country, 359—361."
+    },
+    {
+      "chunkId": "book_mundas_1912:00025:479e2924078b",
+      "chapterOrSection": "Nandangarh, 93, 94 *",
+      "pageStart": 12,
+      "pageEnd": 12,
+      "wordCount": 17,
+      "preview": "Natural aspects, 35 6 “~* 358 .  Number and habitat of the Mundas, 355 “ 35 h*"
+    },
+    {
+      "chunkId": "book_mundas_1912:00026:6398d9ad8fdc",
+      "chapterOrSection": "Oaths and ordeals, 426-426.",
+      "pageStart": 12,
+      "pageEnd": 12,
+      "wordCount": 9,
+      "preview": "Original home of the Mundas, 15 * 7 •"
+    },
+    {
+      "chunkId": "book_mundas_1912:00027:f5436d5e5916",
+      "chapterOrSection": "Panchayat, 419— 4 2 3 *",
+      "pageStart": 12,
+      "pageEnd": 12,
+      "wordCount": 7,
+      "preview": "Panch Parganas, 145, 194, and App. III."
+    },
+    {
+      "chunkId": "book_mundas_1912:00028:b497eb6ad079",
+      "chapterOrSection": "Parha Government, 417—419.",
+      "pageStart": 12,
+      "pageEnd": 12,
+      "wordCount": 7,
+      "preview": "Parja-horoko , 118, 171, and App. ill."
+    },
+    {
+      "chunkId": "book_mundas_1912:00029:4c384aea5c42",
+      "chapterOrSection": "Phagu festival, 474.",
+      "pageStart": 12,
+      "pageEnd": 12,
+      "wordCount": 11,
+      "preview": "Phani Mukut Rai, 135, 138, 1.39-140. 157 - Physical appearance, 361—363."
+    },
+    {
+      "chunkId": "book_mundas_1912:00030:531ee4c62afe",
+      "chapterOrSection": "Pitbowria, 132, 157.",
+      "pageStart": 13,
+      "pageEnd": 13,
+      "wordCount": 6,
+      "preview": "Pratap Udainath Sahi Deo, Maharaja, 139."
+    },
+    {
+      "chunkId": "book_mundas_1912:00031:b1943f61e6a4",
+      "chapterOrSection": "Raghunath Sahi, Raja—157, 158.",
+      "pageStart": 13,
+      "pageEnd": 13,
+      "wordCount": 14,
+      "preview": "Raj-has, j 66, 169, and App. III.  Ramgarh, 187, 188, 214, and App. IV."
+    },
+    {
+      "chunkId": "book_mundas_1912:00032:26dd410dca17",
+      "chapterOrSection": "Ramgarh, Raja of,—184.",
+      "pageStart": 13,
+      "pageEnd": 13,
+      "wordCount": 6,
+      "preview": "Ranchi, origin of the name of,—142,"
+    },
+    {
+      "chunkId": "book_mundas_1912:00033:a4cb2bbfa27e",
+      "chapterOrSection": "Reports,—Administration Report, 236;—-Blunt’s 210—",
+      "pageStart": 13,
+      "pageEnd": 13,
+      "wordCount": 14,
+      "preview": "212; Co-operative Societies’, 320-321 ; Cuthbert’s,  196, 198-9; Dalton’s, 204, 220; Davidson’s, 191 ;"
+    },
+    {
+      "chunkId": "book_mundas_1912:00034:32f27f00c058",
+      "chapterOrSection": "Davies’, 226, 273-274; Fraser’s 344—6; German",
+      "pageStart": 13,
+      "pageEnd": 13,
+      "wordCount": 31,
+      "preview": "Mission’s, 218—220, 230-231, 238-9, 240, 276-7 ;  Grant’s Fifth Report, 361 : Grimley’s, 304-5 ;  Keane’s, 205. Rakhal Das Haidar’s, 166—*172,  275-6, 279, Rickett’s 221—3, 226; Sutherland’s,. 209-210; Smith’s (Nathaniel), 197."
+    },
+    {
+      "chunkId": "book_mundas_1912:00035:0e799ede40e1",
+      "chapterOrSection": "Resolutions,—of Bengal Government, 165, 201.",
+      "pageStart": 13,
+      "pageEnd": 13,
+      "wordCount": 11,
+      "preview": "Rig-Veda, probable references in, 46-49.  Risa Munda, 131- Rohtas-garh, ioj —9."
+    },
+    {
+      "chunkId": "book_mundas_1912:00036:ea1113b92b63",
+      "chapterOrSection": "Samudra Gupta, 175 (foot-note).",
+      "pageStart": 14,
+      "pageEnd": 14,
+      "wordCount": 9,
+      "preview": "Sanskrit works, probable references in, 32—3b. Sardar agitation, 281—7."
+    },
+    {
+      "chunkId": "book_mundas_1912:00037:f46640238ccb",
+      "chapterOrSection": "Sexual morality, 542—545.",
+      "pageStart": 14,
+      "pageEnd": 14,
+      "wordCount": 5,
+      "preview": "Sicca rupees, abolition of, 217."
+    },
+    {
+      "chunkId": "book_mundas_1912:00038:9094ab083df9",
+      "chapterOrSection": "Soso-bonjra festival, 482.",
+      "pageStart": 14,
+      "pageEnd": 14,
+      "wordCount": 12,
+      "preview": "South-Western Frontier Agency, 214, and Ap\\ Speeches,—Stackers, 279-280; Steevens'. 304, burn’s, 350."
+    },
+    {
+      "chunkId": "book_mundas_1912:00039:529cd9c69f98",
+      "chapterOrSection": "Survey and Settlement, 343.",
+      "pageStart": 14,
+      "pageEnd": 14,
+      "wordCount": 14,
+      "preview": "Sutiambe, 131, 132 ; App. I, viii.  Sutia Mundk, t^i ; App. I, viii."
+    },
+    {
+      "chunkId": "book_mundas_1912:00040:122eea4380e6",
+      "chapterOrSection": "Tavernier’s Travels; 359.",
+      "pageStart": 14,
+      "pageEnd": 14,
+      "wordCount": 10,
+      "preview": "Thikadars, 190-1, 201, 212, 213, and App. Ill Tilnii, 159."
+    },
+    {
+      "chunkId": "book_mundas_1912:00041:2cde5541c70d",
+      "chapterOrSection": "Tuzzuk-i- Jahangir i, 151,",
+      "pageStart": 14,
+      "pageEnd": 14,
+      "wordCount": 15,
+      "preview": "Uraons, ancient history of, 123—125.  Village-Munda, 119, 120, 194, and App. III. Weapons, 370-37 r."
+    },
+    {
+      "chunkId": "book_mundas_1912:00047:99b7c54d655a",
+      "chapterOrSection": "ADDENDA et CORRIGENDA.",
+      "pageStart": 29,
+      "pageEnd": 30,
+      "wordCount": 100,
+      "preview": "Dark brown almost black—in colour, short in stature* 5 * but sturdy in his limbs, with irregular features, scanty beard, thick lips, broad nose, a low facial angle, with a head more brachy-cephalic tnan that of the average Dravidian, the Munda is a typical representative of the great Kol race.  * The average heigh* of "
+    },
+    {
+      "chunkId": "book_mundas_1912:00048:89be5bd0213c",
+      "chapterOrSection": "THE ORIGIN OF THE KOI, TRIBES",
+      "pageStart": 32,
+      "pageEnd": 34,
+      "wordCount": 163,
+      "preview": "inquiry, and invite worthier workers to the rich field of Kolarian antiquities. < >urs will he but a feeble attempt to trace the bare out¬ lines of a difficult and comprehensive subject. And it will be for more assiduous and lei-  THE ORIGIN OF THE KOL TRIBES,  sured inquirers to fill up the details, and per¬ haps to a"
+    },
+    {
+      "chunkId": "book_mundas_1912:00051:5833dbbed091",
+      "chapterOrSection": "THE ORIGIN OF THE KOL TRIBES",
+      "pageStart": 41,
+      "pageEnd": 41,
+      "wordCount": 48,
+      "preview": "generally so grotesque and absurd, and the kernel of historic truth in them if any, is so tightly pressed down under the thick shell of Action that they can give us no clue whatsoever to the original habitat of the tribe. And the site of the original home"
+    },
+    {
+      "chunkId": "book_mundas_1912:00057:141ac9379929",
+      "chapterOrSection": "NeoWChic rather than Palaeolithic.-’",
+      "pageStart": 55,
+      "pageEnd": 55,
+      "wordCount": 90,
+      "preview": "However hazardous it may be to point our finder definitely at any particular locality as having been the Original h<- ne of the Mundas it seems pretty certain that they were one of the non-Hindu peoples whom the  the Juangs representatives of the stone age in situ.'— Dalton’s Ethhologv, p, 153. When Colonel Dalton visi"
+    },
+    {
+      "chunkId": "book_mundas_1912:00062:bd5be74d08c6",
+      "chapterOrSection": "# Chandi ;-LXXVll, 3—11",
+      "pageStart": 65,
+      "pageEnd": 65,
+      "wordCount": 210,
+      "preview": "As for distincti ve architectural remains, the Mundas have none to boast of, unless the rude stone-memorials they put up on the mortal remains of their dead be classed as such. Nor have their ancestors left anything in the wav of inscriptions. For, as may be expected, they were utter strangers to the arc of writ¬ ing o"
+    },
+    {
+      "chunkId": "book_mundas_1912:00065:0c6976f34063",
+      "chapterOrSection": "THE ORIGIN OF THE KOL TRIBES. 41",
+      "pageStart": 72,
+      "pageEnd": 72,
+      "wordCount": 135,
+      "preview": "* Vide Appendix. In the iSth hymn of the 7th Book of the Rig Veda we read of a terrible battle on the banks of the Saraswati in which the Aryan Hero Sudas, king of the Tritsus, fought against the several Non-Aryan tribes mentioned generally as the Sirnvus (destroyers) and particularly hy names, Such as the Pakthas, the"
+    },
+    {
+      "chunkId": "book_mundas_1912:00067:48d0bc9ea422",
+      "chapterOrSection": "+ Rig Veda, 1 . 53 , 7 -",
+      "pageStart": 74,
+      "pageEnd": 74,
+      "wordCount": 22,
+      "preview": "§ Rig Veda. I, 5 i, 5 »«». 4 » 5 i VI. 1:8,8, VIII, 32,2 ; X, 99,11 ; X, 138,3."
+    },
+    {
+      "chunkId": "book_mundas_1912:00068:85bfbb2e7246",
+      "chapterOrSection": "|| Rig-Veda, I. 101,2.",
+      "pageStart": 74,
+      "pageEnd": 74,
+      "wordCount": 7,
+      "preview": "«f| Rig Veda I - 63, 7."
+    },
+    {
+      "chunkId": "book_mundas_1912:00087:4b14874e288a",
+      "chapterOrSection": "TRADITIONAL HISTORY.",
+      "pageStart": 112,
+      "pageEnd": 112,
+      "wordCount": 120,
+      "preview": "It was but natural that the Mundas would range themselves on the side of the Kurus against the army led by Krishna the great national foe of the aborigines. For it is Krishna who slew the Asuras Pitha and Mura and the Rakhasa Ogha, who attacked Nirmochana and slew numbers of other Asuras, who destroyed Putana and Sakun"
+    },
+    {
+      "chunkId": "book_mundas_1912:00088:bb0340508fea",
+      "chapterOrSection": "Murudba kapiteko mapatana!",
+      "pageStart": 112,
+      "pageEnd": 112,
+      "wordCount": 21,
+      "preview": "The village of Sa ving, oh !—the village of Sasang !  The town of Bindabor, oh !—the town of Bindabor !"
+    },
+    {
+      "chunkId": "book_mundas_1912:00095:d79f01f44518",
+      "chapterOrSection": "TRADITIONAL HISTORY.",
+      "pageStart": 124,
+      "pageEnd": 124,
+      "wordCount": 28,
+      "preview": "f Dr. Buchanan’s “Bhagalpur”, p. 61. Here the Asura Madhukaitava is said to have been subdued by Vishnu.  + Captain W. S. SherwelPs “A short notice of an"
+    },
+    {
+      "chunkId": "book_mundas_1912:00097:e907c57b9029",
+      "chapterOrSection": "TRAD It IONAL HISTORY.",
+      "pageStart": 127,
+      "pageEnd": 127,
+      "wordCount": 68,
+      "preview": "for net, (Sans. jpppj) for gold. Before  f he Aryans came into India, the Mundas and other Kol trifles do not appear to have been cultivators. If they knew agriculture, it must have been only a very rudimentary form of it. For, their words relating to agriculture appear to have been mainly borrowed r from Sanskrit E.g."
+    },
+    {
+      "chunkId": "book_mundas_1912:00116:6177e8131d74",
+      "chapterOrSection": "EARI^T HISTORY OF THE MUNDAS. IJ",
+      "pageStart": 166,
+      "pageEnd": 166,
+      "wordCount": 104,
+      "preview": "But the change in the name of the coun¬ try was as nothing compared with the more momentous changes that followed in the train of Kingvship. In the beginning, it would seem, the original settlers or Khunt - kattidars who thus submitted to the suze¬ rainty of a Raja had only to give honorary attendance to him. “They con"
+    },
+    {
+      "chunkId": "book_mundas_1912:00120:9dd9b7cc24e0",
+      "chapterOrSection": "THE EARLY HISTORY OF THE Ml NDAS. 143",
+      "pageStart": 174,
+      "pageEnd": 175,
+      "wordCount": 247,
+      "preview": "On rare occasions, when there was a big marriage in the Raja’s family or enemies had to be repelled, these far-off Mundas appear to have been sent for. The following old song still sung by the Sonepur Mundas- indicate how slender was the connection between these Mundas and their distant king in those days.  Okotepetana"
+    },
+    {
+      "chunkId": "book_mundas_1912:00122:ace42af93e0e",
+      "chapterOrSection": "THE EARLY HISTORY OF THE",
+      "pageStart": 178,
+      "pageEnd": 178,
+      "wordCount": 89,
+      "preview": "the time of Aurangzeb’s occupation of the throne of Delhi, the Chotanagpur Raja appears to have removed his seat to the pres¬ ent village of Doisa 40 miles to the south¬ west of Ranchi. 1 ill then it would appear, the Rajas used to live in insignificant houses. It was some time after Raja Durjan Sal s return from Delhi"
+    },
+    {
+      "chunkId": "book_mundas_1912:00123:0a659eeee368",
+      "chapterOrSection": "MEDIAEVAL MUNDARI HISTORY.",
+      "pageStart": 179,
+      "pageEnd": 179,
+      "wordCount": 29,
+      "preview": "whose liberation from prison had been procured bv RajaDurjanSal, carne to Jhar¬ khand to pay their respects to their liberator, they were not a little surprised at finding him"
+    },
+    {
+      "chunkId": "book_mundas_1912:00124:53575968fa18",
+      "chapterOrSection": "The Chutia Temple from outside.",
+      "pageStart": 179,
+      "pageEnd": 180,
+      "wordCount": 52,
+      "preview": "dwelling in a house not at all suited to his dignity. /Ynd, accordingly, on their return home, they sent down architects and masons,  Palace in the fort at Doisa from the South.  marble-slabs and other materials from their own dominions for the construction of a suitable palace in the capital of their"
+    },
+    {
+      "chunkId": "book_mundas_1912:00125:7c8a7b2a4f70",
+      "chapterOrSection": "MEDIAEVAL MUNDARI HISTORY.",
+      "pageStart": 181,
+      "pageEnd": 181,
+      "wordCount": 235,
+      "preview": "‘diamond king.' And thus came to be built the fine structure known as the Naur at an , the five-storied palace with its water-gate and garh khai arrangement, the court¬ house (Kutchery) and its beautiful marble flooring, the nice treasury-house with its winding alleys in which, it is said, the Raja arid Rani used to pl"
+    },
+    {
+      "chunkId": "book_mundas_1912:00128:9ea3510153ec",
+      "chapterOrSection": "Chimaire Chinadatn ?",
+      "pageStart": 188,
+      "pageEnd": 188,
+      "wordCount": 16,
+      "preview": "Son a leka disumea, babn Doinsareing nelada, babu- Rupaleka gamaia, babu,  Son a leka disumea, lipi,"
+    },
+    {
+      "chunkId": "book_mundas_1912:00129:774fdea699f2",
+      "chapterOrSection": "Rupaleka gamaia lipiko Tupuingtana.",
+      "pageStart": 188,
+      "pageEnd": 188,
+      "wordCount": 28,
+      "preview": "O Where's the land that shines like gold Say where such land didst see.  O where the land like' silver gleams ?  Say where such land may be."
+    },
+    {
+      "chunkId": "book_mundas_1912:00130:2b5e3bb7bfb2",
+      "chapterOrSection": "MEDIAEVAL MUNDARI HISTORY.",
+      "pageStart": 189,
+      "pageEnd": 189,
+      "wordCount": 20,
+      "preview": "Ah ! bright as burnished gold the land In Dotsa realm I found.  There gleams the land as silver white,"
+    },
+    {
+      "chunkId": "book_mundas_1912:00134:6348b2ee6173",
+      "chapterOrSection": "Mara dojanaji marangenjana.",
+      "pageStart": 194,
+      "pageEnd": 194,
+      "wordCount": 11,
+      "preview": "Oisum disum Kauko kotoarjana. Natu Mundako nekelatana Natu natu kauko diguarjana,"
+    },
+    {
+      "chunkId": "book_mundas_1912:00135:ff5d0891b152",
+      "chapterOrSection": "Natu Mundako nekelatana,",
+      "pageStart": 194,
+      "pageEnd": 194,
+      "wordCount": 22,
+      "preview": "Borote gegako nekelatana. Chiritegegako taiurtana.  Look where thou wilt, dear, wherever eye gazes, Up to the sky or below to the earth,"
+    },
+    {
+      "chunkId": "book_mundas_1912:00139:5ca17af95dd3",
+      "chapterOrSection": "MEDIAEVAL MUNDARJ HISTORY,",
+      "pageStart": 202,
+      "pageEnd": 202,
+      "wordCount": 79,
+      "preview": "^ TOT fi?STT ?n*T, STST %fcT ? t tr mvK sMft fsf f it wfm  Subsequent Vaisnav preachers appear to have made earnest attempts to convert the Mundas. One of them was Binand Das by name whose memory is still preserved in songs he composed in theMundari language with a view to facilitate the conversion of the Mundas. The e"
+    },
+    {
+      "chunkId": "book_mundas_1912:00141:f34c8438816c",
+      "chapterOrSection": "Soben haiko nirtana,",
+      "pageStart": 204,
+      "pageEnd": 204,
+      "wordCount": 165,
+      "preview": "Karakom do duar-re dubakana Landatanae.  By Jumna's bank on sandy hill,  There stands a Kadamb tree.  How sweet the flute the air doth fill With notes of liri riri ,  Lo! fish of every size and shape There move so gay and free,  And there the crab with mouth agape Doth sit and smile in glee.  In genuine Munda villages,"
+    },
+    {
+      "chunkId": "book_mundas_1912:00143:df8cd76715f0",
+      "chapterOrSection": "MEDIEVAL MUNDARI HISTORY.",
+      "pageStart": 207,
+      "pageEnd": 208,
+      "wordCount": 208,
+      "preview": "ly submitted, though not perhaps without an inward pang, to the evils that followed in the wake of kingship.  But the most striking phenomenon in the History of Chotanagpore is the unbending conservatism of the more stror g-willed Mundas. We have seen in the present chapter how this remarkably tena¬ cious tribe in thei"
+    },
+    {
+      "chunkId": "book_mundas_1912:00155:16db63161280",
+      "chapterOrSection": "Within Pithouria bounds,",
+      "pageStart": 232,
+      "pageEnd": 232,
+      "wordCount": 4,
+      "preview": "The soldiers mustered strong."
+    },
+    {
+      "chunkId": "book_mundas_1912:00157:3ff028e4421d",
+      "chapterOrSection": "Hohore Binji Rai saredar,",
+      "pageStart": 234,
+      "pageEnd": 235,
+      "wordCount": 241,
+      "preview": "More hakimke hajure Hore berime kandai.  Alas ! for thee, O Binji Rai,  Alas thou weepest in chains !  Alas! in presence of Hakim high,  Alas ! thou weepest in chains.  Thus ended this insurrection or rather ‘Jacquerie’, as a writer in the Calcutta Revieiv for July 1869* calls it. As the  same writer remarks, “it scarc"
+    },
+    {
+      "chunkId": "book_mundas_1912:00162:aa5936f93131",
+      "chapterOrSection": "THE SOUTH WESTERN FRONTIER AGENCY. 21 J",
+      "pageStart": 243,
+      "pageEnd": 243,
+      "wordCount": 197,
+      "preview": "Old sicca rupees ceased to be legal tender from the rst of January, 1838. And, later on, the unstamped copper coin known as pucca pice was substituted by pice of Government mint coinage. These changes in the adrninstration, though an improve-  •ourdays. The Agent was the Divisional Commissioner. Captain J. C. Hannyngto"
+    },
+    {
+      "chunkId": "book_mundas_1912:00164:47a1f0b8c248",
+      "chapterOrSection": "VV SOUTH WESTERN FRONTIER AGENCY. 219",
+      "pageStart": 245,
+      "pageEnd": 245,
+      "wordCount": 98,
+      "preview": "took another form, that of calling in the aid of the Police and the Court of laws, an arena on which the Hindus soon became the masters of the field; for the Police were chiefly men of Behar, the same Province the Zemindars had originally come from and in the Courts their own language Hindi was .spoken, be sides their "
+    },
+    {
+      "chunkId": "book_mundas_1912:00165:34bfc02bc0a8",
+      "chapterOrSection": "[Lt. R. C. Money (offg.)> 1861. J",
+      "pageStart": 245,
+      "pageEnd": 245,
+      "wordCount": 14,
+      "preview": "Captain A. P. S. Monerieff, 1861—62.  ; Lt. R. C. Money (offg/, 1862 ;"
+    },
+    {
+      "chunkId": "book_mundas_1912:00166:4a07a7fb614c",
+      "chapterOrSection": "Captain R. C. Birch, 1862—1863.",
+      "pageStart": 245,
+      "pageEnd": 245,
+      "wordCount": 31,
+      "preview": "[offg. in 1863;— Lt. R. C. Money, Lt, G. N. Oakes, and Mr. J. F, K. Hewitt.  offg. in 1864;—Mr. J- F. K Hewitt, and Mr. H. L. Oliphant, (also 1865)]."
+    },
+    {
+      "chunkId": "book_mundas_1912:00167:c8e3324a48cf",
+      "chapterOrSection": "Mr. H. L. Oliphant. 1865—1877.",
+      "pageStart": 245,
+      "pageEnd": 246,
+      "wordCount": 137,
+      "preview": "[offg.—in 1868, Lt. E. G. Lillingston, and Cap. R C. Money;  —in 1860, Cap. R. C. Money, and Cap. E. G. Walcott ;  —in 1870, Cap. E. G. Walcott, and Lt. E. G. Lillingston ;  —in 1873— 75, Cap. N. Lowis ;  —in 1876, Cap. E. G. Walcott, Mr. R. If.  Renny, Cap. C. H. Garbett, and Mr. J. J. Livesay;  —in 1877, Cap. E. G. W"
+    },
+    {
+      "chunkId": "book_mundas_1912:00168:0b1803a6e0b1",
+      "chapterOrSection": "As Col onel Dalton says:—",
+      "pageStart": 246,
+      "pageEnd": 246,
+      "wordCount": 74,
+      "preview": "“ft often happened that the unfortunate Kol, who with difficulty made his way to the far off station, found the tables turned on him when he got there. A posse of witnesses in the pay of the opposite party were already on the spot, prepared to prove ‘that he lie d not only no right s to the land, but was a turbulent re"
+    },
+    {
+      "chunkId": "book_mundas_1912:00169:2e07ef631f1f",
+      "chapterOrSection": "Mr. I'. W. Richardson,",
+      "pageStart": 246,
+      "pageEnd": 246,
+      "wordCount": 42,
+      "preview": "Mr. T. \\V. Richardson Lt. Col. A. Evans Gordon,  9-2-1887 to 22-2-1887. 12-7-1889 to 2-9-1889. 27-10-1889 to 1-12-7889.  12-8-1891 to 15-11-1891. 23-12-1891 1028-12-1891.] 16-3-189210 25-3-1896.  [offg.Mr. C. H. Rom pas, 8-4-1893 to 26-5\"-1893 ; Lt. Col. A. Evans Gordon, 27-5-1893 to 11*4-1894."
+    },
+    {
+      "chunkId": "book_mundas_1912:00170:7f2490217e78",
+      "chapterOrSection": "Mr. H. C. StreatHeld,",
+      "pageStart": 246,
+      "pageEnd": 246,
+      "wordCount": 39,
+      "preview": "[ofh: ■ Mr. H. T. F*orrest,  [olfg. ;—Mr. W. S. Coutts, 7-1-1902 to 14-2-02, 3-5-02 to 10-6-02, 22-7-02 to 2-10-02,  12-4-189410 18-6-1894. 4-9-1894 to 1-11-1894,] 26-3-1896 to 16-10-1901. 11-8-1898 to 7-11-1898 ; 25-11-1900 to 1-1-1901;  25-3-1901j 17-IO-lQOI to 15-3-1905."
+    },
+    {
+      "chunkId": "book_mundas_1912:00173:400995ffee0e",
+      "chapterOrSection": "V. T. Taylor, 1877—1878",
+      "pageStart": 250,
+      "pageEnd": 250,
+      "wordCount": 158,
+      "preview": "Nagpur Division, but there have in addition to these been enacted some special laws lor the protection of particular classes or for particular purposes. Thus, there is a special enactment for the relations between land-lord and tenant, and one for the protection of encumbered Zemindar . There is also a special law for "
+    },
+    {
+      "chunkId": "book_mundas_1912:00174:2aabc79f221a",
+      "chapterOrSection": "W. G. Mackenzie, 1828—1829-",
+      "pageStart": 250,
+      "pageEnd": 250,
+      "wordCount": 29,
+      "preview": "Captain (afterwards Major) T. Wilkinson, 1830-1839 [Mr. John Davidson was in charge from the 2nd March to the 4th April. 1839] M a jor j. R. O useley, 1839-1849"
+    },
+    {
+      "chunkId": "book_mundas_1912:00175:25296e978b30",
+      "chapterOrSection": "Mr W.J. Allen 1853—1854,",
+      "pageStart": 250,
+      "pageEnd": 250,
+      "wordCount": 7,
+      "preview": "when he was appointed the first Commissioner."
+    },
+    {
+      "chunkId": "book_mundas_1912:00176:5efbe75f0487",
+      "chapterOrSection": "Mr. C. R. Marmdin, (offg.)",
+      "pageStart": 251,
+      "pageEnd": 251,
+      "wordCount": 20,
+      "preview": "2nd August to 8th December, 1896. Mr. G. Toynbee, (offg.) 2nd April u 1st August, 1896. Mr. A. Forbes 1896—1902"
+    },
+    {
+      "chunkId": "book_mundas_1912:00177:c6f839d0990d",
+      "chapterOrSection": "Mi. W. C. Macpberson, (offg.) r6th April",
+      "pageStart": 251,
+      "pageEnd": 251,
+      "wordCount": 9,
+      "preview": "Mr. \\V. Maude, Offg., in 1002, in 1903, and"
+    },
+    {
+      "chunkId": "book_mundas_1912:00183:b2a7480d0eb2",
+      "chapterOrSection": "THE GERMAN MISSION. 2 2 7",
+      "pageStart": 264,
+      "pageEnd": 264,
+      "wordCount": 7,
+      "preview": "| Gossner died on March 30, 1858."
+    },
+    {
+      "chunkId": "book_mundas_1912:00188:62c077677106",
+      "chapterOrSection": "THE ZE'MINDARl POLICE.",
+      "pageStart": 270,
+      "pageEnd": 270,
+      "wordCount": 70,
+      "preview": "* The translation of the letter is from the Calcutta Review, Vol. XI 1 X, p. 131. In a footnote in the article in the Calcutta Review (July 1869), several instances of oppression are quoted from a journal kept by a Missionary in 1856. The possibility of such a state of things as is revealed in the quotation above is, o"
+    },
+    {
+      "chunkId": "book_mundas_1912:00190:380edcb6ebee",
+      "chapterOrSection": "HE CHRISTIANS AND THEIR ZEMINDARS. 2q",
+      "pageStart": 274,
+      "pageEnd": 275,
+      "wordCount": 239,
+      "preview": "On the 21 st of June, 1869, the Rev. (afterwards The Right Rev.) J. C. Whitley, B. A., arrived at Ranchi from Delhi, where he had been working for seven years. He came here by the orders of the Bishop, “to comfort and sustain the German Clergy,' as the S. P. G, Mission Report for 1869 tells us. In 1890, Chotanagpur was"
+    },
+    {
+      "chunkId": "book_mundas_1912:00191:7ec96f5b3c82",
+      "chapterOrSection": "tiu: German mission. 249",
+      "pageStart": 276,
+      "pageEnd": 276,
+      "wordCount": 235,
+      "preview": "Mundari Grammar in the German tongue to assist young German Missionaries coming to the Ranchi District. This book has since been translated into English by the Rev. P. Wagner.  It is mainly due to the indefa tigabie exer¬ tions and wise guidance of the Rev. Dr. Not- trott who arri ved at Ranchi from Germany in the year"
+    },
+    {
+      "chunkId": "book_mundas_1912:00193:ff7121ce0d31",
+      "chapterOrSection": "\\ Non-Christian Kol youth",
+      "pageStart": 280,
+      "pageEnd": 280,
+      "wordCount": 39,
+      "preview": "Mission has got a stone Lithographic Press of its own at Ranchi. In the year 1882, however, a Printing Press was established, and this is at present the best of its kind in Ranchi. There is also a Book-binding"
+    },
+    {
+      "chunkId": "book_mundas_1912:00195:bab0616e61f4",
+      "chapterOrSection": "THE GERMAN MISSION, 255",
+      "pageStart": 284,
+      "pageEnd": 284,
+      "wordCount": 240,
+      "preview": "total number of baptized converts of the Mission was 74,626 at the end of the year 1909. Of this number, as many as 55,650 belonged to the Ranchi District, besides a large number of Uraon and Munda Chris¬ tians working in the Duars and in Assam as coolies, It is quite a remarkable fact that in a single year (1909), the"
+    },
+    {
+      "chunkId": "book_mundas_1912:00207:e1182e464189",
+      "chapterOrSection": "Dated Ranchi , the 25th March , i8j9>",
+      "pageStart": 308,
+      "pageEnd": 308,
+      "wordCount": 198,
+      "preview": "We, the Mundas of 8 Perganas of Chota Nagpore beg most respectfully to lay before y our Honour the following prayers, and hope you will be good enough to consider them duly. That the measurement of Bhopihurree lands in Chota Nagpore made by the special Commissioner Babu Rakhal Dass and others is not rightly done. He me"
+    },
+    {
+      "chunkId": "book_mundas_1912:00208:f66168aa27f1",
+      "chapterOrSection": "THE SARDAR AGITATION.",
+      "pageStart": 309,
+      "pageEnd": 309,
+      "wordCount": 222,
+      "preview": "Their principal prayer, that of being allowed to form themselves into village communities directly under Government, was, under the changed circumstances of the country, found to be unreasonable and extravagant, and the petitions were all necessarily rejected.  The heads of the Missions sought in vain to convince these"
+    },
+    {
+      "chunkId": "book_mundas_1912:00211:be73c8874caf",
+      "chapterOrSection": "Yours most obediently Jugdeep, Joseph,",
+      "pageStart": 314,
+      "pageEnd": 314,
+      "wordCount": 110,
+      "preview": "cultivation by my ancestors, the village is ours, and the country is ours, not yours. If compelled to do so, j will pav rent, but turn out 1 will not.' Then ensues the usual litigation, first in Criminal, then in Revenue and Civil Courts, to carry on which the demarcated Bhuinhari is probably mortgaged or sold to a mah"
+    },
+    {
+      "chunkId": "book_mundas_1912:00221:6bc8f3762a54",
+      "chapterOrSection": "AGRARIAN disturbances of 1889-90. 305",
+      "pageStart": 333,
+      "pageEnd": 333,
+      "wordCount": 225,
+      "preview": "20,838 neophytes) in 1899, and 71,270 (including 29,658 neophytes, in 1900. In another five years the number swelled to 10*1,630, including 43,350 neophytes. At the end of iheyear 1909, the Cho'tanagpur Catholic Mission counted as manv as 147,366 converts, of whom 72,943 were neophytes. Out of this total number as many"
+    },
+    {
+      "chunkId": "book_mundas_1912:00226:01b2bfbc618e",
+      "chapterOrSection": "THE CATHOLIC MISSION.",
+      "pageStart": 346,
+      "pageEnd": 346,
+      "wordCount": 92,
+      "preview": "“To make any impression on the aboriginal tribes by means of work on ordinary lines would be a slow and tedious process. And the problem before us is how to give the aboriginal tribes the full advantages of co-operation >n order to prevent their further exploitation by their more advanced and pushful neighbours and to "
+    },
+    {
+      "chunkId": "book_mundas_1912:00238:9c1d71d602e2",
+      "chapterOrSection": "+ On the 2nd November,",
+      "pageStart": 372,
+      "pageEnd": 372,
+      "wordCount": 32,
+      "preview": "\"Finally, Sir Andrew Fraser was satisfied that the agrarian law of Chotanagpur needed thorough re¬ vision. The experience gained in the Settlement made it clear that the local Tenancy Act failed in"
+    },
+    {
+      "chunkId": "book_mundas_1912:00245:4540fa21d5b9",
+      "chapterOrSection": "* Vide Taverniers Trauls, Book II, Oh. XIII. (Ball’s Edition, Vol. 1 .)",
+      "pageStart": 386,
+      "pageEnd": 386,
+      "wordCount": 34,
+      "preview": "f Vide Captain Camac’s letter to the Governor of Bengal, containing \"A Narrative of Pallamovvand Naff-  ... . L . ...1. A. . ”  pore Countries”, dated Ramgur, the 12th August, 1774. { P.288."
+    },
+    {
+      "chunkId": "book_mundas_1912:00253:4f1a53efa229",
+      "chapterOrSection": "(2) THE MUNDA VILLAGE.",
+      "pageStart": 408,
+      "pageEnd": 408,
+      "wordCount": 86,
+      "preview": "Looking down from the top of one of the numerous hills with which the Ranchi District is studded, you see the surface of the country thrown up into long  The village-^*. undulations. The highest level space here and there generally forms a village-site. Here the Munda homesteads are huddled together without any orderly"
+    },
+    {
+      "chunkId": "book_mundas_1912:00260:4ce83d6c9a6b",
+      "chapterOrSection": "(iii) The Konk-jpat Mundas.",
+      "pageStart": 427,
+      "pageEnd": 428,
+      "wordCount": 236,
+      "preview": "p 5 t (corrupted into Kcim-pat) Mundas. The origin of the term is lost in obscurity. The derivation suggested bv Mr. R. D. Haidar in the Appendix to a Government Resolu¬ tion of the 25th November, r88o (pub¬ lished in the Calcutta Gazette of the 1st December 1880), from the Hindu words  kanak (gold) and pata , does not"
+    },
+    {
+      "chunkId": "book_mundas_1912:00265:5a531e9e4c58",
+      "chapterOrSection": "duced. Thus, ‘Kachua Kill'",
+      "pageStart": 435,
+      "pageEnd": 435,
+      "wordCount": 236,
+      "preview": "of a few of the Kilt* names, some supernatural ele¬ ments have been intro- the origin of the ‘Horo’ or is given as follows. The ancestor of the Kill, while on a journey, had to cross a swollen river. His ‘hagas’ or kinsmen crossed the river safely. But he himself did not venture to do so unaided, and exclaimed, “Whoeve"
+    },
+    {
+      "chunkId": "book_mundas_1912:00293:f0ad3cc4bc2d",
+      "chapterOrSection": "(ii) The Phagu festival.",
+      "pageStart": 503,
+      "pageEnd": 503,
+      "wordCount": 157,
+      "preview": "beer is consumed in each Munda family that day. 1 he following morning, the village Pahan (priest) with a number of ‘S&P flowers used at the ‘puja or worship on the previous day, visits eachlio'use in the village, inserts a bunch of Sal blossoms into the door or roof of each house and receives a small perquisite (from "
+    },
+    {
+      "chunkId": "book_mundas_1912:00294:8c0d90b9d311",
+      "chapterOrSection": "(iv) The Hon-Ba-Parob.",
+      "pageStart": 503,
+      "pageEnd": 503,
+      "wordCount": 60,
+      "preview": "This festival is clebrared in the month of Baisak or Jeth ^Apfil-May), on the day preceding that on which the villagers com¬ mence sowing paddy in their fields. There is no public worship on this occasion, but the head of each family worships the house¬ hold gods,—the spirits of deceased ancestors^ —as well as other de"
+    },
+    {
+      "chunkId": "book_mundas_1912:00297:b59447b47996",
+      "chapterOrSection": "(xii) The Soso Bonga festival.",
+      "pageStart": 508,
+      "pageEnd": 508,
+      "wordCount": 231,
+      "preview": "Last of all, we come to the only festival in which the \"host-finder, —the Mati or Deonra, -officiates as priest. This DeSna or Mari raav he. and often is, a non-Mun- dari by birth. The Soso-bonga festival is not a public one, but is celebrated in such Muntla families only as choose to do so. On a certain day in the mon"
+    },
+    {
+      "chunkId": "book_mundas_1912:00301:328a2265a5c4",
+      "chapterOrSection": "‘(8) ‘Superstitious’ Beliefs and Practices.",
+      "pageStart": 515,
+      "pageEnd": 516,
+      "wordCount": 93,
+      "preview": "A large variety of games have been always popular with Munda boys and girls. Conversion to Christianity, now on the increase, does not impair the Munda’s love of sport. On the other hand, under the excellent guidance of Kurpoean missionaries, Christian Munda boys have formed excellent hockey teams, and are further deve"
+    },
+    {
+      "chunkId": "book_mundas_1912:00305:dffa55832899",
+      "chapterOrSection": "'vii) “Hunt the Slipper.”",
+      "pageStart": 524,
+      "pageEnd": 524,
+      "wordCount": 24,
+      "preview": "twenties and not in tens, two ordinal numbers, vis .,— and ‘eta* the other.  In sentences in which  and have only ‘sida’, the first,"
+    },
+    {
+      "chunkId": "book_mundas_1912:00306:40b6f4bb116f",
+      "chapterOrSection": "(vi) Syntax, is connected",
+      "pageStart": 524,
+      "pageEnd": 524,
+      "wordCount": 96,
+      "preview": "the predicate denotes the substance of the subject, the predicate with the subject by the  copula 'tan . In sentences in which the predicate denotes some accident of the subject, the link word used is—V. In sentences in which the predicate denotes the relation in which the subject stands to some other being, thing, pla"
+    },
+    {
+      "chunkId": "book_mundas_1912:00307:0fb31354ee32",
+      "chapterOrSection": "(xr) Folktales, Riddles, and Proverbs.",
+      "pageStart": 524,
+      "pageEnd": 525,
+      "wordCount": 142,
+      "preview": "We have seen that in every typical Munda village,there is a common dormitory or “giti-dra” for all the bachelors, and an¬ other for all the maidens of the village.  I his giti-ora is at once a sleeping-house, a club, and an educational seminary, for the young folk. But the Munda is an unal- phabet, and up till recently"
+    },
+    {
+      "chunkId": "book_mundas_1912:00310:365f00c9de96",
+      "chapterOrSection": "(ii) Durang Ka- ant.",
+      "pageStart": 528,
+      "pageEnd": 529,
+      "wordCount": 222,
+      "preview": "giti-ora or a girl in the girls’ giti-ora tells the prose part of the story, and when a song comes in, all the assembled boys or girls, as the case may he, sing it in chorus. Here is an example of this class of folk¬ tales.  Once upon a time there lived seven brothers and an unmarried sister of theirs. Of the brothers,"
+    },
+    {
+      "chunkId": "book_mundas_1912:00311:a10d6eb2e58b",
+      "chapterOrSection": "Ruru-bing janae chi >",
+      "pageStart": 529,
+      "pageEnd": 529,
+      "wordCount": 164,
+      "preview": "At the sound, the matron of the giti-ora told the girl,—“Listen ! a cock is crowing at your house f” “Probably/* replied the girl, “my brother has seized some neigh¬ bour’s fowl.” On her return home in the morning, the girl opened the doors of the hut to find a huge snake occupying it. She stood spell-bound at the thre"
+    },
+    {
+      "chunkId": "book_mundas_1912:00312:0fd0c31caee9",
+      "chapterOrSection": "Thy brother, O girl,—",
+      "pageStart": 529,
+      "pageEnd": 530,
+      "wordCount": 139,
+      "preview": "Has he become a hili-snake,  Or has he become a female snake?  rice (ckiura and murhi) for him. When the basket was placed before him, he directed his sister to bring together as many knives as she could procure, from the village. When she had done t\\is, her snake-brother told her to place all the%nives within the heap"
+    },
+    {
+      "chunkId": "book_mundas_1912:00314:2d4ac000d973",
+      "chapterOrSection": "Ans .—‘Pati’ (leaf-pa lrn-mat).",
+      "pageStart": 532,
+      "pageEnd": 533,
+      "wordCount": 92,
+      "preview": "(5) Riddle: —PQndi Idydngre karani baba- ko herjeda.  [On white field grows karhani paddy (which is black.) ]  Ans. —Pundi kagach (white paper, which is \\yritten upon with black ink).  (6) Riddle : —Atom atdmte dae jang-gea.,. talare dae jilugia.  [ On the sides are the bones, and in the middle is the flesh. ]  Ans. —P"
+    },
+    {
+      "chunkId": "book_mundas_1912:00317:9b1b86402496",
+      "chapterOrSection": "Andutadam sakomtadam,",
+      "pageStart": 538,
+      "pageEnd": 538,
+      "wordCount": 5,
+      "preview": "Hotore do hisir men a,"
+    },
+    {
+      "chunkId": "book_mundas_1912:00319:309f3e341251",
+      "chapterOrSection": "Polatamdo chilka saritana,",
+      "pageStart": 540,
+      "pageEnd": 541,
+      "wordCount": 159,
+      "preview": "But with the Munda, as with other people, the course of true love does not always run smoothly. At times it is the social restric- * Pola is the Mundari name for a metal ring worn on the toe.  tion that forbids marriages within tjhe kilt or clan, and at others it is the inability of the bridegroom to meet the pecuniary"
+    },
+    {
+      "chunkId": "book_mundas_1912:00320:06c5205e2e72",
+      "chapterOrSection": "Kucha mucha kunduru,",
+      "pageStart": 541,
+      "pageEnd": 541,
+      "wordCount": 16,
+      "preview": "Kucha kotong tadinga kundurum.  Kucha kotong tadinga nairi.  Karin narin palandum narin,  Kotong tadinga palandum narin,"
+    },
+    {
+      "chunkId": "book_mundas_1912:00322:bce4b6fb92a2",
+      "chapterOrSection": "Kotong tadinga nairi.",
+      "pageStart": 544,
+      "pageEnd": 545,
+      "wordCount": 139,
+      "preview": "Cursed be the social lavs that warp us from the  Cursed be the sickly forms that err from honest  Cursed be the gold that gilds the straitened forehead  The average MundS youth, however, takes his disappointment rather soberly, and in time outlives his sorrow and gets married to some socially eligible girl. For a time,"
+    },
+    {
+      "chunkId": "book_mundas_1912:00325:66b85350153d",
+      "chapterOrSection": "Saidaba sukuri , gosain ,",
+      "pageStart": 549,
+      "pageEnd": 550,
+      "wordCount": 36,
+      "preview": "Chotabaken, ch&tabahen Sari japi sari.  * San japi sari is an expression often used at the- end of each stranza of the Munda's huntine sontrs. the Mundas cannot explain this expression.  Tu in mendo gore, gosain"
+    },
+    {
+      "chunkId": "book_mundas_1912:00326:1b2955478e6f",
+      "chapterOrSection": "Chotabaken chotabaken ,",
+      "pageStart": 550,
+      "pageEnd": 550,
+      "wordCount": 7,
+      "preview": "To ra hoe togeja n, gosa in"
+    },
+    {
+      "chunkId": "book_mundas_1912:00327:c87a66c00278",
+      "chapterOrSection": "Chutima kanasul, gosain.",
+      "pageStart": 550,
+      "pageEnd": 550,
+      "wordCount": 6,
+      "preview": "Tor ah o togejan gosain ,"
+    },
+    {
+      "chunkId": "book_mundas_1912:00329:58bbff73c0fd",
+      "chapterOrSection": "Bhai , senderae senojana,",
+      "pageStart": 553,
+      "pageEnd": 553,
+      "wordCount": 40,
+      "preview": "Papra Chandi do katingae hiridjana ,—  Bhai, karingae biridja na.  Mad u ka m jaer do ini ng j Hut ana,  Bhai , tiling ji lut, an. .  Papra r hndi do da-babatana ,—  Maduk&m Jaer do, kutungan kulai ,—"
+    },
+    {
+      "chunkId": "book_mundas_1912:00330:4f73c8c4be1a",
+      "chapterOrSection": "Bhai, kutungan kulai.",
+      "pageStart": 553,
+      "pageEnd": 553,
+      "wordCount": 7,
+      "preview": "Papra Chandi do, bhai,jatarang mar a ,—"
+    },
+    {
+      "chunkId": "book_mundas_1912:00332:e6c7e319fc45",
+      "chapterOrSection": "Kate Karambu dumang sari,",
+      "pageStart": 554,
+      "pageEnd": 554,
+      "wordCount": 11,
+      "preview": "Jige ho litib liiiba,  Barigara karetul sarliana Kuram ho dopol dopola,"
+    },
+    {
+      "chunkId": "book_mundas_1912:00333:3e191259c56a",
+      "chapterOrSection": "Barigara haretal saritanae,",
+      "pageStart": 554,
+      "pageEnd": 555,
+      "wordCount": 130,
+      "preview": "The dumang sounds at Ko* Karambu My heart leaps up at the sound,  The kartell rings at Barigara*  My heart with glee doth bound,  The dumang sounds at Kot' karamb • *  O ! Haste, my dear, to the dance,  The kartal clanks at Barigara O ! Rise, my dear, from thy trance,  If the Munda gives himself up whole¬ heartedly to "
+    },
+    {
+      "chunkId": "book_mundas_1912:00334:a32f953e2023",
+      "chapterOrSection": "Asar chandu tebalena —",
+      "pageStart": 555,
+      "pageEnd": 555,
+      "wordCount": 19,
+      "preview": "Dola maire roa rialate.  Haturen horoko do oronglena Sobenko senotanako .  Midtarebu kamiabu panti pantige .— Singido dubuilena ,"
+    },
+    {
+      "chunkId": "book_mundas_1912:00335:ea02d7062b80",
+      "chapterOrSection": "Dola maire. « alatalate .",
+      "pageStart": 555,
+      "pageEnd": 555,
+      "wordCount": 5,
+      "preview": "Ru ru ngiabu—mand iabu ,"
+    },
+    {
+      "chunkId": "book_mundas_1912:00336:29eab6adb16b",
+      "chapterOrSection": "Honhopon tenda nuiabu.",
+      "pageStart": 555,
+      "pageEnd": 555,
+      "wordCount": 13,
+      "preview": "Now Asarh is here O come, my dear,  Transplant the paddy seedlings green,"
+    },
+    {
+      "chunkId": "book_mundas_1912:00338:b1e90136e95c",
+      "chapterOrSection": "Tungkiri chaulido kesedjana ,",
+      "pageStart": 557,
+      "pageEnd": 557,
+      "wordCount": 5,
+      "preview": "Hi tare sangatnglang dararajana ,"
+    },
+    {
+      "chunkId": "book_mundas_1912:00339:8e21a14864b9",
+      "chapterOrSection": "Chature Hi do dararajana.",
+      "pageStart": 557,
+      "pageEnd": 557,
+      "wordCount": 9,
+      "preview": "'iingkiri chaulido kesedjana ,  Chire gating chenalang menea ?"
+    },
+    {
+      "chunkId": "book_mundas_1912:00342:300690be1cac",
+      "chapterOrSection": "—-Gandiio banojan Patio banojan",
+      "pageStart": 560,
+      "pageEnd": 560,
+      "wordCount": 12,
+      "preview": "Mare a otereko dubarihahom .  Kockakochaing Honor kedaing Besao kageing namojan .—"
+    },
+    {
+      "chunkId": "book_mundas_1912:00343:042856df8ea3",
+      "chapterOrSection": "Besao banojan, samagekogitika .—",
+      "pageStart": 560,
+      "pageEnd": 561,
+      "wordCount": 95,
+      "preview": "[Host] The sun is set.  Good friends, well met.* 1  Spread out the mat for them, my dear.  ([Hostess] We mats have none,  * Literally, relatives are arrived, f Gandus are wooden seats.  unknown to the Muntla. Like all agricul¬ turists in India, the Miinda depends on the annual rainfall for the crops that sustain his li"
+    },
+    {
+      "chunkId": "book_mundas_1912:00344:bfa709e2dfd4",
+      "chapterOrSection": "Chimente kage gamaia ?",
+      "pageStart": 561,
+      "pageEnd": 561,
+      "wordCount": 7,
+      "preview": "As >r Saon moyod rati ho banoa,"
+    },
+    {
+      "chunkId": "book_mundas_1912:00345:cc1094242d62",
+      "chapterOrSection": "Bhadorge dharti nore-jana .",
+      "pageStart": 561,
+      "pageEnd": 561,
+      "wordCount": 14,
+      "preview": "Chime nte kage gamaia ?  Chimente kage t gamaia ?  Dry dust is blowing,"
+    },
+    {
+      "chunkId": "book_mundas_1912:00346:13f97952d3bc",
+      "chapterOrSection": "The earth o’erflowing,",
+      "pageStart": 561,
+      "pageEnd": 561,
+      "wordCount": 35,
+      "preview": "Grey mist doth cover The sky all over,  No rains on earth we get.  In Ashar and Saon Not a drop of rain,  Heat rends the earth,  O ! Why, no rains as yet ?"
+    },
+    {
+      "chunkId": "book_mundas_1912:00347:61d47ab2a374",
+      "chapterOrSection": "Doth Sun-God reign ;",
+      "pageStart": 561,
+      "pageEnd": 561,
+      "wordCount": 6,
+      "preview": "Yet whv no more it rain'th"
+    },
+    {
+      "chunkId": "book_mundas_1912:00348:93faf519f912",
+      "chapterOrSection": "* Literally, the great God.",
+      "pageStart": 562,
+      "pageEnd": 562,
+      "wordCount": 4,
+      "preview": "The pangs of hunger,"
+    },
+    {
+      "chunkId": "book_mundas_1912:00353:8ee12a98f727",
+      "chapterOrSection": "So Song—like Fate itself—is given,",
+      "pageStart": 570,
+      "pageEnd": 570,
+      "wordCount": 20,
+      "preview": "To scare the idler thoughts away,  To raise the Human to the Holy,  To wake the Spirit from the Clay."
+    },
+    {
+      "chunkId": "book_mundas_1912:00363:b6f0450f98d1",
+      "chapterOrSection": "Toro Kora gulikedae,",
+      "pageStart": 594,
+      "pageEnd": 594,
+      "wordCount": 26,
+      "preview": "—Baro bhai hasurkoa mered guli rapud-jana Kasra Kora katikedae,  —Terobhai deotakoa mered kati rapud jana M Auri hale loro Kora Auri hale Kasra Kora Ama jiangking,"
+    },
+    {
+      "chunkId": "book_mundas_1912:00364:bee3920fd1f7",
+      "chapterOrSection": "Tondang kuila tanaking,",
+      "pageStart": 594,
+      "pageEnd": 594,
+      "wordCount": 116,
+      "preview": "* There is really no mention of the Deota boys in* any portion of the legend except in the song given- beiow. Evidently this song is of a later date than the original legend ; and the introduction of the l >eotas or Gods is an embellishment borrowed much later from Hindu legends. It is significant that in the ver¬ sion"
+    },
+    {
+      "chunkId": "book_mundas_1912:00365:4906135f380d",
+      "chapterOrSection": "Babaking tasitukadmeakirig,",
+      "pageStart": 595,
+      "pageEnd": 595,
+      "wordCount": 4,
+      "preview": "Simko jomchaba rikaked koam.’’"
+    },
+    {
+      "chunkId": "book_mundas_1912:00368:63153e78b10f",
+      "chapterOrSection": "Nekasipirire Te 'asibadire,",
+      "pageStart": 597,
+      "pageEnd": 597,
+      "wordCount": 14,
+      "preview": "Toro Kora do Kasra Kora do Simjarom gulite : lapulad katite Barobhai hasur kolo;"
+    },
+    {
+      "chunkId": "book_mundas_1912:00370:92c148471eb5",
+      "chapterOrSection": "Terobhai Deota kolo.",
+      "pageStart": 600,
+      "pageEnd": 601,
+      "wordCount": 203,
+      "preview": "But, hark ! What betokens that faint murmering sound the women fancy issuing out of the furnace? Can those be the groans of their husbands, sons and brothers ? The women start in fear and horror at the very idea. But, now, the confused inaudible sounds gradually develop into distinct howls. A cold shiver runs through t"
+    },
+    {
+      "chunkId": "book_mundas_1912:00372:6f56ad119fd6",
+      "chapterOrSection": "In every Clime ador’d",
+      "pageStart": 603,
+      "pageEnd": 603,
+      "wordCount": 7,
+      "preview": "By Saint, by Savage, and by Sage,"
+    },
+    {
+      "chunkId": "book_mundas_1912:00385:b78f0eecb3bc",
+      "chapterOrSection": "(ii) Mahomedan Period.",
+      "pageStart": 635,
+      "pageEnd": 635,
+      "wordCount": 49,
+      "preview": "Circa 1510 , A.D.-Sher Shah sends an expedition against the Raja of Jharkhand (Chota Nagpur?) to secure the possession of an elephant named 1 Syam Chandra.' '  1585 .— An expedition sent by Akbar’s general ShahabSz Khan reduces the Raja to the position of a tributary of the Emperor"
+    },
+    {
+      "chunkId": "book_mundas_1912:00386:8f3c1491189c",
+      "chapterOrSection": "Circa 1616 .—Jehangir sends Ibrahim Khan",
+      "pageStart": 635,
+      "pageEnd": 636,
+      "wordCount": 194,
+      "preview": "« Xhis is said to be mentioned in a manuscript chronicle attributed to Ahmad Yadgar. We ary indebted for this information to T. b. Macpherson, Esq., M.A., I.C.S.  to invade (Chota) Nagpur. The Raja is defeated, captured, and incarcerated in the Gwalior fort.  1628 .—The Raja returns to his country with the title of Sha"
+    },
+    {
+      "chunkId": "book_mundas_1912:00387:5e6075dc6b99",
+      "chapterOrSection": "(i) Mokhareji Period.",
+      "pageStart": 636,
+      "pageEnd": 637,
+      "wordCount": 53,
+      "preview": "1765 .—Chota Nagpur passes to the East India Company as part of the Diwani of  Behar of which it is shown as a ‘mokhareji’ (dismembered) mehal in the jamabandi (Revenue return) prepared by Mahomed Reza Khan on behalf of the company.  1770 . —Captain John Camac, the first British Agent enters Chot& Nagpur."
+    },
+    {
+      "chunkId": "book_mundas_1912:00388:de168fe03ff2",
+      "chapterOrSection": "(ii) Period of Military Collectorship.",
+      "pageStart": 637,
+      "pageEnd": 637,
+      "wordCount": 137,
+      "preview": "1771 . —First settlement of revenue is made direct with the Raja of Chota Nag¬ pur for a term of 3 years, by Captain Camac who is stationed at Chatra as the ‘Military Collector of district Ramgarh’ directly under the Governor at Fort William.  1774 .—The Military Collector is placed under the Governor and his Council ,"
+    },
+    {
+      "chunkId": "book_mundas_1912:00392:1b26e53aec78",
+      "chapterOrSection": "1819 , January*—Major Roughsedge is",
+      "pageStart": 646,
+      "pageEnd": 646,
+      "wordCount": 65,
+      "preview": "1868 . —AU Deputy Commissioners in Cbota Nagpur are vested with the powers of Subordinate Judges, as also all Assistant or Extra Assistant Commissioners who passed the first standard of examination ; all Assistant and Extra Assistant Commis¬ sioners who passed the second standard are vested with the powers of Munsiffs."
+    }
+  ],
+  "duplicateChunkIdCount": 0,
+  "duplicateTextCount": 0,
+  "missingPageCount": 0,
+  "ragChunkBytes": 1162429,
+  "warnings": [
+    "143 chunks are below 250 words; allowed at semantic/section boundaries but should be sampled."
+  ],
+  "failures": [],
+  "reviewSamples": [
+    {
+      "chunkId": "book_mundas_1912:00001:39b340d12a9d",
+      "chapterOrSection": "With an Introduction BV",
+      "pageStart": 2,
+      "pageEnd": 2,
+      "wordCount": 6,
+      "preview": "E. A. GAIT Esq., I.C.S., C.I.E."
+    },
+    {
+      "chunkId": "book_mundas_1912:00197:bd590bf4bac8",
+      "chapterOrSection": "THE ENGLISH MISSION.",
+      "pageStart": 287,
+      "pageEnd": 290,
+      "wordCount": 485,
+      "preview": "a rheological class was added to the school, with the Rev. Oscar Flex and the Rev. Roger Dutt as tutors. The Boys’ Middle English School at Murhu with its 74 boarders and 58 day-scholars is doing excel¬ lent work amongst the Mundas. Nor has female education been without its due share of attention. The English Mission G"
+    },
+    {
+      "chunkId": "book_mundas_1912:00393:a51b831c5a23",
+      "chapterOrSection": "Tenures Act is passed.",
+      "pageStart": 646,
+      "pageEnd": 649,
+      "wordCount": 546,
+      "preview": "1875 . —T he Governn.erit of India formally recognises the title of Maharaja as heredi¬ tary in the Ch 5 ta Nagpur Raj family.  1875 -—The posts of Extra Assistant Commissioners are amalgamated with Deputy Magistracies.  1876. —The Chota Nagpur Encumbered Estates Act is passed. [This act is the natural successor of the"
+    }
+  ]
+}
