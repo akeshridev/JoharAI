@@ -10,13 +10,15 @@
   "upstreamMachineReadableSource": {
     "provider": "Internet Archive",
     "identifier": "dli.csl.5314",
-    "djvuXmlUrl": "https://archive.org/download/dli.csl.5314/dli.csl.5314_djvu.xml",
-    "scandataUrl": "https://archive.org/download/dli.csl.5314/dli.csl.5314_scandata.xml",
-    "expectedDjvuSha256": null,
-    "expectedScandataSha256": null
+    "djvuXmlFile": "5314_djvu.xml",
+    "djvuXmlUrl": "https://archive.org/download/dli.csl.5314/5314_djvu.xml",
+    "expectedDjvuSha256": "1e35a9247597419b2fbbd46a458628819acd7b5e16445b161ff9498753b95d59",
+    "scandataFile": "5314_scandata.xml",
+    "scandataUrl": "https://archive.org/download/dli.csl.5314/5314_scandata.xml",
+    "expectedScandataSha256": "72cf556924fc74a6a66784d68f2ff86f7427d2aa4f9c063caf2aa1be4db71e50"
   },
   "districts": [],
   "entities": ["Munda", "Chota Nagpur"],
   "topics": ["Munda", "history", "geography", "customs", "social organization", "land tenure", "religion", "language", "Chota Nagpur"],
-  "notes": "Public-domain 1912 historical source. Wikimedia Commons identifies the scan as public domain and traces it to the Central Secretariat Library / Internet Archive. Treat colonial/period terminology and ethnographic claims as attributed historical evidence rather than present-day fact. OCR derivatives must pass page-mapping and text-quality checks before ingestion."
+  "notes": "Public-domain 1912 historical source. Wikimedia Commons identifies the scan as public domain and traces it to the Central Secretariat Library / Internet Archive. Internet Archive DjVu OCR and scandata derivatives are filename- and SHA-256-pinned before processing. Treat colonial/period terminology and ethnographic claims as attributed historical evidence rather than present-day fact. OCR derivatives must pass page-mapping and text-quality checks before ingestion."
 }
