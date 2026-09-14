@@ -38,6 +38,11 @@ class JoharActivity : ComponentActivity() {
             }
         }
     }
+
+    /** Test harness hook: reset only conversation/session state while keeping this Activity warm. */
+    fun resetConversationForTesting() {
+        chatViewModel.resetConversationForTesting()
+    }
 }
 
 @Composable
