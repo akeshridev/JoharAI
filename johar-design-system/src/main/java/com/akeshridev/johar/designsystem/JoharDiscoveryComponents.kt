@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -35,7 +36,7 @@ fun JoharPlaceCarousel(
     onAction: (JoharCardAction) -> Unit = {},
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
-        Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        Text(title, style = MaterialTheme.typography.titleMedium)
         subtitle?.let {
             Spacer(Modifier.height(JoharSpacing.Xs))
             Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -69,50 +70,58 @@ fun JoharMapPreviewCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(JoharRadius.Large),
+        shape = RoundedCornerShape(JoharRadius.ExtraLarge),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.9f)),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.85f)),
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(150.dp)
-                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f)),
+                .height(158.dp)
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.48f)),
         ) {
             Box(
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .width(112.dp)
-                    .height(3.dp)
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.55f), RoundedCornerShape(JoharRadius.Pill)),
+                    .width(190.dp)
+                    .height(4.dp)
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.28f), RoundedCornerShape(JoharRadius.Pill)),
             )
-            Column(
+            Box(
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .padding(JoharSpacing.Lg),
-                horizontalAlignment = Alignment.CenterHorizontally,
+                    .width(4.dp)
+                    .height(88.dp)
+                    .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.20f), RoundedCornerShape(JoharRadius.Pill)),
+            )
+            Box(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .width(18.dp)
+                    .height(18.dp)
+                    .background(MaterialTheme.colorScheme.primary, CircleShape),
+            )
+            Surface(
+                modifier = Modifier.align(Alignment.Center).padding(top = 62.dp),
+                shape = RoundedCornerShape(JoharRadius.Pill),
+                color = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
             ) {
-                Surface(
-                    shape = RoundedCornerShape(JoharRadius.Pill),
-                    color = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                ) {
-                    Text(
-                        markerLabel ?: "Selected place",
-                        style = MaterialTheme.typography.labelMedium,
-                        modifier = Modifier.padding(horizontal = JoharSpacing.Md, vertical = JoharSpacing.Sm),
-                    )
-                }
+                Text(
+                    markerLabel ?: "Selected place",
+                    style = MaterialTheme.typography.labelMedium,
+                    modifier = Modifier.padding(horizontal = JoharSpacing.Md, vertical = 6.dp),
+                )
             }
             Text(
-                "Map preview",
+                "Ranchi • offline map preview",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.align(Alignment.BottomStart).padding(JoharSpacing.Md),
             )
         }
         Column(Modifier.padding(JoharSpacing.Lg)) {
-            Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            Text(title, style = MaterialTheme.typography.titleMedium)
             subtitle?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
             routeSummary?.let {
                 Spacer(Modifier.height(JoharSpacing.Sm))
@@ -129,18 +138,33 @@ fun JoharMapPreviewCard(
 @Composable
 fun JoharSourceRow(
     sourceName: String,
-    label: String = "Source",
+    label: String = "Grounded in",
     verified: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
-    Row(
+    Surface(
         modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(JoharSpacing.Sm),
+        shape = RoundedCornerShape(JoharRadius.Medium),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.32f),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.55f)),
     ) {
-        Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(sourceName, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
-        if (verified) JoharStatusBadge(label = "Verified", tone = JoharInfoTone.VERIFIED)
+        Row(
+            modifier = Modifier.padding(horizontal = JoharSpacing.Md, vertical = JoharSpacing.Md),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(JoharSpacing.Sm),
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(
+                    label.uppercase(),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.secondary,
+                    fontWeight = FontWeight.Bold,
+                )
+                Spacer(Modifier.height(2.dp))
+                Text(sourceName, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
+            }
+            if (verified) JoharStatusBadge(label = "Verified", tone = JoharInfoTone.VERIFIED)
+        }
     }
 }
 
@@ -152,7 +176,7 @@ fun JoharPreferenceChips(
     onOptionClick: (String) -> Unit = {},
 ) {
     Column(modifier.fillMaxWidth()) {
-        Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+        Text(title, style = MaterialTheme.typography.titleSmall)
         Spacer(Modifier.height(JoharSpacing.Sm))
         options.chunked(2).forEachIndexed { index, rowOptions ->
             Row(horizontalArrangement = Arrangement.spacedBy(JoharSpacing.Sm)) {
@@ -167,22 +191,29 @@ fun JoharPreferenceChips(
 
 @Composable
 fun JoharConstraintSummary(
-    title: String = "Your preferences",
+    title: String = "Johar understood",
     constraints: List<String>,
     modifier: Modifier = Modifier,
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(JoharRadius.Large),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.7f)),
+        shape = RoundedCornerShape(JoharRadius.ExtraLarge),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.36f),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.65f)),
     ) {
-        Column(Modifier.padding(JoharSpacing.Md)) {
-            Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-            Spacer(Modifier.height(JoharSpacing.Sm))
+        Column(Modifier.padding(JoharSpacing.Lg)) {
+            Text(
+                "YOUR PLAN",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.secondary,
+                fontWeight = FontWeight.Bold,
+            )
+            Spacer(Modifier.height(JoharSpacing.Xs))
+            Text(title, style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.height(JoharSpacing.Md))
             constraints.chunked(2).forEachIndexed { index, rowItems ->
                 Row(horizontalArrangement = Arrangement.spacedBy(JoharSpacing.Sm)) {
-                    rowItems.forEach { item -> JoharChip(label = item) }
+                    rowItems.forEach { item -> JoharChip(label = item, selected = true) }
                 }
                 if (index != constraints.chunked(2).lastIndex) Spacer(Modifier.height(JoharSpacing.Sm))
             }
