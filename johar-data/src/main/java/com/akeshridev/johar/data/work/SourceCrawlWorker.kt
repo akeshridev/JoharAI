@@ -24,7 +24,7 @@ import com.akeshridev.johar.domain.source.KnowledgeDomain
 class SourceCrawlWorker(
     appContext: Context,
     workerParams: WorkerParameters,
-) : Worker(appContext, workerParams) {
+) : Worker(applicationContext = appContext, workerParams = workerParams) {
 
     override fun doWork(): Result {
         val target = inputData.getString(KEY_TARGET)
@@ -82,13 +82,15 @@ class SourceCrawlWorker(
                 add(weather)
             }.map(::TracingSourceAdapter)
 
-            val discoveryAdapters = listOf(
-                specializedOverpass,
-                overpass,
-                wikidata,
-                wikipedia,
-                wikivoyage,
-            ).map(::TracingDiscoveryAdapter)
+            val discoveryAdapters = buildList {
+                add(specializedOverpass)
+                // Ranchi has an explicit intent-to-OSM mapper. Running the older generic OSM
+                // discovery beside it reintroduces statewide/generic tourism noise.
+                if (target != CrawlTarget.RANCHI) add(overpass)
+                add(wikidata)
+                add(wikipedia)
+                add(wikivoyage)
+            }.map(::TracingDiscoveryAdapter)
 
             val stats = SourceCrawler(
                 store = store,
