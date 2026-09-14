@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -18,14 +20,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.akeshridev.johar.data.retrieval.LocalModelStore
+import com.akeshridev.johar.data.spatial.RanchiSpatialPlace
 import com.akeshridev.johar.di.JoharGraph
 import com.akeshridev.johar.eval.OfflineRetrievalEvaluator
 import com.akeshridev.johar.eval.RanchiCoverageEvaluator
+import com.akeshridev.johar.map.RanchiMapCard
 
 class MainActivity : ComponentActivity() {
     private val graph by lazy { JoharGraph(applicationContext) }
@@ -57,7 +61,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme {
+                val mapPreview by viewModel.mapPreview.collectAsStateWithLifecycle()
                 DeveloperHarness(
+                    mapPreview = mapPreview,
+                    onPreviewMapClick = viewModel::previewRanchiMap,
                     onTestOfflineClick = viewModel::testOfflineRetrieval,
                     onTestSpatialClick = viewModel::testRanchiSpatial,
                     onTestAnswersClick = viewModel::testDeterministicAnswers,
@@ -73,6 +80,8 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun DeveloperHarness(
+    mapPreview: RanchiSpatialPlace?,
+    onPreviewMapClick: (String) -> Unit,
     onTestOfflineClick: () -> Unit,
     onTestSpatialClick: () -> Unit,
     onTestAnswersClick: () -> Unit,
@@ -81,24 +90,33 @@ private fun DeveloperHarness(
     onRunRanchiCoverageEvalClick: () -> Unit,
     onCrawlClick: () -> Unit,
 ) {
-    var query by rememberSaveable { mutableStateOf("Ranchi me parents ke saath kam walking wali jagah?") }
+    var query by rememberSaveable { mutableStateOf("Tagore Hill kahan hai?") }
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
-            horizontalAlignment = Alignment.CenterHorizontally,
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 24.dp, vertical = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             OutlinedTextField(
                 value = query,
                 onValueChange = { query = it },
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text("Ask Johar — Ranchi") },
-                supportingText = { Text("Runs local retrieval + Gemma; inspect JoharLLM in Logcat") },
+                supportingText = { Text("Ranchi-only retrieval, spatial lookup and on-device Gemma") },
                 minLines = 2,
             )
+            Button(
+                onClick = { onPreviewMapClick(query) },
+                enabled = query.isNotBlank(),
+            ) {
+                Text("Preview Ranchi Map Card")
+            }
+            mapPreview?.let { place ->
+                RanchiMapCard(destination = place)
+            }
             Button(
                 onClick = { onTestLlmClick(query) },
                 enabled = query.isNotBlank(),
