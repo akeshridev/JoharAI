@@ -120,6 +120,10 @@ class TeiParser(HTMLParser):
             self.state.paragraph_page_end = self.state.current_page
             return
 
+        if tag == "note" and self.state.collecting_paragraph:
+            self._append_text(" [Note: ")
+            return
+
         if tag == "lb":
             self._append_text("\n")
 
@@ -136,6 +140,8 @@ class TeiParser(HTMLParser):
             self._flush_heading()
         elif tag == "p":
             self._flush_paragraph()
+        elif tag == "note" and self.state.collecting_paragraph:
+            self._append_text("] ")
         else:
             div_level = parse_div_level(tag)
             if div_level is not None:
