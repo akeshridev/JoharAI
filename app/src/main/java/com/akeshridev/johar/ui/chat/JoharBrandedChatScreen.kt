@@ -270,7 +270,14 @@ private fun JoharBubble(content: JoharContent, onAction: (JoharCardAction) -> Un
                 }
             }
             is JoharContent.Map -> RanchiMapCard(destination = content.destination)
-            is JoharContent.Route -> JoharRouteCard(model = content.route, onAction = onAction)
+            is JoharContent.Route -> {
+                JoharRouteCard(model = content.route, onAction = onAction)
+                RanchiMapCard(
+                    destination = content.destination,
+                    origin = content.origin.coordinate,
+                    route = content.routePoints,
+                )
+            }
             is JoharContent.Itinerary -> JoharItineraryCard(model = content.plan, onAction = onAction)
             is JoharContent.Info -> JoharInfoCard(
                 title = content.title,
