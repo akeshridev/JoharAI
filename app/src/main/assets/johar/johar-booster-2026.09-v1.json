@@ -1,0 +1,250 @@
+{
+  "version": "2026.09-v1",
+  "description": "Source-backed evergreen booster for query experiments. This enriches high-value Jharkhand entities without replacing live refresh.",
+  "entities": [
+    {
+      "key": "jharkhand",
+      "name": "Jharkhand",
+      "type": "REGION",
+      "packType": "STATE",
+      "aliases": ["Jharkhand state"],
+      "description": "Jharkhand is a state in eastern India, formed on 15 November 2000, with Ranchi as its capital."
+    },
+    {
+      "key": "rugra",
+      "name": "Rugra",
+      "type": "FOOD",
+      "packType": "FOOD",
+      "aliases": ["Rugda", "Rugdha"],
+      "description": "Rugra is an indigenous seasonal food of Jharkhand that becomes abundant in local markets during the monsoon."
+    },
+    {
+      "key": "dhuska",
+      "name": "Dhuska",
+      "type": "FOOD",
+      "packType": "FOOD",
+      "aliases": [],
+      "description": "Dhuska is a traditional Jharkhand snack made from a rice-and-dal mixture and deep fried."
+    },
+    {
+      "key": "daal-pitha",
+      "name": "Daal Pitha",
+      "type": "FOOD",
+      "packType": "FOOD",
+      "aliases": ["Dal Pitha"],
+      "description": "Daal Pitha is a Jharkhand dish of rice-covered dumplings with a spiced lentil filling."
+    },
+    {
+      "key": "chilka-roti",
+      "name": "Chilka Roti",
+      "type": "FOOD",
+      "packType": "FOOD",
+      "aliases": ["Chhilka Roti"],
+      "description": "Chilka Roti is prepared with rice flour and besan and is commonly made for festive seasons and special occasions."
+    },
+    {
+      "key": "sarhul",
+      "name": "Sarhul",
+      "type": "FESTIVAL",
+      "packType": "FESTIVAL",
+      "aliases": ["Sarhul Parab"],
+      "description": "Sarhul is a major spring festival of tribal communities in Jharkhand centered on worship of the Sal tree and nature."
+    },
+    {
+      "key": "karam",
+      "name": "Karam",
+      "type": "FESTIVAL",
+      "packType": "FESTIVAL",
+      "aliases": ["Karma", "Karam Parab", "Karma Puja"],
+      "description": "Karam is a tribal festival associated with Karam Devta, youth, community celebration and agriculture."
+    },
+    {
+      "key": "tusu",
+      "name": "Tusu Parab",
+      "type": "FESTIVAL",
+      "packType": "FESTIVAL",
+      "aliases": ["Tusu", "Tusu Festival", "Makar"],
+      "description": "Tusu is a winter harvest festival especially associated with the Bundu, Tamar and Raidih belt of Jharkhand."
+    },
+    {
+      "key": "sohrai",
+      "name": "Sohrai",
+      "type": "FESTIVAL",
+      "packType": "FESTIVAL",
+      "aliases": ["Sohrai Parab"],
+      "description": "Sohrai is an agricultural festival in Jharkhand associated with the care and celebration of domestic cattle."
+    },
+    {
+      "key": "chhau",
+      "name": "Chhau Dance",
+      "type": "CULTURAL_PRACTICE",
+      "packType": "DANCE",
+      "aliases": ["Chhau", "Seraikela Chhau"],
+      "description": "Chhau is a well-known dance tradition of Jharkhand; the Seraikela school blends stylized movement with folklore, nature and mythology."
+    },
+    {
+      "key": "dassam-falls",
+      "name": "Dassam Falls",
+      "type": "NATURAL_FEATURE",
+      "packType": "WATERFALL",
+      "aliases": ["Dassam Fall", "Dassam Garh"],
+      "description": "Dassam Falls is near Taimara village on the Ranchi-Tata road, about 34 km from Ranchi."
+    },
+    {
+      "key": "hundru-falls",
+      "name": "Hundru Falls",
+      "type": "NATURAL_FEATURE",
+      "packType": "WATERFALL",
+      "aliases": ["Hundru Waterfall", "Hundru Fall"],
+      "description": "Hundru Falls is a major waterfall near Ranchi on the Subarnarekha River, about 45 km from the city."
+    },
+    {
+      "key": "jonha-falls",
+      "name": "Jonha Falls",
+      "type": "NATURAL_FEATURE",
+      "packType": "WATERFALL",
+      "aliases": ["Jonha Fall", "Jonha Waterfall", "Gautamdhara"],
+      "description": "Jonha Falls, also known as Gautamdhara, is about 45 km from Ranchi on the Ranchi-Purulia route."
+    },
+    {
+      "key": "patratu-dam",
+      "name": "Patratu Dam",
+      "type": "NATURAL_FEATURE",
+      "packType": "DAM",
+      "aliases": ["Nalkarni Dam"],
+      "description": "Patratu Dam is west of Ramgarh and stores water from the Nalkarni river and surrounding hill streams."
+    },
+    {
+      "key": "baidyanath-dham",
+      "name": "Baidyanath Dham",
+      "type": "TOURIST_ATTRACTION",
+      "packType": "TEMPLE",
+      "aliases": ["Baba Baidyanath Dham", "Baidyanath Jyotirlinga Temple", "Baba Dham"],
+      "description": "Baidyanath Dham in Deoghar is a major Shiva pilgrimage site and one of the twelve Jyotirlingas."
+    },
+    {
+      "key": "trikut-pahar",
+      "name": "Trikut Pahar",
+      "type": "NATURAL_FEATURE",
+      "packType": "HILL",
+      "aliases": ["Trikut Hill", "Trikuta Hills"],
+      "description": "Trikut Pahar is a tourist destination in Deoghar known for hill scenery and adventure activities."
+    },
+    {
+      "key": "rajmahal",
+      "name": "Rajmahal",
+      "type": "TOWN",
+      "packType": "HERITAGE_SITE",
+      "aliases": [],
+      "description": "Rajmahal is a historically important town on the right bank of the Ganges in Sahibganj district."
+    },
+    {
+      "key": "fossil-park-sahibganj",
+      "name": "Fossil Park Sahibganj",
+      "type": "TOURIST_ATTRACTION",
+      "packType": "PARK",
+      "aliases": ["Rajmahal Fossil Park", "Fossil Park"],
+      "description": "A fossil park in the Rajmahal hills area of Sahibganj, where ancient plant fossils are found."
+    },
+    {
+      "key": "moti-jharna",
+      "name": "Moti Jharna",
+      "type": "NATURAL_FEATURE",
+      "packType": "WATERFALL",
+      "aliases": ["Moti Waterfall"],
+      "description": "Moti Jharna is a waterfall attraction in Sahibganj district."
+    }
+  ],
+  "facts": [
+    {"entityKey":"jharkhand","field":"formationDate","value":"15 November 2000","domain":"HISTORY","sourceUrl":"https://jharkhand.gov.in/Home/AboutState","publisher":"Government of Jharkhand","freshness":"EVERGREEN","evidence":"The state was created on 15 November 2000 under the Bihar Reorganisation Act."},
+    {"entityKey":"jharkhand","field":"capital","value":"Ranchi","domain":"GEOGRAPHY","sourceUrl":"https://jharkhand.gov.in/home/stateprofile","publisher":"Government of Jharkhand","freshness":"EVERGREEN","evidence":"Ranchi is the capital of Jharkhand."},
+    {"entityKey":"jharkhand","field":"districtCount","value":"24","domain":"ADMIN","sourceUrl":"https://jharkhand.gov.in/home/stateprofile","publisher":"Government of Jharkhand","freshness":"SEMI_DYNAMIC","evidence":"The state profile lists 24 districts."},
+    {"entityKey":"jharkhand","field":"divisionCount","value":"5","domain":"ADMIN","sourceUrl":"https://jharkhand.gov.in/home/stateprofile","publisher":"Government of Jharkhand","freshness":"SEMI_DYNAMIC","evidence":"The 24 districts are grouped into five administrative divisions."},
+    {"entityKey":"jharkhand","field":"geography","value":"Most of Jharkhand lies on the Chota Nagpur Plateau.","domain":"GEOGRAPHY","sourceUrl":"https://jharkhand.gov.in/Home/AboutState","publisher":"Government of Jharkhand","freshness":"EVERGREEN","evidence":"The state overview places most of Jharkhand on the Chota Nagpur Plateau."},
+    {"entityKey":"jharkhand","field":"majorRivers","value":"Koel, Damodar, Brahmani, Kharkai and Subarnarekha","domain":"GEOGRAPHY","sourceUrl":"https://jharkhand.gov.in/Home/AboutState","publisher":"Government of Jharkhand","freshness":"EVERGREEN","evidence":"The official state overview names these rivers as having upper watersheds in Jharkhand."},
+
+    {"entityKey":"rugra","field":"whatIsIt","value":"An indigenous seasonal vegetable/food of Jharkhand.","domain":"FOOD","sourceUrl":"https://tourism.jharkhand.gov.in/eat-out","publisher":"Department of Tourism, Government of Jharkhand","freshness":"EVERGREEN","evidence":"Jharkhand Tourism describes Rugra as an indigenous vegetable of the state."},
+    {"entityKey":"rugra","field":"season","value":"Monsoon","domain":"FOOD","sourceUrl":"https://tourism.jharkhand.gov.in/eat-out","publisher":"Department of Tourism, Government of Jharkhand","freshness":"EVERGREEN","evidence":"The tourism cuisine page says Rugra becomes abundant in markets during the monsoon."},
+    {"entityKey":"rugra","field":"characteristic","value":"Small round seasonal produce, described by Jharkhand Tourism as rich in protein and minerals.","domain":"FOOD","sourceUrl":"https://tourism.jharkhand.gov.in/eat-out","publisher":"Department of Tourism, Government of Jharkhand","freshness":"EVERGREEN","evidence":"The official cuisine page describes Rugra as small round balls rich in protein and minerals."},
+    {"entityKey":"rugra","field":"servingContext","value":"Often cooked as a spicy dish and can be served with traditional chilka.","domain":"FOOD","sourceUrl":"https://tourism.jharkhand.gov.in/eat-out","publisher":"Department of Tourism, Government of Jharkhand","freshness":"EVERGREEN","evidence":"Jharkhand Tourism notes that locals prepare Rugra as a spicy dish and serve it with chilka."},
+
+    {"entityKey":"dhuska","field":"ingredients","value":"Rice and dal mixture; the official tourism page also notes mashed potato may sometimes be used.","domain":"FOOD","sourceUrl":"https://tourism.jharkhand.gov.in/eat-out","publisher":"Department of Tourism, Government of Jharkhand","freshness":"EVERGREEN","evidence":"The cuisine page describes a smooth rice-and-dal mixture, sometimes with mashed potato."},
+    {"entityKey":"dhuska","field":"preparation","value":"Deep fried.","domain":"FOOD","sourceUrl":"https://tourism.jharkhand.gov.in/eat-out","publisher":"Department of Tourism, Government of Jharkhand","freshness":"EVERGREEN","evidence":"Jharkhand Tourism describes Dhuska as deep fried."},
+    {"entityKey":"dhuska","field":"servingSuggestion","value":"Often enjoyed with green chutney.","domain":"FOOD","sourceUrl":"https://tourism.jharkhand.gov.in/eat-out","publisher":"Department of Tourism, Government of Jharkhand","freshness":"EVERGREEN","evidence":"The tourism page recommends Dhuska dipped in green chutney."},
+
+    {"entityKey":"daal-pitha","field":"dishType","value":"Rice-covered dumplings with a spiced lentil filling.","domain":"FOOD","sourceUrl":"https://tourism.jharkhand.gov.in/eat-out","publisher":"Department of Tourism, Government of Jharkhand","freshness":"EVERGREEN","evidence":"Jharkhand Tourism describes Daal Pitha as stuffed dumplings covered in rice."},
+    {"entityKey":"daal-pitha","field":"servingSuggestion","value":"Served with tomato chutney.","domain":"FOOD","sourceUrl":"https://tourism.jharkhand.gov.in/eat-out","publisher":"Department of Tourism, Government of Jharkhand","freshness":"EVERGREEN","evidence":"The official cuisine page pairs Daal Pitha with tomato chutney."},
+
+    {"entityKey":"chilka-roti","field":"ingredients","value":"Rice flour and besan.","domain":"FOOD","sourceUrl":"https://tourism.jharkhand.gov.in/eat-out","publisher":"Department of Tourism, Government of Jharkhand","freshness":"EVERGREEN","evidence":"Jharkhand Tourism lists rice flour and besan as the base ingredients."},
+    {"entityKey":"chilka-roti","field":"occasion","value":"Prepared in households during festive seasons and special occasions.","domain":"FOOD","sourceUrl":"https://tourism.jharkhand.gov.in/eat-out","publisher":"Department of Tourism, Government of Jharkhand","freshness":"EVERGREEN","evidence":"The cuisine page associates Chilka Roti with festivals and special occasions."},
+    {"entityKey":"chilka-roti","field":"servingSuggestion","value":"Can be served with curry, mutton curry or chana dal chutney.","domain":"FOOD","sourceUrl":"https://tourism.jharkhand.gov.in/eat-out","publisher":"Department of Tourism, Government of Jharkhand","freshness":"EVERGREEN","evidence":"The official tourism page lists curry and chutney accompaniments."},
+
+    {"entityKey":"sarhul","field":"meaning","value":"Worship of the Sal tree.","domain":"CULTURE","sourceUrl":"https://jharkhand.gov.in/home/AboutFestivals","publisher":"Government of Jharkhand","freshness":"EVERGREEN","evidence":"The official festival page explains Sarhul as worship of the Sal tree."},
+    {"entityKey":"sarhul","field":"season","value":"Spring","domain":"CULTURE","sourceUrl":"https://tourism.jharkhand.gov.in/festivals","publisher":"Department of Tourism, Government of Jharkhand","freshness":"EVERGREEN","evidence":"Jharkhand Tourism places Sarhul at the start of spring when trees blossom."},
+    {"entityKey":"sarhul","field":"communities","value":"Celebrated by Munda, Oraon, Ho and other tribal communities of Jharkhand.","domain":"CULTURE","sourceUrl":"https://tourism.jharkhand.gov.in/festivals","publisher":"Department of Tourism, Government of Jharkhand","freshness":"EVERGREEN","evidence":"The tourism festival page names Munda, Oraon and Ho among communities celebrating Sarhul."},
+    {"entityKey":"sarhul","field":"symbolism","value":"New beginnings, joy, togetherness and reverence for nature.","domain":"CULTURE","sourceUrl":"https://tourism.jharkhand.gov.in/festivals","publisher":"Department of Tourism, Government of Jharkhand","freshness":"EVERGREEN","evidence":"Jharkhand Tourism links Sarhul with new beginnings and worship of Mother Nature."},
+
+    {"entityKey":"karam","field":"deity","value":"Karam Devta, associated with power, youth and youthfulness.","domain":"CULTURE","sourceUrl":"https://jharkhand.gov.in/home/AboutFestivals","publisher":"Government of Jharkhand","freshness":"EVERGREEN","evidence":"The official festival page describes worship of Karam Devta."},
+    {"entityKey":"karam","field":"timeOfYear","value":"Bhadra/Bhado season, commonly around August-September.","domain":"CULTURE","sourceUrl":"https://tourism.jharkhand.gov.in/festivals","publisher":"Department of Tourism, Government of Jharkhand","freshness":"EVERGREEN","evidence":"Jharkhand Tourism places Karam in August-September during Bhado."},
+    {"entityKey":"karam","field":"celebration","value":"Community worship accompanied by group song and dance.","domain":"CULTURE","sourceUrl":"https://jharkhand.gov.in/home/AboutFestivals","publisher":"Government of Jharkhand","freshness":"EVERGREEN","evidence":"The state festival page describes group singing and dancing during Karam."},
+
+    {"entityKey":"tusu","field":"festivalType","value":"Winter harvest festival.","domain":"CULTURE","sourceUrl":"https://jharkhand.gov.in/home/AboutFestivals","publisher":"Government of Jharkhand","freshness":"EVERGREEN","evidence":"The official state page describes Tusu as a harvest festival held in winter."},
+    {"entityKey":"tusu","field":"region","value":"Especially associated with the Bundu, Tamar and Raidih belt of Jharkhand.","domain":"CULTURE","sourceUrl":"https://jharkhand.gov.in/home/AboutFestivals","publisher":"Government of Jharkhand","freshness":"EVERGREEN","evidence":"The state festival page highlights Bundu, Tamar and Raidih."},
+    {"entityKey":"tusu","field":"tradition","value":"Unmarried girls decorate a wooden or bamboo frame with coloured paper and carry it to a nearby hilly river.","domain":"CULTURE","sourceUrl":"https://jharkhand.gov.in/home/AboutFestivals","publisher":"Government of Jharkhand","freshness":"EVERGREEN","evidence":"The official description notes the decorated frame and river tradition."},
+
+    {"entityKey":"sohrai","field":"focus","value":"Care and celebration of domestic animals such as cows and buffaloes.","domain":"CULTURE","sourceUrl":"https://jharkhand.gov.in/home/AboutFestivals","publisher":"Government of Jharkhand","freshness":"EVERGREEN","evidence":"The state festival page associates Sohrai with care of cattle in an agricultural society."},
+    {"entityKey":"sohrai","field":"timing","value":"Celebrated immediately after Diwali around the new moon period.","domain":"CULTURE","sourceUrl":"https://jharkhand.gov.in/home/AboutFestivals","publisher":"Government of Jharkhand","freshness":"EVERGREEN","evidence":"The official description places Sohrai immediately after Diwali."},
+    {"entityKey":"sohrai","field":"ritual","value":"Cattle are washed, decorated and garlanded as part of the celebration.","domain":"CULTURE","sourceUrl":"https://jharkhand.gov.in/home/AboutFestivals","publisher":"Government of Jharkhand","freshness":"EVERGREEN","evidence":"The state page describes washing and decorating cattle during Sohrai."},
+
+    {"entityKey":"chhau","field":"school","value":"Seraikela school of Chhau","domain":"CULTURE","sourceUrl":"https://tourism.jharkhand.gov.in/artandculture","publisher":"Department of Tourism, Government of Jharkhand","freshness":"EVERGREEN","evidence":"Jharkhand Tourism specifically describes the Seraikela school of Chhau."},
+    {"entityKey":"chhau","field":"themes","value":"Folklore, nature and mythology.","domain":"CULTURE","sourceUrl":"https://tourism.jharkhand.gov.in/artandculture","publisher":"Department of Tourism, Government of Jharkhand","freshness":"EVERGREEN","evidence":"The tourism culture page states that Seraikela Chhau themes draw on folklore, nature and mythology."},
+    {"entityKey":"chhau","field":"movementStyle","value":"Requires agility, suppleness and skilled hand movements.","domain":"CULTURE","sourceUrl":"https://tourism.jharkhand.gov.in/artandculture","publisher":"Department of Tourism, Government of Jharkhand","freshness":"EVERGREEN","evidence":"The official culture page emphasizes agility, suppleness and hand movement."},
+
+    {"entityKey":"dassam-falls","field":"distanceFromRanchi","value":"About 34 km","domain":"TRAVEL","sourceUrl":"https://ranchi.nic.in/tourist-place/dassam-fall/","publisher":"District Administration Ranchi","freshness":"SEMI_DYNAMIC","evidence":"Ranchi district describes Dassam Falls as about 34 km from Ranchi city."},
+    {"entityKey":"dassam-falls","field":"locationContext","value":"Near Taimara village on the Ranchi-Tata road.","domain":"GEOGRAPHY","sourceUrl":"https://ranchi.nic.in/tourist-place/dassam-fall/","publisher":"District Administration Ranchi","freshness":"EVERGREEN","evidence":"The district tourism page places the waterfall near Taimara on the Ranchi-Tata road."},
+    {"entityKey":"dassam-falls","field":"waterSource","value":"Kachni River","domain":"GEOGRAPHY","sourceUrl":"https://ranchi.nic.in/tourist-place/dassam-fall/","publisher":"District Administration Ranchi","freshness":"EVERGREEN","evidence":"The Ranchi district page identifies the Kachni River as the major water source."},
+    {"entityKey":"dassam-falls","field":"height","value":"144 feet","domain":"GEOGRAPHY","sourceUrl":"https://ranchi.nic.in/tourist-place/dassam-fall/","publisher":"District Administration Ranchi","freshness":"EVERGREEN","evidence":"The district page states a fall height of 144 feet."},
+
+    {"entityKey":"hundru-falls","field":"river","value":"Subarnarekha River","domain":"GEOGRAPHY","sourceUrl":"https://ranchi.nic.in/tourist-place/hundru-waterfall/","publisher":"District Administration Ranchi","freshness":"EVERGREEN","evidence":"Hundru Falls is formed on the course of the Subarnarekha River."},
+    {"entityKey":"hundru-falls","field":"height","value":"320 feet","domain":"GEOGRAPHY","sourceUrl":"https://ranchi.nic.in/tourist-place/hundru-waterfall/","publisher":"District Administration Ranchi","freshness":"EVERGREEN","evidence":"The Ranchi district page reports a fall height of 320 feet."},
+    {"entityKey":"hundru-falls","field":"distanceFromRanchi","value":"About 45 km","domain":"TRAVEL","sourceUrl":"https://ranchi.nic.in/tourist-place/hundru-waterfall/","publisher":"District Administration Ranchi","freshness":"SEMI_DYNAMIC","evidence":"The district page places Hundru about 45 km from Ranchi."},
+    {"entityKey":"hundru-falls","field":"activities","value":"Picnic and trekking are commonly associated with the site.","domain":"TOURISM","sourceUrl":"https://ranchi.nic.in/tourist-place/hundru-waterfall/","publisher":"District Administration Ranchi","freshness":"SEMI_DYNAMIC","evidence":"The district page describes the base pool as a picnic spot and mentions trekking interest."},
+
+    {"entityKey":"jonha-falls","field":"alternateName","value":"Gautamdhara","domain":"GEOGRAPHY","sourceUrl":"https://ranchi.nic.in/tourist-place/jonha-fall/","publisher":"District Administration Ranchi","freshness":"EVERGREEN","evidence":"The Ranchi district page says Jonha Falls is also known as Gautamdhara."},
+    {"entityKey":"jonha-falls","field":"distanceFromRanchi","value":"About 45 km","domain":"TRAVEL","sourceUrl":"https://ranchi.nic.in/tourist-place/jonha-fall/","publisher":"District Administration Ranchi","freshness":"SEMI_DYNAMIC","evidence":"The official district page places Jonha about 45 km from Ranchi."},
+    {"entityKey":"jonha-falls","field":"route","value":"Ranchi-Purulia Highway; near the Ranchi-Muri rail route.","domain":"TRAVEL","sourceUrl":"https://ranchi.nic.in/tourist-place/jonha-fall/","publisher":"District Administration Ranchi","freshness":"SEMI_DYNAMIC","evidence":"The district page gives Ranchi-Purulia road and Ranchi-Muri rail context."},
+
+    {"entityKey":"patratu-dam","field":"distanceFromRamgarh","value":"About 30 km west of Ramgarh","domain":"TRAVEL","sourceUrl":"https://ramgarh.nic.in/tourist-place/patratu-dam/","publisher":"District Administration Ramgarh","freshness":"SEMI_DYNAMIC","evidence":"Ramgarh district describes Patratu Dam as 30 km west of Ramgarh."},
+    {"entityKey":"patratu-dam","field":"purpose","value":"Originally constructed to supply water to Patratu Thermal Power Station.","domain":"HISTORY","sourceUrl":"https://ramgarh.nic.in/tourist-place/patratu-dam/","publisher":"District Administration Ramgarh","freshness":"EVERGREEN","evidence":"The district page states the dam was constructed to supply water to the thermal power station."},
+    {"entityKey":"patratu-dam","field":"waterSource","value":"Nalkarni river and streams/waterfalls from surrounding hills.","domain":"GEOGRAPHY","sourceUrl":"https://ramgarh.nic.in/tourist-place/patratu-dam/","publisher":"District Administration Ramgarh","freshness":"EVERGREEN","evidence":"The official page identifies Nalkarni and surrounding hill waters as sources."},
+    {"entityKey":"patratu-dam","field":"bestVisitContext","value":"Popular for picnics, particularly in winter.","domain":"TOURISM","sourceUrl":"https://ramgarh.nic.in/tourist-place/patratu-dam/","publisher":"District Administration Ramgarh","freshness":"SEMI_DYNAMIC","evidence":"The district page highlights winter picnic visits."},
+
+    {"entityKey":"baidyanath-dham","field":"significance","value":"One of the twelve Jyotirlingas of Shiva in India.","domain":"CULTURE","sourceUrl":"https://deoghar.nic.in/tourist-places/","publisher":"District Administration Deoghar","freshness":"EVERGREEN","evidence":"The Deoghar district tourism page identifies Baidyanath as one of the twelve Jyotirlingas."},
+    {"entityKey":"baidyanath-dham","field":"location","value":"Deoghar, Jharkhand","domain":"GEOGRAPHY","sourceUrl":"https://deoghar.nic.in/tourist-places/","publisher":"District Administration Deoghar","freshness":"EVERGREEN","evidence":"Baidyanath Dham is listed among Deoghar's principal tourist places."},
+    {"entityKey":"baidyanath-dham","field":"cityAccess","value":"Deoghar is connected by air, road and rail.","domain":"TRAVEL","sourceUrl":"https://deoghar.nic.in/how-to-reach/","publisher":"District Administration Deoghar","freshness":"SEMI_DYNAMIC","evidence":"The district travel page describes Deoghar as connected by air, road and rail."},
+
+    {"entityKey":"trikut-pahar","field":"activities","value":"Trekking and wildlife/adventure experiences are promoted at the site.","domain":"TOURISM","sourceUrl":"https://deoghar.nic.in/tourist-places/","publisher":"District Administration Deoghar","freshness":"SEMI_DYNAMIC","evidence":"The Deoghar tourism listing highlights trekking and adventure at Trikut Pahar."},
+    {"entityKey":"trikut-pahar","field":"location","value":"Deoghar district","domain":"GEOGRAPHY","sourceUrl":"https://deoghar.nic.in/tourist-places/","publisher":"District Administration Deoghar","freshness":"EVERGREEN","evidence":"Trikut Pahar is listed as a Deoghar tourist destination."},
+
+    {"entityKey":"rajmahal","field":"riverBank","value":"Right bank of the Ganges","domain":"GEOGRAPHY","sourceUrl":"https://sahibganj.nic.in/places-of-interest/","publisher":"District Administration Sahibganj","freshness":"EVERGREEN","evidence":"The Sahibganj district page places Rajmahal on the right bank of the Ganges."},
+    {"entityKey":"rajmahal","field":"historicalRole","value":"Raja Man Singh made Rajmahal the capital of Bengal in 1592 during the Mughal period.","domain":"HISTORY","sourceUrl":"https://sahibganj.nic.in/places-of-interest/","publisher":"District Administration Sahibganj","freshness":"EVERGREEN","evidence":"The official district page describes Rajmahal as a former Bengal capital under Raja Man Singh."},
+    {"entityKey":"rajmahal","field":"monuments","value":"Singhi Dalan, Akbari Masjid, Tomb of Maina-Bibi and Tomb of Miran","domain":"HISTORY","sourceUrl":"https://sahibganj.nic.in/places-of-interest/","publisher":"District Administration Sahibganj","freshness":"EVERGREEN","evidence":"These monuments are listed by the Sahibganj district administration."},
+
+    {"entityKey":"fossil-park-sahibganj","field":"geologicalContext","value":"The Rajmahal hills contain ancient plant fossils.","domain":"GEOGRAPHY","sourceUrl":"https://sahibganj.nic.in/tourist-places/","publisher":"District Administration Sahibganj","freshness":"EVERGREEN","evidence":"Sahibganj district highlights plant fossils in the Rajmahal hills."},
+    {"entityKey":"fossil-park-sahibganj","field":"fossilAge","value":"Approximately 68 to 145 million years old","domain":"HISTORY","sourceUrl":"https://sahibganj.nic.in/tourist-places/","publisher":"District Administration Sahibganj","freshness":"EVERGREEN","evidence":"The official tourist listing gives an age range of 68 to 145 million years for the plant fossils."},
+
+    {"entityKey":"moti-jharna","field":"location","value":"Sahibganj district, Jharkhand","domain":"GEOGRAPHY","sourceUrl":"https://sahibganj.nic.in/tourist-places/","publisher":"District Administration Sahibganj","freshness":"EVERGREEN","evidence":"Moti Jharna is listed by Sahibganj district as a local tourist place."},
+    {"entityKey":"moti-jharna","field":"placeType","value":"Waterfall","domain":"TOURISM","sourceUrl":"https://sahibganj.nic.in/tourist-places/","publisher":"District Administration Sahibganj","freshness":"EVERGREEN","evidence":"The district tourist listing identifies Moti Jharna/Moti Waterfall as a waterfall attraction."}
+  ],
+  "relationships": [
+    {"fromKey":"dassam-falls","toName":"Ranchi","toType":"DISTRICT","predicate":"LOCATED_IN_DISTRICT","sourceUrl":"https://ranchi.nic.in/tourist-place/dassam-fall/","publisher":"District Administration Ranchi","evidence":"Dassam Falls is presented by Ranchi district as a Ranchi tourist place."},
+    {"fromKey":"hundru-falls","toName":"Ranchi","toType":"DISTRICT","predicate":"LOCATED_IN_DISTRICT","sourceUrl":"https://ranchi.nic.in/tourist-place/hundru-waterfall/","publisher":"District Administration Ranchi","evidence":"Hundru Falls is presented by Ranchi district as a Ranchi tourist place."},
+    {"fromKey":"jonha-falls","toName":"Ranchi","toType":"DISTRICT","predicate":"LOCATED_IN_DISTRICT","sourceUrl":"https://ranchi.nic.in/tourist-place/jonha-fall/","publisher":"District Administration Ranchi","evidence":"Jonha Falls is presented by Ranchi district as a Ranchi tourist place."},
+    {"fromKey":"patratu-dam","toName":"Ramgarh","toType":"DISTRICT","predicate":"LOCATED_IN_DISTRICT","sourceUrl":"https://ramgarh.nic.in/tourist-place/patratu-dam/","publisher":"District Administration Ramgarh","evidence":"Patratu Dam is documented by Ramgarh district administration."},
+    {"fromKey":"baidyanath-dham","toName":"Deoghar","toType":"DISTRICT","predicate":"LOCATED_IN_DISTRICT","sourceUrl":"https://deoghar.nic.in/tourist-places/","publisher":"District Administration Deoghar","evidence":"Baidyanath Dham is listed as a Deoghar tourist place."},
+    {"fromKey":"trikut-pahar","toName":"Deoghar","toType":"DISTRICT","predicate":"LOCATED_IN_DISTRICT","sourceUrl":"https://deoghar.nic.in/tourist-places/","publisher":"District Administration Deoghar","evidence":"Trikut Pahar is listed as a Deoghar tourist place."},
+    {"fromKey":"rajmahal","toName":"Sahibganj","toType":"DISTRICT","predicate":"LOCATED_IN_DISTRICT","sourceUrl":"https://sahibganj.nic.in/places-of-interest/","publisher":"District Administration Sahibganj","evidence":"Rajmahal is documented among Sahibganj district places of interest."},
+    {"fromKey":"fossil-park-sahibganj","toName":"Sahibganj","toType":"DISTRICT","predicate":"LOCATED_IN_DISTRICT","sourceUrl":"https://sahibganj.nic.in/tourist-places/","publisher":"District Administration Sahibganj","evidence":"The fossil park is listed by Sahibganj district administration."},
+    {"fromKey":"moti-jharna","toName":"Sahibganj","toType":"DISTRICT","predicate":"LOCATED_IN_DISTRICT","sourceUrl":"https://sahibganj.nic.in/tourist-places/","publisher":"District Administration Sahibganj","evidence":"Moti Jharna is listed by Sahibganj district administration."}
+  ]
+}
