@@ -24,7 +24,7 @@ import com.akeshridev.johar.domain.source.KnowledgeDomain
 class SourceCrawlWorker(
     appContext: Context,
     workerParams: WorkerParameters,
-) : Worker(applicationContext = appContext, workerParams = workerParams) {
+) : Worker(appContext, workerParams) {
 
     override fun doWork(): Result {
         val target = inputData.getString(KEY_TARGET)
@@ -75,7 +75,7 @@ class SourceCrawlWorker(
             val entityAdapters = buildList {
                 if (target == CrawlTarget.RANCHI) add(ranchiOfficial)
                 add(wikidata)
-                if (target != CrawlTarget.JHARKHAND) add(overpass)
+                if (target != CrawlTarget.JHARKAND) add(overpass)
                 add(wikipedia)
                 add(wikivoyage)
                 add(commons)
