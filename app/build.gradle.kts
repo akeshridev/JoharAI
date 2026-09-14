@@ -31,6 +31,7 @@ dependencies {
 
     implementation(project(":johar-domain"))
     implementation(project(":johar-data"))
+    implementation(project(":johar-design-system"))
 
     implementation("androidx.activity:activity-compose:1.13.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.11.0")
