@@ -4,9 +4,9 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT_DIR"
 
-PACKAGE="com.akeshridev.johar"
-REMOTE_REPORT="files/johar-agent-results.jsonl"
 LOCAL_REPORT="tests/agent/results.jsonl"
+LOG_TAG="JoharAgent"
+LOG_PREFIX="JOHAR_AGENT_RESULT "
 
 command -v adb >/dev/null 2>&1 || { echo "adb is required" >&2; exit 1; }
 
@@ -17,11 +17,23 @@ fi
 
 : > "$LOCAL_REPORT"
 
+# Keep only this run's machine-readable result rows.
+adb logcat -c
+
 echo "Running Johar 200-command UI automation..."
 ./gradlew :app:connectedDebugAndroidTest
 
-echo "Pulling machine-readable results..."
-adb exec-out run-as "$PACKAGE" cat "$REMOTE_REPORT" > "$LOCAL_REPORT"
+echo "Collecting machine-readable results from device logcat..."
+adb logcat -d -v raw -s "${LOG_TAG}:I" '*:S' \
+  | sed -n "s/^${LOG_PREFIX}//p" \
+  > "$LOCAL_REPORT"
+
+RESULT_COUNT="$(wc -l < "$LOCAL_REPORT" | tr -d ' ')"
+if [[ "$RESULT_COUNT" -ne 200 ]]; then
+  echo "Expected 200 result rows, found $RESULT_COUNT" >&2
+  echo "Instrumentation completed, but result export is incomplete." >&2
+  exit 2
+fi
 
 python3 tests/agent/summarize_results.py "$LOCAL_REPORT"
 
