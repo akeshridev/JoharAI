@@ -3,6 +3,7 @@ package com.akeshridev.johar.designsystem
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AssistChip
@@ -15,6 +16,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -26,15 +28,17 @@ fun JoharPrimaryButton(
 ) {
     Button(
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.heightIn(min = 44.dp),
         enabled = enabled,
-        shape = RoundedCornerShape(JoharRadius.Medium),
+        shape = RoundedCornerShape(JoharRadius.Pill),
         colors = ButtonDefaults.buttonColors(
-            containerColor = JoharColors.Forest,
-            contentColor = JoharColors.Cream,
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
         ),
+        elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp, pressedElevation = 0.dp),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 18.dp, vertical = 11.dp),
     ) {
-        Text(label)
+        Text(label, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
     }
 }
 
@@ -47,12 +51,13 @@ fun JoharSecondaryButton(
 ) {
     OutlinedButton(
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.heightIn(min = 44.dp),
         enabled = enabled,
-        shape = RoundedCornerShape(JoharRadius.Medium),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        shape = RoundedCornerShape(JoharRadius.Pill),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.95f)),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 17.dp, vertical = 10.dp),
     ) {
-        Text(label)
+        Text(label, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
     }
 }
 
@@ -66,15 +71,15 @@ fun JoharChip(
     AssistChip(
         onClick = onClick ?: {},
         modifier = modifier,
-        label = { Text(label) },
+        label = { Text(label, style = MaterialTheme.typography.labelMedium) },
         shape = RoundedCornerShape(JoharRadius.Pill),
         colors = AssistChipDefaults.assistChipColors(
-            containerColor = if (selected) JoharColors.Sand else MaterialTheme.colorScheme.surface,
+            containerColor = if (selected) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface,
             labelColor = MaterialTheme.colorScheme.onSurface,
         ),
         border = AssistChipDefaults.assistChipBorder(
             enabled = true,
-            borderColor = MaterialTheme.colorScheme.outline,
+            borderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.85f),
         ),
     )
 }
@@ -91,16 +96,24 @@ fun JoharStatusBadge(
         JoharInfoTone.OFFLINE -> JoharColors.Sand
         JoharInfoTone.NORMAL -> MaterialTheme.colorScheme.surfaceVariant
     }
+    val content = when (tone) {
+        JoharInfoTone.LIVE, JoharInfoTone.VERIFIED -> JoharColors.Forest
+        JoharInfoTone.WARNING, JoharInfoTone.NOT_CONFIRMED -> JoharColors.Rust
+        JoharInfoTone.OFFLINE -> JoharColors.Forest
+        JoharInfoTone.NORMAL -> MaterialTheme.colorScheme.onSurfaceVariant
+    }
 
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(JoharRadius.Pill),
         color = background,
+        contentColor = content,
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
-            modifier = Modifier.padding(horizontal = JoharSpacing.Sm, vertical = JoharSpacing.Xs),
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp),
         )
     }
 }
