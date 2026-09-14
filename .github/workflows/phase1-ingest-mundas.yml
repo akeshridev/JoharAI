@@ -1,0 +1,113 @@
+name: Phase 1 ingest - The Mundas and Their Country
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/phase1-ingest-mundas.yml"
+      - "corpus/tools/ingest_djvu_xml.py"
+      - "corpus/tools/validate_chunks.py"
+      - "corpus/sources/book_mundas_1912.json"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: phase1-ingest-mundas
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Johar AI
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Acquire and verify Internet Archive OCR
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOURCE=corpus/sources/book_mundas_1912.json
+          DJVU_URL="$(python - <<'PY'
+          import json
+          s=json.load(open('corpus/sources/book_mundas_1912.json', encoding='utf-8'))
+          print(s['upstreamMachineReadableSource']['djvuXmlUrl'])
+          PY
+          )"
+          SCANDATA_URL="$(python - <<'PY'
+          import json
+          s=json.load(open('corpus/sources/book_mundas_1912.json', encoding='utf-8'))
+          print(s['upstreamMachineReadableSource']['scandataUrl'])
+          PY
+          )"
+
+          curl --fail --location --retry 3 --retry-delay 2 "$DJVU_URL" -o /tmp/mundas_djvu.xml
+          curl --fail --location --retry 3 --retry-delay 2 "$SCANDATA_URL" -o /tmp/mundas_scandata.xml
+
+          ACTUAL_DJVU="$(sha256sum /tmp/mundas_djvu.xml | awk '{print $1}')"
+          ACTUAL_SCANDATA="$(sha256sum /tmp/mundas_scandata.xml | awk '{print $1}')"
+          echo "DjVu SHA256:     $ACTUAL_DJVU"
+          echo "Scandata SHA256: $ACTUAL_SCANDATA"
+
+          python - "$SOURCE" "$ACTUAL_DJVU" "$ACTUAL_SCANDATA" <<'PY'
+          import json, sys
+          path, actual_djvu, actual_scandata = sys.argv[1:]
+          source = json.load(open(path, encoding='utf-8'))
+          upstream = source['upstreamMachineReadableSource']
+          expected_djvu = upstream.get('expectedDjvuSha256')
+          expected_scandata = upstream.get('expectedScandataSha256')
+          if not expected_djvu or not expected_scandata:
+              print('Source hashes are not pinned yet.')
+              print(f'PIN_DJVU_SHA256={actual_djvu}')
+              print(f'PIN_SCANDATA_SHA256={actual_scandata}')
+              raise SystemExit(42)
+          if expected_djvu != actual_djvu:
+              raise SystemExit(f'DjVu SHA mismatch: expected {expected_djvu}, got {actual_djvu}')
+          if expected_scandata != actual_scandata:
+              raise SystemExit(f'Scandata SHA mismatch: expected {expected_scandata}, got {actual_scandata}')
+          print('Pinned Internet Archive derivatives verified.')
+          PY
+
+      - name: Build page-aware OCR chunk pack
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT=corpus/processed/book_mundas_1912
+          python corpus/tools/ingest_djvu_xml.py \
+            --djvu /tmp/mundas_djvu.xml \
+            --scandata /tmp/mundas_scandata.xml \
+            --source corpus/sources/book_mundas_1912.json \
+            --out-dir "$OUT"
+
+          python corpus/tools/validate_chunks.py \
+            --chunks "$OUT/rag_chunks.jsonl" \
+            --stats "$OUT/stats.json" \
+            --source corpus/sources/book_mundas_1912.json \
+            --out "$OUT/quality-report.json" \
+            --min-pages 500 \
+            --min-chunks 100 \
+            --max-words 700
+
+      - name: Commit generated corpus
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add corpus/processed/book_mundas_1912
+
+          if git diff --cached --quiet; then
+            echo "Generated corpus already matches repository."
+            exit 0
+          fi
+
+          git commit -m "corpus: ingest The Mundas and Their Country [skip ci]"
+          git push
