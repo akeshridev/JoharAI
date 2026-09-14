@@ -36,19 +36,41 @@ jobs:
         run: |
           set -euo pipefail
           SOURCE=corpus/sources/book_mundas_1912.json
-          DJVU_URL="$(python - <<'PY'
+          IDENTIFIER="$(python - <<'PY'
           import json
           s=json.load(open('corpus/sources/book_mundas_1912.json', encoding='utf-8'))
-          print(s['upstreamMachineReadableSource']['djvuXmlUrl'])
-          PY
-          )"
-          SCANDATA_URL="$(python - <<'PY'
-          import json
-          s=json.load(open('corpus/sources/book_mundas_1912.json', encoding='utf-8'))
-          print(s['upstreamMachineReadableSource']['scandataUrl'])
+          print(s['upstreamMachineReadableSource']['identifier'])
           PY
           )"
 
+          curl --fail --location --retry 3 --retry-delay 2 \
+            "https://archive.org/metadata/$IDENTIFIER" -o /tmp/ia_metadata.json
+
+          python - "$IDENTIFIER" <<'PY' > /tmp/ia_urls.env
+          import json, sys
+          from urllib.parse import quote
+
+          identifier = sys.argv[1]
+          metadata = json.load(open('/tmp/ia_metadata.json', encoding='utf-8'))
+          names = [f.get('name', '') for f in metadata.get('files', [])]
+          djvu = next((n for n in names if n.lower().endswith('_djvu.xml')), None)
+          scandata = next((n for n in names if n.lower().endswith('_scandata.xml')), None)
+          if not djvu or not scandata:
+              print('echo "Available IA files:" >&2')
+              for name in names[:80]:
+                  print(f'echo {quote(name)!r} >&2')
+              print('exit 44')
+          else:
+              base = f'https://archive.org/download/{quote(identifier, safe="")}/'
+              print(f'DJVU_NAME={quote(djvu, safe="")!r}')
+              print(f'SCANDATA_NAME={quote(scandata, safe="")!r}')
+              print(f'DJVU_URL={base + quote(djvu, safe="")!r}')
+              print(f'SCANDATA_URL={base + quote(scandata, safe="")!r}')
+          PY
+          source /tmp/ia_urls.env
+
+          echo "Resolved DjVu:     $DJVU_NAME"
+          echo "Resolved scandata: $SCANDATA_NAME"
           curl --fail --location --retry 3 --retry-delay 2 "$DJVU_URL" -o /tmp/mundas_djvu.xml
           curl --fail --location --retry 3 --retry-delay 2 "$SCANDATA_URL" -o /tmp/mundas_scandata.xml
 
@@ -57,22 +79,30 @@ jobs:
           echo "DjVu SHA256:     $ACTUAL_DJVU"
           echo "Scandata SHA256: $ACTUAL_SCANDATA"
 
-          python - "$SOURCE" "$ACTUAL_DJVU" "$ACTUAL_SCANDATA" <<'PY'
+          python - "$SOURCE" "$ACTUAL_DJVU" "$ACTUAL_SCANDATA" "$DJVU_NAME" "$SCANDATA_NAME" <<'PY'
           import json, sys
-          path, actual_djvu, actual_scandata = sys.argv[1:]
+          path, actual_djvu, actual_scandata, djvu_name, scandata_name = sys.argv[1:]
           source = json.load(open(path, encoding='utf-8'))
           upstream = source['upstreamMachineReadableSource']
           expected_djvu = upstream.get('expectedDjvuSha256')
           expected_scandata = upstream.get('expectedScandataSha256')
           if not expected_djvu or not expected_scandata:
               print('Source hashes are not pinned yet.')
+              print(f'PIN_DJVU_NAME={djvu_name}')
               print(f'PIN_DJVU_SHA256={actual_djvu}')
+              print(f'PIN_SCANDATA_NAME={scandata_name}')
               print(f'PIN_SCANDATA_SHA256={actual_scandata}')
               raise SystemExit(42)
           if expected_djvu != actual_djvu:
               raise SystemExit(f'DjVu SHA mismatch: expected {expected_djvu}, got {actual_djvu}')
           if expected_scandata != actual_scandata:
               raise SystemExit(f'Scandata SHA mismatch: expected {expected_scandata}, got {actual_scandata}')
+          expected_djvu_name = upstream.get('djvuXmlFile')
+          expected_scandata_name = upstream.get('scandataFile')
+          if expected_djvu_name and expected_djvu_name != djvu_name:
+              raise SystemExit(f'DjVu filename mismatch: expected {expected_djvu_name}, got {djvu_name}')
+          if expected_scandata_name and expected_scandata_name != scandata_name:
+              raise SystemExit(f'Scandata filename mismatch: expected {expected_scandata_name}, got {scandata_name}')
           print('Pinned Internet Archive derivatives verified.')
           PY
 
