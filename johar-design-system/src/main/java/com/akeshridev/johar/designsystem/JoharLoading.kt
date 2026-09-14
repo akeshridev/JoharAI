@@ -25,7 +25,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -33,40 +33,12 @@ fun JoharNagadaLoader(
     modifier: Modifier = Modifier,
     label: String? = "Johar is finding the best answer…",
 ) {
-    val transition = rememberInfiniteTransition(label = "nagada")
-    val pulse = transition.animateFloat(
-        initialValue = 0.98f,
-        targetValue = 1.03f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(480),
-            repeatMode = RepeatMode.Reverse,
-        ),
-        label = "nagadaPulse",
-    )
-    val stickBeat = transition.animateFloat(
-        initialValue = -1f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(320),
-            repeatMode = RepeatMode.Reverse,
-        ),
-        label = "stickBeat",
-    )
-
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(JoharSpacing.Md),
     ) {
-        NagadaIcon(
-            modifier = Modifier
-                .size(40.dp)
-                .graphicsLayer {
-                    scaleX = pulse.value
-                    scaleY = pulse.value
-                },
-            beat = stickBeat.value,
-        )
+        JoharDrummerMascot(size = 44.dp)
         label?.let {
             Text(
                 text = it,
@@ -89,7 +61,7 @@ fun JoharNagadaThinkingBubble(
         tonalElevation = JoharElevation.Flat,
     ) {
         Column(Modifier.padding(horizontal = JoharSpacing.Lg, vertical = JoharSpacing.Md)) {
-            JoharNagadaLoader(label = null)
+            JoharDrummerMascot(size = 54.dp)
             Spacer(Modifier.height(JoharSpacing.Xs))
             Text(
                 label,
@@ -101,87 +73,128 @@ fun JoharNagadaThinkingBubble(
 }
 
 @Composable
-private fun NagadaIcon(
+fun JoharDrummerMascot(
     modifier: Modifier = Modifier,
-    beat: Float,
+    size: Dp = 56.dp,
+    animated: Boolean = true,
 ) {
-    val shell = MaterialTheme.colorScheme.secondary
-    val rim = MaterialTheme.colorScheme.primary
-    val rope = MaterialTheme.colorScheme.onSurfaceVariant
-    val skin = MaterialTheme.colorScheme.surfaceVariant
-    val stick = MaterialTheme.colorScheme.onSurface
+    val transition = rememberInfiniteTransition(label = "joharDrummer")
+    val beat = transition.animateFloat(
+        initialValue = -1f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(360),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "alternatingBeat",
+    )
+    val bounce = transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(360),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "drumBounce",
+    )
 
-    Canvas(modifier = modifier) {
-        val w = size.width
-        val h = size.height
+    val skinTone = MaterialTheme.colorScheme.secondary.copy(alpha = 0.92f)
+    val shirt = MaterialTheme.colorScheme.primary
+    val cloth = MaterialTheme.colorScheme.surfaceVariant
+    val drumShell = JoharColors.Rust
+    val drumSkin = JoharColors.Sand
+    val rope = JoharColors.Cream
+    val outline = MaterialTheme.colorScheme.onSurface
 
-        // Deep bowl-shaped shell: this is the strongest visual cue for a nagada.
-        val bowl = Path().apply {
-            moveTo(w * 0.16f, h * 0.43f)
-            cubicTo(w * 0.20f, h * 0.68f, w * 0.34f, h * 0.88f, w * 0.50f, h * 0.92f)
-            cubicTo(w * 0.66f, h * 0.88f, w * 0.80f, h * 0.68f, w * 0.84f, h * 0.43f)
+    Canvas(modifier = modifier.size(size)) {
+        val w = this.size.width
+        val h = this.size.height
+        val armBeat = if (animated) beat.value else 0f
+        val drumDrop = if (animated) bounce.value * h * 0.008f else 0f
+
+        // Head + neck.
+        drawCircle(
+            color = skinTone,
+            radius = w * 0.10f,
+            center = Offset(w * 0.50f, h * 0.16f),
+        )
+        drawCircle(
+            color = outline,
+            radius = w * 0.102f,
+            center = Offset(w * 0.50f, h * 0.145f),
+            style = Stroke(width = w * 0.025f),
+        )
+        drawLine(
+            color = skinTone,
+            start = Offset(w * 0.50f, h * 0.24f),
+            end = Offset(w * 0.50f, h * 0.30f),
+            strokeWidth = w * 0.065f,
+            cap = StrokeCap.Round,
+        )
+
+        // Torso: simple folk-mascot silhouette, intentionally minimal at loader scale.
+        val torso = Path().apply {
+            moveTo(w * 0.35f, h * 0.31f)
+            lineTo(w * 0.65f, h * 0.31f)
+            lineTo(w * 0.70f, h * 0.64f)
+            lineTo(w * 0.30f, h * 0.64f)
             close()
         }
-        drawPath(bowl, color = shell)
+        drawPath(torso, color = shirt)
 
-        // Broad stretched skin and heavy rim.
-        drawOval(
-            color = skin,
-            topLeft = Offset(w * 0.12f, h * 0.28f),
-            size = Size(w * 0.76f, h * 0.25f),
-        )
-        drawOval(
-            color = rim,
-            topLeft = Offset(w * 0.12f, h * 0.28f),
-            size = Size(w * 0.76f, h * 0.25f),
-            style = Stroke(width = w * 0.065f),
+        // Cloth/sash gives the character a stronger local folk silhouette.
+        drawLine(
+            color = cloth,
+            start = Offset(w * 0.38f, h * 0.34f),
+            end = Offset(w * 0.61f, h * 0.61f),
+            strokeWidth = w * 0.07f,
+            cap = StrokeCap.Round,
         )
 
-        // Rope lacing across the body.
-        val ropeWidth = w * 0.028f
-        val anchors = listOf(0.20f, 0.34f, 0.50f, 0.66f, 0.80f)
+        // Arms and beaters alternate rather than floating above the drum.
+        val leftHand = Offset(w * 0.30f, h * (0.43f + 0.05f * armBeat))
+        val rightHand = Offset(w * 0.70f, h * (0.43f - 0.05f * armBeat))
+        drawLine(skinTone, Offset(w * 0.38f, h * 0.36f), leftHand, w * 0.055f, StrokeCap.Round)
+        drawLine(skinTone, Offset(w * 0.62f, h * 0.36f), rightHand, w * 0.055f, StrokeCap.Round)
+
+        val leftStickEnd = Offset(w * 0.43f, h * (0.55f + 0.02f * armBeat))
+        val rightStickEnd = Offset(w * 0.57f, h * (0.55f - 0.02f * armBeat))
+        drawLine(outline, leftHand, leftStickEnd, w * 0.025f, StrokeCap.Round)
+        drawLine(outline, rightHand, rightStickEnd, w * 0.025f, StrokeCap.Round)
+
+        // Wide traditional bowl-shaped nagada in front of the player.
+        val topY = h * 0.58f + drumDrop
+        val bowl = Path().apply {
+            moveTo(w * 0.18f, topY)
+            cubicTo(w * 0.22f, h * 0.78f, w * 0.36f, h * 0.93f, w * 0.50f, h * 0.95f)
+            cubicTo(w * 0.64f, h * 0.93f, w * 0.78f, h * 0.78f, w * 0.82f, topY)
+            close()
+        }
+        drawPath(bowl, color = drumShell)
+        drawOval(
+            color = drumSkin,
+            topLeft = Offset(w * 0.15f, topY - h * 0.065f),
+            size = Size(w * 0.70f, h * 0.15f),
+        )
+        drawOval(
+            color = outline,
+            topLeft = Offset(w * 0.15f, topY - h * 0.065f),
+            size = Size(w * 0.70f, h * 0.15f),
+            style = Stroke(width = w * 0.025f),
+        )
+
+        // Rope lacing: only a few strong diagonals so it remains legible at 40–56dp.
+        val ropeWidth = w * 0.020f
+        val anchors = listOf(0.24f, 0.38f, 0.50f, 0.62f, 0.76f)
         anchors.forEachIndexed { index, x ->
             val lowerX = if (index % 2 == 0) 0.50f else x
             drawLine(
                 color = rope,
-                start = Offset(w * x, h * 0.46f),
-                end = Offset(w * lowerX, h * 0.84f),
+                start = Offset(w * x, topY + h * 0.045f),
+                end = Offset(w * lowerX, h * 0.89f),
                 strokeWidth = ropeWidth,
                 cap = StrokeCap.Round,
             )
         }
-        for (i in 0 until anchors.lastIndex) {
-            drawLine(
-                color = rope,
-                start = Offset(w * anchors[i], h * 0.62f),
-                end = Offset(w * anchors[i + 1], h * 0.75f),
-                strokeWidth = ropeWidth,
-                cap = StrokeCap.Round,
-            )
-            drawLine(
-                color = rope,
-                start = Offset(w * anchors[i], h * 0.75f),
-                end = Offset(w * anchors[i + 1], h * 0.62f),
-                strokeWidth = ropeWidth,
-                cap = StrokeCap.Round,
-            )
-        }
-
-        // Two beaters above the drum head; slight alternating movement.
-        val swing = beat * w * 0.025f
-        drawLine(
-            color = stick,
-            start = Offset(w * 0.24f - swing, h * 0.10f),
-            end = Offset(w * 0.45f, h * 0.33f),
-            strokeWidth = w * 0.055f,
-            cap = StrokeCap.Round,
-        )
-        drawLine(
-            color = stick,
-            start = Offset(w * 0.76f + swing, h * 0.10f),
-            end = Offset(w * 0.55f, h * 0.33f),
-            strokeWidth = w * 0.055f,
-            cap = StrokeCap.Round,
-        )
     }
 }
