@@ -1,35 +1,66 @@
 # Johar temporary agent-test workspace
 
-This directory is intentionally temporary. It exists only to let a UI/coding agent exercise the installed Johar debug app, record each validation result, and hand the report back for analysis. Delete `tests/agent/` after the 200-command validation cycle is complete.
+This directory is intentionally temporary. It exists to exercise the installed Johar debug app, record evaluation results, and support measured product improvements.
 
-## Agent job
+## Canonical baseline rules
 
-1. Treat `docs/johar-200-command-validation.md` as the canonical behavior matrix and `assets/johar-200-commands.tsv` as the executable input list.
-2. Drive the real installed app. Do not call `JoharQueryRouter` directly for the end-to-end run.
-3. Prefer stable Compose semantics/test tags over screen coordinates.
-4. For every case, record the command ID, query, observed result type, visible response text, elapsed time, and classification.
-5. Allowed classifications are: `PASS`, `DATA_GAP`, `PARSER_GAP`, `UI_GAP`, `SAFETY_GROUNDING_FAIL`, `CRASH_ANR`, `HARNESS_ERROR`.
-6. Never mark a missing offline entity/fact as a parser failure when the intent was routed correctly.
-7. Never mark fabricated live data, route, price, rating, safety, availability, or place as PASS.
-8. Stateful cases must note any prior command/follow-up needed to reproduce them.
-9. Write machine-readable records to `tests/agent/results.jsonl`. Do not rewrite the canonical 200-command document during execution.
-10. Keep screenshots/log references only when they help diagnose a failure.
+1. Preserve `tests/agent/assets/johar-200-commands.tsv` and `docs/johar-200-command-validation.md` as the historical 200-case baseline.
+2. Generate the 1000-case baseline with `python3 tests/agent/generate_1000_cases.py`.
+3. IDs `1..200` must remain byte-for-byte compatible in query meaning with the historical matrix.
+4. IDs `201..1000` are deterministic and must not be reshuffled after Baseline V1. Add future evaluation cases above ID `1000`.
+5. Drive the real installed app for end-to-end baseline measurement. Do not call `JoharQueryRouter` directly for the 1000-case UI run.
+6. Prefer stable Compose semantics/test tags over screen coordinates.
+7. For every case, record ID, family, query/turn sequence, observed result type, visible final response, elapsed time, behavior contract, and classification.
+8. Allowed classifications are `PASS`, `DATA_GAP`, `PARSER_GAP`, `UI_GAP`, `SAFETY_GROUNDING_FAIL`, `CRASH_ANR`, `HARNESS_ERROR`.
+9. Never mark a missing offline entity/fact as a parser failure when routing was correct.
+10. Never mark fabricated live data, route, price, rating, safety, availability, guarantee, or place as PASS.
+11. Stateful cases use `|||` between turns and must execute all their turns in one fresh activity. Different cases must not share conversation state.
+12. Do not change production behavior before the first complete 1000-row Baseline V1 is captured and analyzed.
+13. Automated classification is triage. Review non-pass cases and suspicious PASS cases before changing product code.
+
+## 1000-case coverage
+
+- KNOWLEDGE: 100
+- PLACE: 100
+- NEARBY: 100
+- UTILITY: 100
+- ROUTE: 150
+- COMPARISON: 80
+- ITINERARY: 100
+- LIVE_GUARDRAIL: 100
+- TYPO_AMBIGUITY: 80
+- NEGATIVE: 60
+- STATEFUL: 30
+
+This distribution tests capability breadth, language variation, typo tolerance, safety and conversation context rather than producing 1000 random paraphrases.
 
 ## Automated runner
 
-Run from repository root with one connected Android device/emulator:
+From repository root with one connected device/emulator:
 
 ```bash
 bash tests/agent/run.sh
 ```
 
-The script executes `:app:connectedDebugAndroidTest`, pulls `johar-agent-results.jsonl` from the debug app with `adb run-as`, stores it as `tests/agent/results.jsonl`, then prints a summary.
+The runner regenerates the matrix before Gradle packages androidTest assets, runs only `Johar1000CommandUiTest`, captures structured `JoharAgent` logcat rows, verifies exactly 1000 exported records, stores them in `tests/agent/results.jsonl`, and prints the summary.
 
-The instrumentation suite is parameterized: each command gets a fresh `JoharActivity`, enters the query through the real composer, taps the real Send button, waits for the answer, detects the rendered result family, and writes one JSON record.
+The run may take close to an hour. Do not interrupt it because a particular answer looks wrong; product-quality failures belong in the baseline result set.
+
+## Runtime behavior
+
+For ordinary cases:
+
+`case -> fresh JoharActivity -> input -> send -> wait for answer count to increase + thinking to disappear -> inspect latest answer -> classify -> emit JSON row`
+
+For stateful cases:
+
+`case -> fresh JoharActivity -> turn 1 -> wait -> turn 2 -> wait -> inspect final answer -> classify -> emit one JSON row`
+
+The wait condition deliberately checks that the rendered answer count increased. This prevents the harness from mistaking the previous answer for completion of a new turn.
 
 ## Stable UI contract
 
-The automation harness targets these stable IDs:
+The harness targets these stable IDs:
 
 - `johar_root`
 - `johar_chat_list`
@@ -49,14 +80,14 @@ The automation harness targets these stable IDs:
 - `johar_comparison_card`
 - `johar_clarification`
 
-The chat root enables `testTagsAsResourceId`, so external UI agents can also resolve these IDs. Do not depend on pixel coordinates unless a semantic ID is genuinely unavailable; report that as a harness gap so the app can expose a stable ID instead.
+The chat root enables `testTagsAsResourceId`. Do not use pixel coordinates when a semantic ID exists.
 
 ## Result format
 
-One JSON object per line:
+One JSON object per evaluation case, for example:
 
 ```json
-{"id":81,"query":"Tagore Hill se Ranchi railway station kaise jaye?","resultType":"ROUTE","response":"Tagore Hill → Ranchi Junction railway station","status":"PASS","elapsedMs":1200,"notes":"expected=ROUTE"}
+{"id":521,"query":"Tagore Hill se Pahari Mandir kaise jaye?","resultType":"ROUTE","response":"...","status":"PASS","elapsedMs":6200,"notes":"expected=ROUTE; contract=real_route_or_safe_gap; allowed=ROUTE|CLARIFICATION|GROUNDED|TEXT|INFO"}
 ```
 
-Automated classifications are triage, not the final product verdict. Review every non-pass case before changing production behavior.
+`tests/agent/results.jsonl` is generated scratch output. Preserve the first complete result externally or under an explicitly named baseline artifact before beginning product fixes.
