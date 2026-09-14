@@ -1,5 +1,6 @@
 package com.akeshridev.johar.conversation
 
+import com.akeshridev.johar.data.routing.RanchiRouteResult
 import com.akeshridev.johar.data.spatial.RanchiCoordinate
 import com.akeshridev.johar.data.spatial.RanchiSpatialPlace
 import org.junit.Assert.assertEquals
@@ -95,13 +96,70 @@ class JoharQueryRouterTest {
         assertTrue(result.text.contains("knowledge:Pahari Mandir open now?"))
     }
 
+    @Test
+    fun installedRoutingPackProducesRealRouteResult() {
+        val tagoreHill = place("tagore-hill", "Tagore Hill", "TOURIST_ATTRACTION")
+        val station = place("ranchi-station", "Ranchi Railway Station", "STATION")
+        val computed = RanchiRouteResult.Success(
+            points = listOf(tagoreHill.coordinate, station.coordinate),
+            distanceMeters = 6_400.0,
+            durationSeconds = 960.0,
+            snappedOrigin = tagoreHill.coordinate,
+            snappedDestination = station.coordinate,
+        )
+        val router = router(
+            resolve = { query ->
+                when (query.lowercase()) {
+                    "tagore hill" -> listOf(tagoreHill)
+                    "ranchi station" -> listOf(station)
+                    else -> emptyList()
+                }
+            },
+            routeInstalled = { true },
+            route = { _, _ -> computed },
+        )
+
+        val result = router.answer("route from Tagore Hill to Ranchi station")
+
+        assertEquals(JoharQueryResult.Route(tagoreHill, station, computed), result)
+    }
+
+    @Test
+    fun missingRoutingPackNeverInventsRoadRoute() {
+        val tagoreHill = place("tagore-hill", "Tagore Hill", "TOURIST_ATTRACTION")
+        val station = place("ranchi-station", "Ranchi Railway Station", "STATION")
+        val router = router(
+            resolve = { query ->
+                when (query.lowercase()) {
+                    "tagore hill" -> listOf(tagoreHill)
+                    "ranchi station" -> listOf(station)
+                    else -> emptyList()
+                }
+            },
+            routeInstalled = { false },
+        )
+
+        val result = router.answer("Tagore Hill se Ranchi station kaise jaye?")
+
+        assertTrue(result is JoharQueryResult.Text)
+        result as JoharQueryResult.Text
+        assertTrue(result.text.contains("routing pack"))
+        assertTrue(result.text.contains("road route"))
+    }
+
     private fun router(
         resolve: (String) -> List<RanchiSpatialPlace> = { emptyList() },
         nearby: (RanchiCoordinate, Set<String>) -> List<RanchiSpatialPlace> = { _, _ -> emptyList() },
+        routeInstalled: () -> Boolean = { false },
+        route: (RanchiCoordinate, RanchiCoordinate) -> RanchiRouteResult = { _, _ ->
+            RanchiRouteResult.Unavailable("not installed")
+        },
     ) = JoharQueryRouter(
         resolvePlace = resolve,
         nearby = nearby,
         knowledgeAnswer = { "knowledge:$it" },
+        routeInstalled = routeInstalled,
+        route = route,
     )
 
     private fun place(
