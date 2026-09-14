@@ -3,7 +3,7 @@
 
 The validator is intentionally source-agnostic. It checks provenance shape,
 page ranges, chunk IDs, duplicate text, source consistency and word limits,
-then writes a compact quality report with first/middle/last samples for review.
+then writes a compact quality report with representative samples for review.
 """
 
 from __future__ import annotations
@@ -158,7 +158,8 @@ def main() -> None:
     if duplicate_texts:
         failures.append(f"{duplicate_texts} duplicate chunk texts")
 
-    short_chunks = sum(1 for count in word_counts if count < 250)
+    short_records = [record for record in records if word_count(record.get("text") or "") < 250]
+    short_chunks = len(short_records)
     if short_chunks:
         warnings.append(
             f"{short_chunks} chunks are below 250 words; allowed at semantic/section boundaries but should be sampled."
@@ -190,6 +191,7 @@ def main() -> None:
         "chunkWordMax": max(word_counts) if word_counts else 0,
         "chunkWordAverage": round(sum(word_counts) / len(word_counts), 1) if word_counts else 0,
         "shortChunkCount": short_chunks,
+        "shortChunkSamples": [sample(record) for record in short_records],
         "duplicateChunkIdCount": duplicate_chunk_ids,
         "duplicateTextCount": duplicate_texts,
         "missingPageCount": missing_pages,
