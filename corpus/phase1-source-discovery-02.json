@@ -1,0 +1,72 @@
+{
+  "batch": "phase1-source-discovery-02",
+  "target": "200 MiB processed Jharkhand corpus",
+  "sources": [
+    {
+      "id": "census_ranchi_part_a_2011",
+      "title": "Census of India 2011 - District Census Handbook, Ranchi - Part XII A",
+      "authorOrPublisher": "Directorate of Census Operations, Jharkhand",
+      "year": 2014,
+      "sourceType": "GOVERNMENT_CENSUS_HANDBOOK",
+      "historicalOrCurrent": "HISTORICAL_REFERENCE",
+      "rightsClass": "OFFICIAL_GOVERNMENT_PUBLICATION",
+      "status": "READY_TO_INGEST",
+      "sourceUrl": "https://www.censusindia.gov.in/nada/index.php/catalog/570",
+      "directPdfUrl": "https://censusindia.gov.in/nada/index.php/catalog/570/download/1928/DH_2011_2019_PART_A_DCHB_RANCHI.pdf",
+      "topics": ["Ranchi", "villages", "towns", "education", "medical", "drinking water", "transport", "communication", "electricity", "banking"],
+      "notes": "Part A is Village and Town Directory; retain village/town names and amenity fields with 2011/2014 date context."
+    },
+    {
+      "id": "census_ranchi_part_b_2011",
+      "title": "Census of India 2011 - District Census Handbook, Ranchi - Part XII B",
+      "authorOrPublisher": "Directorate of Census Operations, Jharkhand",
+      "year": 2014,
+      "sourceType": "GOVERNMENT_CENSUS_HANDBOOK",
+      "historicalOrCurrent": "HISTORICAL_REFERENCE",
+      "rightsClass": "OFFICIAL_GOVERNMENT_PUBLICATION",
+      "status": "READY_TO_INGEST",
+      "sourceUrl": "https://censusindia.gov.in/nada/index.php/catalog/571/study-description",
+      "topics": ["Ranchi", "population", "households", "village census", "town census", "demography"],
+      "notes": "Part B is Primary Census Abstract. Never present 2011 census values as current population."
+    },
+    {
+      "id": "census_all_jharkhand_dchb_2011",
+      "title": "Census of India 2011 - Jharkhand District Census Handbook Collection",
+      "authorOrPublisher": "Directorate of Census Operations, Jharkhand",
+      "year": 2014,
+      "sourceType": "GOVERNMENT_CENSUS_COLLECTION",
+      "historicalOrCurrent": "HISTORICAL_REFERENCE",
+      "rightsClass": "OFFICIAL_GOVERNMENT_PUBLICATION",
+      "status": "READY_TO_INGEST",
+      "sourceUrl": "https://censusindia.gov.in/nada/index.php/catalog/?page=1&ps=15&sk=Jharkhand&tab_type=document",
+      "coverageGoal": "Part A and Part B for all 24 Jharkhand districts",
+      "topics": ["all districts", "villages", "towns", "infrastructure", "demography", "administration"],
+      "notes": "Ingest district by district so each chunk carries district metadata."
+    },
+    {
+      "id": "jbb_medicinal_plants_issue_2025",
+      "title": "Some Lesser Known Plant Species Used as Medicines by Tribes of Jharkhand",
+      "authorOrPublisher": "Jharkhand Biodiversity Board",
+      "year": 2025,
+      "sourceType": "GOVERNMENT_BIODIVERSITY_PUBLICATION",
+      "historicalOrCurrent": "CURRENT_OFFICIAL",
+      "rightsClass": "OFFICIAL_GOVERNMENT_PUBLICATION",
+      "status": "READY_TO_INGEST",
+      "sourceUrl": "https://jbb.jharkhand.gov.in/wp-content/uploads/2025/09/A-Quarterly-Journal-First-Issue.pdf",
+      "topics": ["medicinal plants", "tribal knowledge", "ethnobotany", "forest produce", "biodiversity"],
+      "notes": "Store traditional-use claims as documented ethnobotanical knowledge, not medical advice or proven treatment efficacy."
+    },
+    {
+      "id": "jbb_traditional_folk_herbal_medicine_chapter",
+      "title": "Plants in Indian Traditional Medicine / Traditional and Folk Herbal Medicine chapter",
+      "authorOrPublisher": "Jharkhand Biodiversity Board hosted publication",
+      "sourceType": "BIODIVERSITY_REFERENCE",
+      "historicalOrCurrent": "CURRENT_REFERENCE",
+      "rightsClass": "HOSTED_BY_OFFICIAL_SOURCE_VERIFY_REUSE_SCOPE",
+      "status": "RIGHTS_VERIFIED_FOR_REFERENCE_ONLY",
+      "sourceUrl": "https://jbb.jharkhand.gov.in/wp-content/uploads/2024/12/88.-Plants-in-Indian-Traditional-Medicine-Formulation-book-chapter-formulation.pdf",
+      "topics": ["ethnobotany", "traditional medicine", "tribal plant use", "conservation"],
+      "notes": "Use as contextual reference; avoid health recommendations."
+    }
+  ]
+}
