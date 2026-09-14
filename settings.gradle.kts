@@ -18,3 +18,4 @@ rootProject.name = "JoharAI"
 include(":app")
 include(":johar-domain")
 include(":johar-data")
+include(":johar-design-system")
