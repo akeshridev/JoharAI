@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,13 +14,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.akeshridev.johar.designsystem.JoharCardAction
+import com.akeshridev.johar.designsystem.JoharCardDensity
 import com.akeshridev.johar.designsystem.JoharComparisonCard
 import com.akeshridev.johar.designsystem.JoharComparisonItem
 import com.akeshridev.johar.designsystem.JoharConstraintSummary
@@ -46,33 +54,55 @@ class DesignCatalogActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            JoharTheme {
-                DesignCatalogScreen()
+            var darkTheme by remember { mutableStateOf(false) }
+            JoharTheme(darkTheme = darkTheme) {
+                DesignCatalogScreen(
+                    darkTheme = darkTheme,
+                    onDarkThemeChange = { darkTheme = it },
+                )
             }
         }
     }
 }
 
 @Composable
-private fun DesignCatalogScreen() {
+private fun DesignCatalogScreen(
+    darkTheme: Boolean,
+    onDarkThemeChange: (Boolean) -> Unit,
+) {
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(vertical = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(28.dp),
+            verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
-            Column(Modifier.padding(horizontal = 20.dp)) {
-                Text("Johar Design Catalog", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-                Text(
-                    "Mock Ranchi data • Design-system playground",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.65f),
-                )
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Text("Johar Design Catalog", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+                    Text(
+                        "Mock Ranchi data • Design-system playground",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.65f),
+                    )
+                }
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Switch(checked = darkTheme, onCheckedChange = onDarkThemeChange)
+                    Text(if (darkTheme) "Dark" else "Light", style = MaterialTheme.typography.labelSmall)
+                }
             }
 
-            CatalogSection("Place card") { JoharPlaceCard(model = MockJoharData.rockGarden) }
+            CatalogSection("Place card — standard") {
+                JoharPlaceCard(model = MockJoharData.rockGarden)
+            }
+
+            CatalogSection("Place card — compact") {
+                JoharPlaceCard(model = MockJoharData.rockGarden, density = JoharCardDensity.COMPACT)
+            }
 
             CatalogSection("Nearby carousel", horizontalPadding = false) {
                 Column(Modifier.padding(start = 20.dp)) {
@@ -85,6 +115,7 @@ private fun DesignCatalogScreen() {
             }
 
             CatalogSection("Route card") { JoharRouteCard(model = MockJoharData.airportRoute) }
+            CatalogSection("Route card — compact") { JoharRouteCard(model = MockJoharData.airportRoute, density = JoharCardDensity.COMPACT) }
             CatalogSection("Itinerary") { JoharItineraryCard(model = MockJoharData.familyDay) }
 
             CatalogSection("Map preview") {
@@ -143,6 +174,7 @@ private fun DesignCatalogScreen() {
                         title = "Pahari Mandir",
                         text = "Today's opening status was recently verified.",
                         tone = JoharInfoTone.LIVE,
+                        compact = true,
                     )
                 }
             }
