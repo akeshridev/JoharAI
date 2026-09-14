@@ -6,32 +6,112 @@
   "pageMin": 1,
   "pageMax": 127,
   "sectionCount": 32,
+  "mostFrequentSections": [
+    {
+      "section": "The Two Brothers, Jhorea, and Jhore.",
+      "chunkCount": 7
+    },
+    {
+      "section": "The Story of Bitaram.",
+      "chunkCount": 6
+    },
+    {
+      "section": "The Story of Jhore.",
+      "chunkCount": 5
+    },
+    {
+      "section": "The Magic Lamp.",
+      "chunkCount": 4
+    },
+    {
+      "section": "The Story of Sit and Bosont.",
+      "chunkCount": 4
+    },
+    {
+      "section": "The Story of Lelha. — II.",
+      "chunkCount": 4
+    },
+    {
+      "section": "The Story of Kara and Guja.",
+      "chunkCount": 3
+    },
+    {
+      "section": "The Magic Fiddle",
+      "chunkCount": 3
+    },
+    {
+      "section": "Gumda, the Hero.",
+      "chunkCount": 3
+    },
+    {
+      "section": "The Story of Lelha. — III.",
+      "chunkCount": 3
+    },
+    {
+      "section": "The Tiger and Ulta's Mother.",
+      "chunkCount": 3
+    },
+    {
+      "section": "The Greatest Cheat of Seven.",
+      "chunkCount": 3
+    }
+  ],
   "chunkWordMin": 53,
   "chunkWordMax": 695,
   "chunkWordAverage": 512.8,
   "shortChunkCount": 6,
+  "shortChunkPageBands": [
+    {
+      "pageStart": 1,
+      "pageEnd": 25,
+      "shortChunkCount": 1
+    },
+    {
+      "pageStart": 26,
+      "pageEnd": 50,
+      "shortChunkCount": 1
+    },
+    {
+      "pageStart": 51,
+      "pageEnd": 76,
+      "shortChunkCount": 1
+    },
+    {
+      "pageStart": 77,
+      "pageEnd": 101,
+      "shortChunkCount": 2
+    },
+    {
+      "pageStart": 102,
+      "pageEnd": 127,
+      "shortChunkCount": 1
+    }
+  ],
   "shortChunkSamples": [
     {
       "chunkId": "book_santal_folk_tales_1891:00011:bc8b4b327e5c",
       "chapterOrSection": "The Two Brothers, Jhorea, and Jhore.",
       "pageStart": 14,
       "pageEnd": 15,
+      "pageReferenceType": null,
       "wordCount": 149,
-      "preview": "Jhore was next seen seated in a fig-tree eating the fruit. Some cattle merchants, passing under the tree with a large herd of cattle, saw him eating the figs, and asked him what it was he was eating. He replied, “Beat the bullock that is going last, and you shall find it.” So they beat the bullock till it fell down. In"
+      "preview": "Jhore was next seen seated in a fig-tree eating the fruit. Some cattle merchants, passing under the tree with a large herd of cattle, saw him eating the figs, and asked him what it was he was eating. He replied, “Beat the bullock that is going last, and you shall find it.” So they beat the bullock till it fell down. In the meantime, the herd had gone on ahead, and Jhore running after them drove them to his own house. His brother seeing the large herd of cattle, asked to whom "
     },
     {
       "chunkId": "book_santal_folk_tales_1891:00022:9d6315816abd",
       "chapterOrSection": "The Story of Bitaram.",
       "pageStart": 29,
       "pageEnd": 30,
+      "pageReferenceType": null,
       "wordCount": 99,
-      "preview": "Bitaram and his wife lived happily together, and every thing they took in hand prospered, so that before long they were richer than the king himself. One great source of Bitaram's wealth was a cow which the princess had brought him as part of her dowry. Being envious of their good fortune, the raja and his sons resolve"
+      "preview": "Bitaram and his wife lived happily together, and every thing they took in hand prospered, so that before long they were richer than the king himself. One great source of Bitaram's wealth was a cow which the princess had brought him as part of her dowry. Being envious of their good fortune, the raja and his sons resolved to kill the cow, and thus obtain possession of all the gold and silver. So they put the cow to death, but when they had cut her up they were disappointed as n"
     },
     {
       "chunkId": "book_santal_folk_tales_1891:00049:a4483410bd59",
       "chapterOrSection": "The Story of Lelha. — II.",
       "pageStart": 72,
       "pageEnd": 73,
+      "pageReferenceType": null,
       "wordCount": 53,
       "preview": "It so happened that as the raja gazed upon the fairy scene around him, Koema Jugi turned up, and addressing the raja said, “You are lost in wonder, but if you hang hiras and manis on the branches the whole country will be resplendent. Then your wonder and amazement will be increased twentyfold.”"
     },
@@ -40,24 +120,27 @@
       "chapterOrSection": "The Story of Lelha. — V.",
       "pageStart": 81,
       "pageEnd": 82,
+      "pageReferenceType": null,
       "wordCount": 154,
-      "preview": "They then returned to their boat and rowed back to the place from which they had started. From there they went to the house of Lelha's bride. When she heard of their arrival she ordered refreshments to be prepared for them. Her servants also all came, and gave Lelha and his brothers oil, and sent them to bathe. On thei"
+      "preview": "They then returned to their boat and rowed back to the place from which they had started. From there they went to the house of Lelha's bride. When she heard of their arrival she ordered refreshments to be prepared for them. Her servants also all came, and gave Lelha and his brothers oil, and sent them to bathe. On their return from bathing, their feet were washed by servants, and they were then taken into the house.  After they were seated Lelha's brothers began to whisper to"
     },
     {
       "chunkId": "book_santal_folk_tales_1891:00068:6a0c7357e0dd",
       "chapterOrSection": "The Greatest Cheat of Seven.",
       "pageStart": 101,
       "pageEnd": 102,
+      "pageReferenceType": null,
       "wordCount": 117,
-      "preview": "Then the seven brothers killed each his youngest wife, and carried the bodies to a distant country to dispose of them. When the people of that country knew the object for which they had come they said to them, “What sort of men are you hawking corpses about the towns and villages? You must be the worst, or else most st"
+      "preview": "Then the seven brothers killed each his youngest wife, and carried the bodies to a distant country to dispose of them. When the people of that country knew the object for which they had come they said to them, “What sort of men are you hawking corpses about the towns and villages? You must be the worst, or else most stupid of men.” Hearing this the brothers were dismayed, and began to take in the situation. They perceived that the cheat had again deceived them, and they retra"
     },
     {
       "chunkId": "book_santal_folk_tales_1891:00071:8f9efb3c40e5",
       "chapterOrSection": "The Story of Two Princesses.",
       "pageStart": 105,
       "pageEnd": 106,
+      "pageReferenceType": null,
       "wordCount": 216,
-      "preview": "The rani hid the jugi's banjo in her own room, because she knew her sister to be in it. Whenever the raja and rani went out to walk the girl left the banjo and having bathed and dressed her hair, cooked the family meal, and then returned to the banjo. This happened so often that at last, it came to the knowledge of the"
+      "preview": "The rani hid the jugi's banjo in her own room, because she knew her sister to be in it. Whenever the raja and rani went out to walk the girl left the banjo and having bathed and dressed her hair, cooked the family meal, and then returned to the banjo. This happened so often that at last, it came to the knowledge of the raja that a fairy lived in the banjo, and when the way was clear used to come out and prepare food for the rani and himself. So he determined to lie in wait fo"
     }
   ],
   "duplicateChunkIdCount": 0,
@@ -68,30 +151,141 @@
     "6 chunks are below 250 words; allowed at semantic/section boundaries but should be sampled."
   ],
   "failures": [],
-  "reviewSamples": [
+  "positionSamples": [
     {
       "chunkId": "book_santal_folk_tales_1891:00001:09eaac985a79",
       "chapterOrSection": "The Magic Lamp.",
       "pageStart": 1,
       "pageEnd": 2,
+      "pageReferenceType": null,
       "wordCount": 528,
-      "preview": "In the capital of a certain raja, there lived a poor widow. She had an only son who was of comely form and handsome countenance. One day a merchant from a far country came to her house, and standing in front of the door called out, “dada, dada,” (elder brother). The widow replied, “He is no more, he died many years ago"
+      "preview": "In the capital of a certain raja, there lived a poor widow. She had an only son who was of comely form and handsome countenance. One day a merchant from a far country came to her house, and standing in front of the door called out, “dada, dada,” (elder brother). The widow replied, “He is no more, he died many years ago.” On hearing this the merchant wept bitterly, mourning the loss of his younger brother. He remained some days in his sister-in-law's house, at the end of which"
+    },
+    {
+      "chunkId": "book_santal_folk_tales_1891:00009:b593fc746037",
+      "chapterOrSection": "The Two Brothers, Jhorea, and Jhore.",
+      "pageStart": 11,
+      "pageEnd": 12,
+      "pageReferenceType": null,
+      "wordCount": 670,
+      "preview": "It now being dark, Jhore descended from his perch, and taking up the food which had been cooked for his funeral feast, left the house by another door. Passing on to the high way, he kept calling out, “Travellers by the road, or dwellers in the jungle, if you require food, come here.” Some thieves hearing him, said, “Come, let us go and ask some.” So going to him they said, “Give us some too, Jhore.” But he replied, “It is for me alone.” On their asking a second time, he give "
+    },
+    {
+      "chunkId": "book_santal_folk_tales_1891:00022:9d6315816abd",
+      "chapterOrSection": "The Story of Bitaram.",
+      "pageStart": 29,
+      "pageEnd": 30,
+      "pageReferenceType": null,
+      "wordCount": 99,
+      "preview": "Bitaram and his wife lived happily together, and every thing they took in hand prospered, so that before long they were richer than the king himself. One great source of Bitaram's wealth was a cow which the princess had brought him as part of her dowry. Being envious of their good fortune, the raja and his sons resolved to kill the cow, and thus obtain possession of all the gold and silver. So they put the cow to death, but when they had cut her up they were disappointed as n"
     },
     {
       "chunkId": "book_santal_folk_tales_1891:00043:3ed29757baa9",
       "chapterOrSection": "Lipi, and Lapra.",
       "pageStart": 63,
       "pageEnd": 65,
+      "pageReferenceType": null,
       "wordCount": 354,
-      "preview": "He called them again and again. The dogs heard the voice, and struggled to get loose, and at length, by a great effort, they succeeded in breaking the ropes with which they were bound, and ran in the direction from which the sound proceeded. Now and again the cries ceased, and they stood still until they again heard th"
+      "preview": "He called them again and again. The dogs heard the voice, and struggled to get loose, and at length, by a great effort, they succeeded in breaking the ropes with which they were bound, and ran in the direction from which the sound proceeded. Now and again the cries ceased, and they stood still until they again heard them, when they ran as before. Having reached the valley that separated the two hills, they could no longer hear the wailing as before, and they were greatly perp"
+    },
+    {
+      "chunkId": "book_santal_folk_tales_1891:00063:dea8b22d6e4e",
+      "chapterOrSection": "The Tiger and Ulta's Mother.",
+      "pageStart": 93,
+      "pageEnd": 94,
+      "pageReferenceType": null,
+      "wordCount": 686,
+      "preview": "A tiger cub was in the habit of playing under the shade of a certain tree, in which was a crane's nest with a young one in it. The parent cranes brought frogs and lizards to their young one, and what it could not eat it used to throw down to the young tiger, and in this way the two became greatly attached to each other. After a time the tigress died, and left the cub alone in the world. The young crane felt much pity for its afflicted friend, and could not bear the thought of"
+    },
+    {
+      "chunkId": "book_santal_folk_tales_1891:00076:4b6fe9750a3d",
+      "chapterOrSection": "The Story of Jhore.",
+      "pageStart": 112,
+      "pageEnd": 114,
+      "pageReferenceType": null,
+      "wordCount": 654,
+      "preview": "Matters went on thus for many days till at last the buffaloe cows said among themselves, “We must watch for, and catch whoever it is who keeps our calves so clean.” So a very powerful wild buffaloe was appointed to lie in wait, but he missed seeing Jhore when he led the calves to the water and bathed them, and cleaned and swept out their stall. The next day another took his place, but he succeeded no better. The calves were taken to the water, bathed, brought back, and their "
     },
     {
       "chunkId": "book_santal_folk_tales_1891:00084:75c5d1990c2b",
       "chapterOrSection": "A Simple Thief.",
       "pageStart": 126,
       "pageEnd": 127,
+      "pageReferenceType": null,
       "wordCount": 451,
-      "preview": "After a little time spent in considering the offer the thieves had made him, he decided to accompany them. The thieves were pleased to receive him into their gang, and at once they proceeded towards a certain village. Having arrived there they went to a rich man's house, and dug a hole through the wall. They then said "
+      "preview": "After a little time spent in considering the offer the thieves had made him, he decided to accompany them. The thieves were pleased to receive him into their gang, and at once they proceeded towards a certain village. Having arrived there they went to a rich man's house, and dug a hole through the wall. They then said to our hero of the mare's egg, “You creep in.” He raised no objection, but went willingly. They said to him, “Bring out all the heavy articles you can find, the"
+    }
+  ],
+  "pageSamples": [
+    {
+      "chunkId": "book_santal_folk_tales_1891:00005:4ff01121d4f7",
+      "chapterOrSection": "The Two Brothers, Jhorea, and Jhore.",
+      "pageStart": 6,
+      "pageEnd": 7,
+      "pageReferenceType": null,
+      "wordCount": 401,
+      "preview": "There were two brothers, whose parents died, leaving them orphans when very young. The name of the elder was Jhorea, and of the younger Jhore. On the death of their parents, the two brothers went to seek employment, which they found in a certain village, far from where their home had been. The elder, Jhorea, was engaged as a farm servant, and the younger, Jhore, as village goat-herd.  After some time, it so happened that one day the brothers had no rice for their dinner, and ",
+      "targetPage": 7
+    },
+    {
+      "chunkId": "book_santal_folk_tales_1891:00016:d09af8cc014f",
+      "chapterOrSection": "The Story of Kara and Guja.",
+      "pageStart": 20,
+      "pageEnd": 22,
+      "pageReferenceType": null,
+      "wordCount": 421,
+      "preview": "Now it so happened that the king had promised to give his daughter and half of his kingdom to the man who should slay the demon. Early in the morning a Dome, who was passing, discovered the body of the demon, and said within himself, “I will take it to the king and claim the reward.” So running home he broke all the furniture in his house and beat his old woman saying, “Get out of this. I am about to bring the king's daughter home as my bride.” He then returned quickly, and t",
+      "targetPage": 20
+    },
+    {
+      "chunkId": "book_santal_folk_tales_1891:00028:323ec4a0e726",
+      "chapterOrSection": "The Story of Sit and Bosont.",
+      "pageStart": 37,
+      "pageEnd": 40,
+      "pageReferenceType": null,
+      "wordCount": 561,
+      "preview": "The daughter of the raja of that city, while walking on the roof of the palace, enjoying the cool of the evening, saw Bosont seated on the ship's mast. She at once fell violently in love with him, and descending to her room, feigned sickness. Her parents called in the most famed physicians, but their skill was of no avail, the young lady's illness increased in intensity. At last, when her parents began to give up hope of saving her life, she said, “The doctors cannot do me an",
+      "targetPage": 39
+    },
+    {
+      "chunkId": "book_santal_folk_tales_1891:00043:3ed29757baa9",
+      "chapterOrSection": "Lipi, and Lapra.",
+      "pageStart": 63,
+      "pageEnd": 65,
+      "pageReferenceType": null,
+      "wordCount": 354,
+      "preview": "He called them again and again. The dogs heard the voice, and struggled to get loose, and at length, by a great effort, they succeeded in breaking the ropes with which they were bound, and ran in the direction from which the sound proceeded. Now and again the cries ceased, and they stood still until they again heard them, when they ran as before. Having reached the valley that separated the two hills, they could no longer hear the wailing as before, and they were greatly perp",
+      "targetPage": 64
+    },
+    {
+      "chunkId": "book_santal_folk_tales_1891:00060:31f71fe625a2",
+      "chapterOrSection": "The Story of Lelha. — X.",
+      "pageStart": 87,
+      "pageEnd": 89,
+      "pageReferenceType": null,
+      "wordCount": 453,
+      "preview": "The Indarpuri Kuri whom Lelha had robbed of her hira now awoke, and at once missed her precious jewel. She knew that Lelha had stolen it from her, and summoning her army to her standard marched upon Lelha's father's capital, to which she laid siege, and before many hours had elapsed, the raja was a prisoner in her hands.  This Indarpuri Kuri said to him, “Will you give up the hiras and manis, or will you fight?” The raja sent the following message to his four sons, “Will you ",
+      "targetPage": 89
+    },
+    {
+      "chunkId": "book_santal_folk_tales_1891:00073:e47892579f56",
+      "chapterOrSection": "Seven Brothers and their Sister.",
+      "pageStart": 107,
+      "pageEnd": 109,
+      "pageReferenceType": null,
+      "wordCount": 693,
+      "preview": "The brothers having seen their sister perish, went home. Their mother enquired, “Oh! my sons, where is the daughter?” They replied, “We have given her to the tank. A certain jugi gosae said to us, ‘Unless you offer up your sister you will never get water’.” On hearing this she loudly wailed the loss of her daughter. Her sons strove to mitigate her grief by saying, “Look mother, we undertook the excavation of the tank to perpetuate our name, and to gain the fruit of a meritori",
+      "targetPage": 108
+    },
+    {
+      "chunkId": "book_santal_folk_tales_1891:00080:3ea55b9d86ce",
+      "chapterOrSection": "The Girl who always found helpers.",
+      "pageStart": 119,
+      "pageEnd": 121,
+      "pageReferenceType": null,
+      "wordCount": 619,
+      "preview": "There were once upon a time, six brothers and a sister. The brothers were married. They were merchants, and their business often took them to a distance from home. On such occasions the wives were left alone with their sister-in-law. For some reason or other they hated the girl, and took every opportunity to harass and worry her.  One day when the brothers were away on a journey they said to her, “Oh! girl, go to the forest and bring a load of firewood without tying it.” What",
+      "targetPage": 121
     }
   ]
 }
