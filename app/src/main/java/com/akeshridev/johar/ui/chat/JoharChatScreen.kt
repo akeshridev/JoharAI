@@ -26,22 +26,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.akeshridev.johar.ui.components.JoharInfoCard
-import com.akeshridev.johar.ui.components.JoharItineraryCard
-import com.akeshridev.johar.ui.components.JoharPlaceCard
-import com.akeshridev.johar.ui.components.JoharRouteCard
-import com.akeshridev.johar.ui.model.JoharAction
+import com.akeshridev.johar.designsystem.JoharCardAction
+import com.akeshridev.johar.designsystem.JoharCream
+import com.akeshridev.johar.designsystem.JoharForest
+import com.akeshridev.johar.designsystem.JoharInfoCard
+import com.akeshridev.johar.designsystem.JoharItineraryCard
+import com.akeshridev.johar.designsystem.JoharPlaceCard
+import com.akeshridev.johar.designsystem.JoharRouteCard
 import com.akeshridev.johar.ui.model.JoharContent
 import com.akeshridev.johar.ui.model.JoharMessageUiModel
 import com.akeshridev.johar.ui.model.Sender
-import com.akeshridev.johar.ui.theme.JoharCream
-import com.akeshridev.johar.ui.theme.JoharForest
 
 @Composable
 fun JoharChatScreen(
     messages: List<JoharMessageUiModel>,
     onSend: (String) -> Unit,
-    onAction: (JoharAction) -> Unit,
+    onAction: (JoharCardAction) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var input by rememberSaveable { mutableStateOf("") }
@@ -126,7 +126,7 @@ private fun JoharTopBar() {
 @Composable
 private fun JoharMessage(
     message: JoharMessageUiModel,
-    onAction: (JoharAction) -> Unit,
+    onAction: (JoharCardAction) -> Unit,
 ) {
     when (message.sender) {
         Sender.USER -> UserMessage(message.content)
@@ -155,7 +155,7 @@ private fun UserMessage(content: JoharContent) {
 @Composable
 private fun JoharResponse(
     content: JoharContent,
-    onAction: (JoharAction) -> Unit,
+    onAction: (JoharCardAction) -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(0.92f),
@@ -166,15 +166,15 @@ private fun JoharResponse(
             is JoharContent.Places -> {
                 content.intro?.let { AssistantText(it) }
                 content.items.forEach { place ->
-                    JoharPlaceCard(place = place, onAction = onAction)
+                    JoharPlaceCard(model = place, onAction = onAction)
                 }
             }
-            is JoharContent.Route -> JoharRouteCard(route = content.route, onAction = onAction)
-            is JoharContent.Itinerary -> JoharItineraryCard(plan = content.plan, onAction = onAction)
+            is JoharContent.Route -> JoharRouteCard(model = content.route, onAction = onAction)
+            is JoharContent.Itinerary -> JoharItineraryCard(model = content.plan, onAction = onAction)
             is JoharContent.Info -> JoharInfoCard(
                 title = content.title,
                 text = content.text,
-                status = content.status,
+                tone = content.tone,
                 actions = content.actions,
                 onAction = onAction,
             )
