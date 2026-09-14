@@ -34,12 +34,11 @@ class LiteRtLmAnswerSynthesizer(
                         if (context.hits.isEmpty()) {
                             return@run "The offline knowledge pack does not have enough information."
                         }
-                        stage = "DEVICE_CHECK"
-                        check(!LiteRtLmRuntimePolicy.isEmulator(Build.FINGERPRINT, Build.MODEL, Build.HARDWARE, Build.PRODUCT)) {
-                            "EMULATOR_UNSUPPORTED: real inference requires a physical Android device"
-                        }
-                        check(Build.SUPPORTED_ABIS.contains("arm64-v8a")) { "DEVICE_UNSUPPORTED: arm64-v8a required" }
-                        Log.i(TAG, "DEVICE physical=true model=${Build.MODEL} hardware=${Build.HARDWARE}")
+                        stage = "DEVICE_INFO"
+                        Log.i(
+                            TAG,
+                            "DEVICE model=${Build.MODEL} hardware=${Build.HARDWARE} abis=${Build.SUPPORTED_ABIS.joinToString()}",
+                        )
                         generate(engine ?: initializeEngine().also { engine = it }, context)
                     } catch (error: CancellationException) {
                         throw error
@@ -116,8 +115,6 @@ class LiteRtLmAnswerSynthesizer(
 
     private fun failed(error: Throwable) {
         val kind = when {
-            error.message.orEmpty().startsWith("EMULATOR_UNSUPPORTED") -> "EMULATOR_UNSUPPORTED"
-            error.message.orEmpty().startsWith("DEVICE_UNSUPPORTED") -> "DEVICE_UNSUPPORTED"
             LiteRtLmRuntimePolicy.failureKind(error) != "RUNTIME_FAILURE" -> LiteRtLmRuntimePolicy.failureKind(error)
             stage == "GENERATION_START" -> "INFERENCE_FAILURE"
             else -> LiteRtLmRuntimePolicy.failureKind(error)
