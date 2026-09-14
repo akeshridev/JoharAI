@@ -9,22 +9,25 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 /**
- * Adds small, source-backed knowledge upgrades on top of the prebuilt Room seed.
- *
- * This is intentionally separate from the crawler. The booster exists so we can
- * expand grounded query/answer experiments without rebuilding the binary seed DB
- * for every content iteration. Each booster version is applied once and recorded
- * in crawled_sources. Existing entities are resolved by normalized name first so
- * the booster enriches the seed instead of creating duplicate records.
+ * Applies small, source-backed knowledge upgrades on top of the prebuilt Room seed.
+ * Each asset is versioned and idempotent so query experiments can evolve without
+ * rebuilding the binary database for every content iteration.
  */
 internal object JoharBoosterLoader {
-    private const val ASSET_PATH = "johar/johar-booster-2026.09-v1.json"
+    private val ASSET_PATHS = listOf(
+        "johar/johar-booster-2026.09-v1.json",
+        "johar/johar-booster-2026.09-v2.json",
+    )
     private const val MARKER_PREFIX = "asset://johar-booster/"
     private const val TAG = "JoharBooster"
 
     fun applyIfNeeded(context: Context, database: JoharDatabase) {
+        ASSET_PATHS.forEach { assetPath -> applyAssetIfNeeded(context, database, assetPath) }
+    }
+
+    private fun applyAssetIfNeeded(context: Context, database: JoharDatabase, assetPath: String) {
         val raw = database.openHelper.writableDatabase
-        val root = context.assets.open(ASSET_PATH).bufferedReader().use { JSONObject(it.readText()) }
+        val root = context.assets.open(assetPath).bufferedReader().use { JSONObject(it.readText()) }
         val version = root.getString("version")
         val marker = "$MARKER_PREFIX$version"
 
@@ -84,12 +87,11 @@ internal object JoharBoosterLoader {
             for (index in 0 until facts.length()) {
                 val item = facts.getJSONObject(index)
                 val entityId = resolvedEntityIds[item.getString("entityKey")] ?: continue
-                val id = "booster:$version:fact:$index"
                 raw.insert(
                     "source_facts",
                     SQLiteDatabase.CONFLICT_REPLACE,
                     ContentValues().apply {
-                        put("id", id)
+                        put("id", "booster:$version:fact:$index")
                         put("entityId", entityId)
                         put("sourceUrl", item.getString("sourceUrl"))
                         put("publisher", item.getString("publisher"))
@@ -144,7 +146,7 @@ internal object JoharBoosterLoader {
                     put("entityId", "booster:$version")
                     put("publisher", "Johar AI")
                     put("fetchedAtEpochMillis", now)
-                    put("content", "Applied $ASSET_PATH")
+                    put("content", "Applied $assetPath")
                 },
             )
             raw.setTransactionSuccessful()
@@ -154,7 +156,7 @@ internal object JoharBoosterLoader {
 
         Log.i(
             TAG,
-            "applied version=$version newEntities=$entityAdds facts=$factAdds relationships=$relationshipAdds",
+            "applied version=$version asset=$assetPath newEntities=$entityAdds facts=$factAdds relationships=$relationshipAdds",
         )
     }
 
