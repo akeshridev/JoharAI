@@ -17,19 +17,27 @@ internal object CrawlBootstrap {
     }
 
     private fun ranchiKeywords(rootEntityId: String): List<CrawlKeyword> = buildList {
+        // Highest-value V1 discovery first. Public Overpass instances are best-effort, so the
+        // earliest slots must improve everyday Ranchi usefulness even when a run degrades later.
+        seed(rootEntityId, DiscoveryCategory.PLACES, "localities in Ranchi")
+        seed(rootEntityId, DiscoveryCategory.LOCAL_BAZAR, "restaurants in Ranchi")
+        seed(rootEntityId, DiscoveryCategory.PLACES, "temples in Ranchi")
+        seed(rootEntityId, DiscoveryCategory.PLACES, "parks in Ranchi")
+        seed(rootEntityId, DiscoveryCategory.EMERGENCY, "pharmacies in Ranchi")
+        seed(rootEntityId, DiscoveryCategory.LOCAL_BAZAR, "haat in Ranchi")
+        seed(rootEntityId, DiscoveryCategory.PLACES, "railway stations in Ranchi")
+        seed(rootEntityId, DiscoveryCategory.LOCAL_BAZAR, "banks and ATMs in Ranchi")
+
         // Places, localities, tourism and mobility landmarks.
         seed(rootEntityId, DiscoveryCategory.PLACES, "neighborhoods in Ranchi")
-        seed(rootEntityId, DiscoveryCategory.PLACES, "localities in Ranchi")
         seed(rootEntityId, DiscoveryCategory.PLACES, "villages near Ranchi")
         seed(rootEntityId, DiscoveryCategory.PLACES, "tourist attractions in Ranchi")
         seed(rootEntityId, DiscoveryCategory.PLACES, "waterfalls near Ranchi")
         seed(rootEntityId, DiscoveryCategory.PLACES, "picnic spots near Ranchi")
-        seed(rootEntityId, DiscoveryCategory.PLACES, "parks in Ranchi")
         seed(rootEntityId, DiscoveryCategory.PLACES, "children parks in Ranchi")
         seed(rootEntityId, DiscoveryCategory.PLACES, "lakes near Ranchi")
         seed(rootEntityId, DiscoveryCategory.PLACES, "dams near Ranchi")
         seed(rootEntityId, DiscoveryCategory.PLACES, "viewpoints near Ranchi")
-        seed(rootEntityId, DiscoveryCategory.PLACES, "temples in Ranchi")
         seed(rootEntityId, DiscoveryCategory.PLACES, "churches in Ranchi")
         seed(rootEntityId, DiscoveryCategory.PLACES, "mosques in Ranchi")
         seed(rootEntityId, DiscoveryCategory.PLACES, "gurudwaras in Ranchi")
@@ -38,7 +46,6 @@ internal object CrawlBootstrap {
         seed(rootEntityId, DiscoveryCategory.PLACES, "hotels in Ranchi")
         seed(rootEntityId, DiscoveryCategory.PLACES, "convention centres in Ranchi")
         seed(rootEntityId, DiscoveryCategory.PLACES, "event venues in Ranchi")
-        seed(rootEntityId, DiscoveryCategory.PLACES, "railway stations in Ranchi")
         seed(rootEntityId, DiscoveryCategory.PLACES, "bus terminals in Ranchi")
         seed(rootEntityId, DiscoveryCategory.PLACES, "airport in Ranchi")
         seed(rootEntityId, DiscoveryCategory.PLACES, "parking in Ranchi")
@@ -60,7 +67,6 @@ internal object CrawlBootstrap {
         seed(rootEntityId, DiscoveryCategory.FOOD, "tribal food in Ranchi")
         seed(rootEntityId, DiscoveryCategory.FOOD, "Dhuska in Ranchi")
         seed(rootEntityId, DiscoveryCategory.FOOD, "Rugra in Ranchi")
-        seed(rootEntityId, DiscoveryCategory.LOCAL_BAZAR, "restaurants in Ranchi")
         seed(rootEntityId, DiscoveryCategory.LOCAL_BAZAR, "vegetarian restaurants in Ranchi")
         seed(rootEntityId, DiscoveryCategory.LOCAL_BAZAR, "cafes in Ranchi")
         seed(rootEntityId, DiscoveryCategory.LOCAL_BAZAR, "street food in Ranchi")
@@ -82,13 +88,11 @@ internal object CrawlBootstrap {
         // Health and emergency.
         seed(rootEntityId, DiscoveryCategory.EMERGENCY, "hospitals in Ranchi")
         seed(rootEntityId, DiscoveryCategory.EMERGENCY, "clinics in Ranchi")
-        seed(rootEntityId, DiscoveryCategory.EMERGENCY, "pharmacies in Ranchi")
         seed(rootEntityId, DiscoveryCategory.EMERGENCY, "police stations in Ranchi")
         seed(rootEntityId, DiscoveryCategory.EMERGENCY, "fire stations in Ranchi")
         seed(rootEntityId, DiscoveryCategory.EMERGENCY, "ambulance services in Ranchi")
 
         // Markets, shopping and everyday local services.
-        seed(rootEntityId, DiscoveryCategory.LOCAL_BAZAR, "haat in Ranchi")
         seed(rootEntityId, DiscoveryCategory.LOCAL_BAZAR, "bazar in Ranchi")
         seed(rootEntityId, DiscoveryCategory.LOCAL_BAZAR, "weekly markets in Ranchi")
         seed(rootEntityId, DiscoveryCategory.LOCAL_BAZAR, "mandi in Ranchi")
@@ -99,7 +103,6 @@ internal object CrawlBootstrap {
         seed(rootEntityId, DiscoveryCategory.LOCAL_BAZAR, "handicraft shops in Ranchi")
         seed(rootEntityId, DiscoveryCategory.LOCAL_BAZAR, "shopping malls in Ranchi")
         seed(rootEntityId, DiscoveryCategory.LOCAL_BAZAR, "supermarkets in Ranchi")
-        seed(rootEntityId, DiscoveryCategory.LOCAL_BAZAR, "banks and ATMs in Ranchi")
         seed(rootEntityId, DiscoveryCategory.LOCAL_BAZAR, "petrol pumps in Ranchi")
         seed(rootEntityId, DiscoveryCategory.LOCAL_BAZAR, "EV charging stations in Ranchi")
         seed(rootEntityId, DiscoveryCategory.LOCAL_BAZAR, "public toilets in Ranchi")
