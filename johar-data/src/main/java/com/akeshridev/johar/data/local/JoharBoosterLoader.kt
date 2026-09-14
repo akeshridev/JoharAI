@@ -17,6 +17,7 @@ internal object JoharBoosterLoader {
     private val ASSET_PATHS = listOf(
         "johar/johar-booster-2026.09-v1.json",
         "johar/johar-booster-2026.09-v2.json",
+        "johar/johar-booster-2026.09-v3-spatial.json",
     )
     private const val MARKER_PREFIX = "asset://johar-booster/"
     private const val TAG = "JoharBooster"
@@ -63,12 +64,12 @@ internal object JoharBoosterLoader {
                             put("normalizedName", normalizedName)
                             put("type", item.getString("type"))
                             put("description", item.optString("description").takeIf(String::isNotBlank))
-                            putNull("latitude")
-                            putNull("longitude")
-                            put("region", "Jharkhand")
-                            put("country", "India")
+                            putOptionalDouble("latitude", item, "latitude")
+                            putOptionalDouble("longitude", item, "longitude")
+                            put("region", item.optString("region").takeIf(String::isNotBlank) ?: "Jharkhand")
+                            put("country", item.optString("country").takeIf(String::isNotBlank) ?: "India")
                             put("aliasesJson", item.optJSONArray("aliases").toJsonArrayString())
-                            put("externalRefsJson", JSONObject().put("joharPackType", item.optString("packType")).toString())
+                            put("externalRefsJson", boosterRefs(item).toString())
                             put("discoveredAtEpochMillis", now)
                             put("updatedAtEpochMillis", now)
                             putNull("lastCrawledAtEpochMillis")
@@ -83,7 +84,7 @@ internal object JoharBoosterLoader {
                 resolvedEntityIds[key] = entityId
             }
 
-            val facts = root.getJSONArray("facts")
+            val facts = root.optJSONArray("facts") ?: JSONArray()
             for (index in 0 until facts.length()) {
                 val item = facts.getJSONObject(index)
                 val entityId = resolvedEntityIds[item.getString("entityKey")] ?: continue
@@ -169,17 +170,20 @@ internal object JoharBoosterLoader {
         type: String? = null,
     ): ExistingEntity? {
         val sql = if (type == null) {
-            "SELECT id, description, externalRefsJson FROM knowledge_entities WHERE normalizedName = ? ORDER BY enabled DESC, discoveryDepth ASC LIMIT 1"
+            "SELECT id, description, externalRefsJson, latitude, longitude, region FROM knowledge_entities WHERE normalizedName = ? ORDER BY enabled DESC, discoveryDepth ASC LIMIT 1"
         } else {
-            "SELECT id, description, externalRefsJson FROM knowledge_entities WHERE normalizedName = ? AND type = ? ORDER BY enabled DESC, discoveryDepth ASC LIMIT 1"
+            "SELECT id, description, externalRefsJson, latitude, longitude, region FROM knowledge_entities WHERE normalizedName = ? AND type = ? ORDER BY enabled DESC, discoveryDepth ASC LIMIT 1"
         }
         val args = if (type == null) arrayOf(normalizedName) else arrayOf(normalizedName, type)
         return db.query(sql, args).use { cursor ->
             if (!cursor.moveToFirst()) return@use null
             ExistingEntity(
                 id = cursor.getString(0),
-                description = cursor.getString(1),
+                description = if (cursor.isNull(1)) null else cursor.getString(1),
                 externalRefsJson = cursor.getString(2),
+                latitude = if (cursor.isNull(3)) null else cursor.getDouble(3),
+                longitude = if (cursor.isNull(4)) null else cursor.getDouble(4),
+                region = if (cursor.isNull(5)) null else cursor.getString(5),
             )
         }
     }
@@ -194,15 +198,33 @@ internal object JoharBoosterLoader {
         if (existing.description.isNullOrBlank()) {
             item.optString("description").takeIf(String::isNotBlank)?.let { values.put("description", it) }
         }
-        val packType = item.optString("packType")
-        if (packType.isNotBlank()) {
-            val refs = runCatching { JSONObject(existing.externalRefsJson.ifBlank { "{}" }) }.getOrElse { JSONObject() }
-            if (refs.optString("joharPackType").isBlank()) {
-                refs.put("joharPackType", packType)
-                values.put("externalRefsJson", refs.toString())
-            }
+        if (existing.latitude == null && item.has("latitude") && !item.isNull("latitude")) {
+            values.put("latitude", item.getDouble("latitude"))
         }
+        if (existing.longitude == null && item.has("longitude") && !item.isNull("longitude")) {
+            values.put("longitude", item.getDouble("longitude"))
+        }
+        item.optString("region").takeIf(String::isNotBlank)?.let { desiredRegion ->
+            if (!existing.region.equals(desiredRegion, ignoreCase = true)) values.put("region", desiredRegion)
+        }
+
+        val refs = runCatching { JSONObject(existing.externalRefsJson.ifBlank { "{}" }) }.getOrElse { JSONObject() }
+        val boosterRefs = boosterRefs(item)
+        boosterRefs.keys().forEach { key -> refs.put(key, boosterRefs.get(key)) }
+        values.put("externalRefsJson", refs.toString())
+
         db.update("knowledge_entities", SQLiteDatabase.CONFLICT_ABORT, values, "id = ?", arrayOf(existing.id))
+    }
+
+    private fun boosterRefs(item: JSONObject): JSONObject = JSONObject().apply {
+        item.optString("packType").takeIf(String::isNotBlank)?.let { put("joharPackType", it) }
+        item.optJSONObject("externalRefs")?.let { refs ->
+            refs.keys().forEach { key -> put(key, refs.get(key)) }
+        }
+    }
+
+    private fun ContentValues.putOptionalDouble(column: String, item: JSONObject, key: String) {
+        if (item.has(key) && !item.isNull(key)) put(column, item.getDouble(key)) else putNull(column)
     }
 
     private fun JSONArray?.toJsonArrayString(): String = this?.toString() ?: "[]"
@@ -211,5 +233,8 @@ internal object JoharBoosterLoader {
         val id: String,
         val description: String?,
         val externalRefsJson: String,
+        val latitude: Double?,
+        val longitude: Double?,
+        val region: String?,
     )
 }
