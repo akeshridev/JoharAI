@@ -110,3 +110,10 @@ Manual enqueue performs an immediate crawl and ensures a unique 24-hour statewid
 - No Android/network/database types in `johar-domain`.
 - Presentation never imports source adapters or DAOs directly.
 - Keep seed creation, retrieval, source fetching, extraction, storage, discovery, and scheduling independently replaceable.
+
+## Local answer synthesis runtime
+- `LiteRtLmAnswerSynthesizer` consumes the existing evidence prompt; retrieval and frozen evaluation stay independent. Empty retrieval never invokes the model.
+- One synthesizer per owning chat/ViewModel lifecycle; `NativeInferenceWorker` serializes creation, initialization, generation, and asynchronous cleanup on one background thread. Call `close()` when that owner clears.
+- Gemma 3 1B int4 uses CPU on physical ARM64 devices, with a 2,048-token context and per-request conversations. Emulator inference remains explicitly skipped. A 90-second caller timeout retires the worker; native cleanup waits for any blocked JNI call to return.
+- Validate the separately delivered local `.litertlm` file before engine creation. Inference never downloads. `LocalModelStore` remains the delivery boundary for future PAD/download support. Header validation is not integrity verification; provisioning must verify the selected Gemma artifact size/checksum. No Qwen size or URL applies to Gemma.
+- SDK is pinned to 0.17.0. Keep model payloads outside APK/assets and Git. See `docs/litert-lm-device-testing.md` for physical-device acceptance checks.

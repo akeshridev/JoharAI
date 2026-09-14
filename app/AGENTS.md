@@ -20,3 +20,6 @@ The one chat surface may render rich answer components inline, such as entity ca
 
 ## Current flow
 `MainActivity` -> `MainViewModel` -> `ScheduleSourceCrawlUseCase` -> `SourceCrawlScheduler` -> data WorkManager implementation.
+
+## Existing LLM developer harness
+The current harness also runs retrieval, deterministic answers, and a grounded LLM test. `MainViewModel` retains one synthesizer across test clicks and closes it in `onCleared`; the test does not download models. These existing data imports are a temporary harness exception to the composition-only rule above; do not expand them into new product architecture. Frozen retrieval evaluation remains unchanged.

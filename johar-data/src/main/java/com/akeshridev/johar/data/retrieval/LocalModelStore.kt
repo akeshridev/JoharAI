@@ -13,7 +13,7 @@ import java.net.URL
  *
  * The configured model is large enough that a network connection can sometimes
  * end early without throwing. A file is therefore considered ready only when its
- * size matches the pinned model artifact, never merely because it is non-empty.
+ * header is valid. Delivery must verify the selected artifact size/checksum separately.
  */
 class LocalModelStore(
     context: Context,
@@ -29,7 +29,7 @@ class LocalModelStore(
         val sizeBytes = file.takeIf(File::isFile)?.length() ?: 0L
         return LocalModelStatus(
             path = file.absolutePath,
-            isAvailable = file.isFile && sizeBytes == EXPECTED_MODEL_SIZE_BYTES,
+            isAvailable = runCatching { LocalModelValidator.validate(file) }.isSuccess,
             sizeBytes = sizeBytes,
         )
     }
@@ -37,11 +37,13 @@ class LocalModelStore(
     fun ensureDirectory(): File = modelFile.parentFile!!.also(File::mkdirs)
 
     fun downloadIfMissing(
-        modelUrl: String = DEFAULT_MODEL_URL,
+        modelUrl: String,
+        expectedBytes: Long,
         onProgress: (downloadedBytes: Long, totalBytes: Long) -> Unit = { _, _ -> },
     ): LocalModelStatus {
+        require(expectedBytes > 8)
         val existing = status()
-        if (existing.isAvailable) return existing
+        if (existing.isAvailable && existing.sizeBytes == expectedBytes) return existing
 
         ensureDirectory()
         val target = modelFile
@@ -67,8 +69,8 @@ class LocalModelStore(
 
             val contentLength = connection.contentLengthLong
             if (contentLength > 0L) {
-                check(contentLength == EXPECTED_MODEL_SIZE_BYTES) {
-                    "Unexpected model Content-Length: $contentLength; expected $EXPECTED_MODEL_SIZE_BYTES"
+                check(contentLength == expectedBytes) {
+                    "Unexpected model Content-Length: $contentLength; expected $expectedBytes"
                 }
             }
 
@@ -81,18 +83,19 @@ class LocalModelStore(
                         if (read < 0) break
                         output.write(buffer, 0, read)
                         downloadedBytes += read
-                        onProgress(downloadedBytes, EXPECTED_MODEL_SIZE_BYTES)
+                        onProgress(downloadedBytes, expectedBytes)
                     }
                 }
             }
 
-            check(downloadedBytes == EXPECTED_MODEL_SIZE_BYTES) {
-                "Incomplete model download: $downloadedBytes bytes; expected $EXPECTED_MODEL_SIZE_BYTES"
+            check(downloadedBytes == expectedBytes) {
+                "Incomplete model download: $downloadedBytes bytes; expected $expectedBytes"
             }
-            check(temporary.length() == EXPECTED_MODEL_SIZE_BYTES) {
-                "Downloaded model file size mismatch: ${temporary.length()} bytes; expected $EXPECTED_MODEL_SIZE_BYTES"
+            check(temporary.length() == expectedBytes) {
+                "Downloaded model file size mismatch: ${temporary.length()} bytes; expected $expectedBytes"
             }
 
+            LocalModelValidator.validate(temporary, expectedBytes)
             if (target.exists()) target.delete()
             check(temporary.renameTo(target)) {
                 "Unable to move downloaded model into ${target.absolutePath}"
@@ -109,14 +112,8 @@ class LocalModelStore(
 
     companion object {
         const val MODEL_DIRECTORY = "models"
-        const val DEFAULT_MODEL_FILE_NAME = "johar-qwen2.5-1.5b.litertlm"
+        const val DEFAULT_MODEL_FILE_NAME = "gemma3-1b-it-int4.litertlm"
 
-        // Qwen2.5-1.5B-Instruct_multi-prefill-seq_q8_ekv4096.litertlm
-        const val EXPECTED_MODEL_SIZE_BYTES = 1_597_931_520L
-
-        const val DEFAULT_MODEL_URL =
-            "https://huggingface.co/litert-community/Qwen2.5-1.5B-Instruct/resolve/main/" +
-                "Qwen2.5-1.5B-Instruct_multi-prefill-seq_q8_ekv4096.litertlm?download=true"
     }
 }
 

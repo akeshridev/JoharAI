@@ -23,6 +23,13 @@ class MainViewModel(
 ) : ViewModel() {
 
     private val ragContextBuilder = OfflineRagContextBuilder(offlineKnowledgeRetriever)
+    private val synthesizer = LiteRtLmAnswerSynthesizer(localModelStore.modelFile.absolutePath)
+
+    override fun onCleared() {
+        synthesizer.close()
+        super.onCleared()
+    }
+
     private val answerGenerator = DeterministicJoharAnswerGenerator(offlineKnowledgeRetriever)
 
     fun testOfflineRetrieval() {
@@ -60,48 +67,24 @@ class MainViewModel(
 
     fun testOnDeviceLlm() {
         viewModelScope.launch(Dispatchers.IO) {
-            val status = try {
-                val current = localModelStore.status()
-                if (current.isAvailable) {
-                    current
-                } else {
-                    Log.i(LLM_TAG, "MODEL_DOWNLOAD_START")
-                    localModelStore.downloadIfMissing().also {
-                        Log.i(LLM_TAG, "MODEL_DOWNLOAD_COMPLETE path=${it.path} sizeBytes=${it.sizeBytes}")
-                    }
-                }
-            } catch (throwable: Throwable) {
-                Log.e(LLM_TAG, "MODEL_DOWNLOAD_FAILED: ${throwable.message}", throwable)
-                return@launch
-            }
-
-            if (!status.isAvailable) {
-                Log.w(LLM_TAG, "MODEL_NOT_AVAILABLE path=${status.path}")
-                return@launch
-            }
-
             val query = LLM_TEST_QUERY
             val context = ragContextBuilder.build(query)
-            Log.i(
-                LLM_TAG,
-                "MODEL_READY path=${status.path} sizeBytes=${status.sizeBytes} query=\"$query\" evidence=${context.hits.map { it.name }}",
-            )
-
-            val synthesizer = LiteRtLmAnswerSynthesizer(status.path)
             val startedAt = SystemClock.elapsedRealtime()
             try {
                 val answer = synthesizer.synthesize(context)
                 val latencyMs = SystemClock.elapsedRealtime() - startedAt
                 Log.i(LLM_TAG, "SUCCESS latencyMs=$latencyMs query=\"$query\" answer=\"$answer\"")
-            } catch (throwable: Throwable) {
+            } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                throw cancelled
+            } catch (unavailable: LinkageError) {
+                Log.e(LLM_TAG, "FAILED kind=RUNTIME_UNAVAILABLE reason=${unavailable.message}", unavailable)
+            } catch (throwable: Exception) {
                 val latencyMs = SystemClock.elapsedRealtime() - startedAt
                 Log.e(
                     LLM_TAG,
-                    "FAILED latencyMs=$latencyMs path=${status.path} error=${throwable::class.java.simpleName}: ${throwable.message}",
+                    "FAILED latencyMs=$latencyMs path=${localModelStore.modelFile.absolutePath} error=${throwable::class.java.simpleName}: ${throwable.message}",
                     throwable,
                 )
-            } finally {
-                synthesizer.close()
             }
         }
     }
