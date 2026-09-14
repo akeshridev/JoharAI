@@ -38,6 +38,8 @@ import com.akeshridev.johar.designsystem.JoharItineraryCardModel
 import com.akeshridev.johar.designsystem.JoharItineraryStop
 import com.akeshridev.johar.designsystem.JoharLocalPickCard
 import com.akeshridev.johar.designsystem.JoharMapPreviewCard
+import com.akeshridev.johar.designsystem.JoharNagadaLoader
+import com.akeshridev.johar.designsystem.JoharNagadaThinkingBubble
 import com.akeshridev.johar.designsystem.JoharPlaceCard
 import com.akeshridev.johar.designsystem.JoharPlaceCardModel
 import com.akeshridev.johar.designsystem.JoharPlaceCarousel
@@ -56,10 +58,7 @@ class DesignCatalogActivity : ComponentActivity() {
         setContent {
             var darkTheme by remember { mutableStateOf(false) }
             JoharTheme(darkTheme = darkTheme) {
-                DesignCatalogScreen(
-                    darkTheme = darkTheme,
-                    onDarkThemeChange = { darkTheme = it },
-                )
+                DesignCatalogScreen(darkTheme, onDarkThemeChange = { darkTheme = it })
             }
         }
     }
@@ -78,39 +77,40 @@ private fun DesignCatalogScreen(
                 .padding(vertical = 24.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(Modifier.weight(1f)) {
-                    Text("Johar Design Catalog", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-                    Text(
-                        "Mock Ranchi data • Design-system playground",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.65f),
-                    )
+            Column(Modifier.padding(horizontal = 20.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("Johar", style = MaterialTheme.typography.displaySmall)
+                        Text("Ranchi, in one conversation", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.secondary)
+                        Spacer(Modifier.height(4.dp))
+                        Text("Design system • local, warm, trustworthy", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.65f))
+                    }
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Switch(checked = darkTheme, onCheckedChange = onDarkThemeChange)
+                        Text(if (darkTheme) "Dark" else "Light", style = MaterialTheme.typography.labelSmall)
+                    }
                 }
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Switch(checked = darkTheme, onCheckedChange = onDarkThemeChange)
-                    Text(if (darkTheme) "Dark" else "Light", style = MaterialTheme.typography.labelSmall)
+                Spacer(Modifier.height(20.dp))
+                Surface(
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
+                ) {
+                    Column(Modifier.padding(18.dp)) {
+                        Text("JOHAR IS WORKING", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary, fontWeight = FontWeight.Bold)
+                        Spacer(Modifier.height(10.dp))
+                        JoharNagadaLoader()
+                        Spacer(Modifier.height(12.dp))
+                        JoharNagadaThinkingBubble()
+                    }
                 }
             }
 
-            CatalogSection("Place card — standard") {
-                JoharPlaceCard(model = MockJoharData.rockGarden)
-            }
-
-            CatalogSection("Place card — compact") {
-                JoharPlaceCard(model = MockJoharData.rockGarden, density = JoharCardDensity.COMPACT)
-            }
+            CatalogSection("Place card — standard") { JoharPlaceCard(model = MockJoharData.rockGarden) }
+            CatalogSection("Place card — compact") { JoharPlaceCard(model = MockJoharData.rockGarden, density = JoharCardDensity.COMPACT) }
 
             CatalogSection("Nearby carousel", horizontalPadding = false) {
                 Column(Modifier.padding(start = 20.dp)) {
-                    JoharPlaceCarousel(
-                        title = "Near you",
-                        subtitle = "Within about 20 min drive",
-                        places = MockJoharData.nearbyPlaces,
-                    )
+                    JoharPlaceCarousel(title = "Near you", subtitle = "Within about 20 min drive", places = MockJoharData.nearbyPlaces)
                 }
             }
 
@@ -142,10 +142,7 @@ private fun DesignCatalogScreen(
                     title = "Petrol Pump",
                     subtitle = "Hinoo Main Road",
                     metadata = "1.8 km • On your route",
-                    actions = listOf(
-                        JoharCardAction("directions", "Directions"),
-                        JoharCardAction("add-stop", "Add Stop", primary = true),
-                    ),
+                    actions = listOf(JoharCardAction("directions", "Directions"), JoharCardAction("add-stop", "Add Stop", primary = true)),
                 )
             }
 
@@ -180,16 +177,11 @@ private fun DesignCatalogScreen(
             }
 
             CatalogSection("Clarification chips") {
-                JoharPreferenceChips(
-                    title = "What matters most?",
-                    options = listOf("Pure Veg", "Family", "Under ₹500", "Parking"),
-                )
+                JoharPreferenceChips(title = "What matters most?", options = listOf("Pure Veg", "Family", "Under ₹500", "Parking"))
             }
 
             CatalogSection("Constraint summary") {
-                JoharConstraintSummary(
-                    constraints = listOf("Family trip", "Low walking", "Vegetarian", "Parking preferred"),
-                )
+                JoharConstraintSummary(constraints = listOf("Family trip", "Low walking", "Vegetarian", "Parking preferred"))
             }
 
             CatalogSection("Source row") {
@@ -221,18 +213,14 @@ private fun CatalogSection(
         modifier = if (horizontalPadding) Modifier.padding(horizontal = 20.dp) else Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        if (horizontalPadding) {
-            Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-            content()
-        } else {
-            Text(
-                title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.padding(horizontal = 20.dp),
-            )
-            content()
-        }
+        Text(
+            title.uppercase(),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.secondary,
+            fontWeight = FontWeight.Bold,
+            modifier = if (horizontalPadding) Modifier else Modifier.padding(horizontal = 20.dp),
+        )
+        content()
     }
 }
 
@@ -243,28 +231,13 @@ private object MockJoharData {
         description = "Good for family time, views and a relaxed evening.",
         tags = listOf("Family", "Kids", "Views"),
         metadata = listOf("3.2 km", "12 min", "Walking: Medium"),
-        actions = listOf(
-            JoharCardAction("map", "View on Map"),
-            JoharCardAction("navigate", "Navigate", primary = true),
-        ),
+        actions = listOf(JoharCardAction("map", "View on Map"), JoharCardAction("navigate", "Navigate", primary = true)),
     )
 
     val nearbyPlaces = listOf(
         rockGarden,
-        JoharPlaceCardModel(
-            name = "Nakshatra Van",
-            area = "Ranchi",
-            description = "Easy outdoor stop for a family walk.",
-            tags = listOf("Park", "Family"),
-            metadata = listOf("14 min"),
-        ),
-        JoharPlaceCardModel(
-            name = "Oxygen Park",
-            area = "Morabadi, Ranchi",
-            description = "Quick outdoor break with kids.",
-            tags = listOf("Outdoor", "Kids"),
-            metadata = listOf("17 min"),
-        ),
+        JoharPlaceCardModel(name = "Nakshatra Van", area = "Ranchi", description = "Easy outdoor stop for a family walk.", tags = listOf("Park", "Family"), metadata = listOf("14 min")),
+        JoharPlaceCardModel(name = "Oxygen Park", area = "Morabadi, Ranchi", description = "Quick outdoor break with kids.", tags = listOf("Outdoor", "Kids"), metadata = listOf("17 min")),
     )
 
     val airportRoute = JoharRouteCardModel(
@@ -278,10 +251,7 @@ private object MockJoharData {
             JoharRouteStop("Birsa Munda Airport", "Destination"),
         ),
         status = listOf("Offline route", "Live traffic unavailable"),
-        actions = listOf(
-            JoharCardAction("route", "View Route"),
-            JoharCardAction("navigate", "Navigate", primary = true),
-        ),
+        actions = listOf(JoharCardAction("route", "View Route"), JoharCardAction("navigate", "Navigate", primary = true)),
     )
 
     val familyDay = JoharItineraryCardModel(
@@ -293,9 +263,6 @@ private object MockJoharData {
             JoharItineraryStop("3:00", "Biodiversity Park", "Kids + nature"),
             JoharItineraryStop("5:30", "Jagannath Mandir", "Peaceful evening stop"),
         ),
-        actions = listOf(
-            JoharCardAction("trip-map", "View Trip Map"),
-            JoharCardAction("start-trip", "Start Trip", primary = true),
-        ),
+        actions = listOf(JoharCardAction("trip-map", "View Trip Map"), JoharCardAction("start-trip", "Start Trip", primary = true)),
     )
 }
