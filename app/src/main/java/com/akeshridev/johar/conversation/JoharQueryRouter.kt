@@ -1,5 +1,7 @@
 package com.akeshridev.johar.conversation
 
+import com.akeshridev.johar.data.retrieval.JoharAnswer
+import com.akeshridev.johar.data.retrieval.JoharAnswerMode
 import com.akeshridev.johar.data.routing.RanchiRouteResult
 import com.akeshridev.johar.data.spatial.RanchiCoordinate
 import com.akeshridev.johar.data.spatial.RanchiSpatialPlace
@@ -9,7 +11,7 @@ import java.util.Locale
 class JoharQueryRouter(
     private val resolvePlace: (String) -> List<RanchiSpatialPlace>,
     private val nearby: (RanchiCoordinate, Set<String>) -> List<RanchiSpatialPlace>,
-    private val knowledgeAnswer: (String) -> String,
+    private val knowledgeAnswer: (String) -> JoharAnswer,
     private val routeInstalled: () -> Boolean = { false },
     private val route: (RanchiCoordinate, RanchiCoordinate) -> RanchiRouteResult = { _, _ ->
         RanchiRouteResult.Unavailable("Offline routing pack is not installed.")
@@ -25,12 +27,30 @@ class JoharQueryRouter(
             return route(request)
         }
 
-        // A location card cannot answer these questions or prove current conditions.
+        parseComparisonRequest(query)?.let { request ->
+            pendingCategory = null
+            compare(request)?.let { return it }
+        }
+
+        parseExplicitItinerary(query)?.let { requestedStops ->
+            pendingCategory = null
+            itinerary(requestedStops)?.let { return it }
+        }
+
+        // Current/live wording must never be presented as verified by an offline pack.
+        if (words.any { it in LIVE_WORDS }) {
+            pendingCategory = null
+            return JoharQueryResult.Grounded(
+                answer = knowledgeAnswer(query),
+                tone = GroundedTone.NOT_CONFIRMED,
+                prefix = "Abhi ki timing, status ya availability confirm nahi hai.",
+            )
+        }
+
+        // Explanatory questions stay text-first and retain their source evidence.
         if (words.any { it in KNOWLEDGE_WORDS }) {
             pendingCategory = null
-            return if (words.any { it in LIVE_WORDS }) {
-                JoharQueryResult.Text("Abhi ki timing, status ya availability confirm nahi hai. Offline jaankari: ${knowledgeAnswer(query)}")
-            } else knowledge(query)
+            return knowledge(query)
         }
 
         val category = Category.entries.firstOrNull { c -> words.any { it in c.words } }
@@ -38,51 +58,97 @@ class JoharQueryRouter(
         if (isNearby && category != null) {
             val originWords = words.filterNot { it in category.words || it in NEAR_FILLER || it in LOOKUP_FILLER }
             pendingCategory = category
-            if (originWords.isEmpty()) return askOrigin()
+            if (originWords.isEmpty()) return askOrigin(category)
             return nearbyFrom(originWords.joinToString(" "), category)
         }
 
         val pending = pendingCategory
         pendingCategory = null
-        if (pending != null && words.size <= 4 && words.none { it in QUESTION_WORDS }) {
+        if (pending != null && words.size <= 5 && words.none { it in QUESTION_WORDS }) {
             return nearbyFrom(query, pending)
         }
-        // Unsupported near/route requests stay with knowledge, never become a guessed place.
+
+        // Unsupported near/route requests stay with grounded knowledge, never become a guessed place.
         if (isNearby || words.any { it in ROUTE_WORDS }) return knowledge(query)
 
         val nameWords = words.filterNot { it in LOOKUP_FILLER }
-        if (nameWords.isEmpty() || words.size > 8) return knowledge(query)
-        val isDiscovery = category != null && nameWords.all { it == "ranchi" || it in category.words }
+        if (nameWords.isEmpty() || words.size > 10) return knowledge(query)
+
+        val isDiscovery = category != null && nameWords.all {
+            it == "ranchi" || it in category.words || it in DISCOVERY_FILLER
+        }
         val candidates = resolvePlace(nameWords.joinToString(" ")).filter(::validCoordinate)
         val matches = if (isDiscovery) {
             candidates.filter { category.matches(it) }
         } else {
             strongMatches(nameWords, candidates)
         }
-        return if (matches.isEmpty()) knowledge(query) else JoharQueryResult.Places(
-            places = matches.distinctBy { it.id }.take(5),
-            intro = if (isDiscovery) "Offline jaankari mein ye jagah mili hain." else "Offline jaankari mein ye jagah mili.",
-        )
+        return if (matches.isEmpty()) {
+            knowledge(query)
+        } else {
+            JoharQueryResult.Places(
+                places = matches.distinctBy { it.id }.take(5),
+                intro = if (isDiscovery) "Offline data mein ye matching jagah mili hain." else "Offline jaankari mein ye jagah mili.",
+                kind = if (category?.isUtility == true) PlaceResultKind.UTILITY else PlaceResultKind.DISCOVERY,
+            )
+        }
     }
 
     private fun route(request: RouteRequest): JoharQueryResult {
         val origin = uniquePlace(request.origin)
-            ?: return JoharQueryResult.Text("Starting place clear nahi hui: ${request.origin}. Thoda specific landmark ya locality batayein.")
+            ?: return JoharQueryResult.Clarification(
+                prompt = "Starting place clear nahi hui: ${request.origin}. Thoda specific landmark ya locality batayein.",
+                options = emptyList(),
+            )
         val destination = uniquePlace(request.destination)
-            ?: return JoharQueryResult.Text("Destination clear nahi hui: ${request.destination}. Thoda specific landmark ya locality batayein.")
+            ?: return JoharQueryResult.Clarification(
+                prompt = "Destination clear nahi hui: ${request.destination}. Thoda specific landmark ya locality batayein.",
+                options = emptyList(),
+            )
 
         if (!routeInstalled()) {
-            return JoharQueryResult.Text("Offline road routing pack abhi installed nahi hai. Place lookup available hai, lekin road route abhi calculate nahi kar sakta.")
+            return JoharQueryResult.Grounded(
+                answer = JoharAnswer(
+                    text = "Place lookup available hai, lekin road route abhi calculate nahi kar sakta.",
+                    evidence = emptyList(),
+                    mode = JoharAnswerMode.NO_ANSWER,
+                ),
+                tone = GroundedTone.OFFLINE,
+                prefix = "Offline road routing pack abhi installed nahi hai.",
+            )
         }
 
         return when (val result = route(origin.coordinate, destination.coordinate)) {
             is RanchiRouteResult.Success -> JoharQueryResult.Route(origin, destination, result)
-            is RanchiRouteResult.Unavailable -> JoharQueryResult.Text("Offline road route nahi mila. ${result.reason}")
+            is RanchiRouteResult.Unavailable -> JoharQueryResult.Grounded(
+                answer = JoharAnswer(result.reason, emptyList(), JoharAnswerMode.NO_ANSWER),
+                tone = GroundedTone.WARNING,
+                prefix = "Offline road route nahi mila.",
+            )
         }
     }
 
+    private fun compare(request: ComparisonRequest): JoharQueryResult? {
+        val left = uniquePlace(request.left) ?: return null
+        val right = uniquePlace(request.right) ?: return null
+        if (left.id == right.id) return null
+        return JoharQueryResult.Comparison(left, right)
+    }
+
+    private fun itinerary(requestedStops: List<String>): JoharQueryResult? {
+        if (requestedStops.size !in 2..6) return null
+        val resolved = requestedStops.map { uniquePlace(it) ?: return null }
+            .distinctBy { it.id }
+        if (resolved.size < 2) return null
+        return JoharQueryResult.Itinerary(
+            title = "Ranchi plan",
+            places = resolved,
+            summary = "Aapke diye hue stops ko isi order mein rakha hai. Travel time tabhi dikhayenge jab road routes calculate kiye jayen.",
+        )
+    }
+
     private fun uniquePlace(query: String): RanchiSpatialPlace? {
-        val queryWords = words(query).filterNot { it in LOOKUP_FILLER || it in ROUTE_WORDS }
+        val queryWords = words(query).filterNot { it in LOOKUP_FILLER || it in ROUTE_WORDS || it in COMPARISON_FILLER }
         return strongMatches(queryWords, resolvePlace(query).filter(::validCoordinate))
             .distinctBy { it.id }
             .singleOrNull()
@@ -93,7 +159,7 @@ class JoharQueryRouter(
             .filter(::validCoordinate).distinctBy { it.id }
         if (origins.size != 1) {
             pendingCategory = category
-            return JoharQueryResult.Text("Jagah clear nahi hui. Kis locality ya landmark ke paas dhoondhein?")
+            return askOrigin(category)
         }
         pendingCategory = null
         val origin = origins.single()
@@ -102,14 +168,29 @@ class JoharQueryRouter(
             .filter { it.distanceKm?.let { distance -> distance.isFinite() && distance in 0.0..5.0 } == true }
             .distinctBy { it.id }.sortedBy { it.distanceKm }.take(5)
         return if (places.isEmpty()) {
-            JoharQueryResult.Text("${origin.name} ke 5 km ke andar offline data mein matching jagah nahi mili. Iska matlab yeh nahi ki wahan koi jagah nahi hai.")
+            JoharQueryResult.Grounded(
+                answer = JoharAnswer(
+                    text = "${origin.name} ke 5 km ke andar offline data mein matching jagah nahi mili. Iska matlab yeh nahi ki wahan koi jagah nahi hai.",
+                    evidence = emptyList(),
+                    mode = JoharAnswerMode.NO_ANSWER,
+                ),
+                tone = GroundedTone.OFFLINE,
+            )
         } else {
-            JoharQueryResult.Places(places, "${origin.name} se 5 km ke andar ye jagah mili hain. Doori seedhi rekha mein hai, sadak ki doori nahi.")
+            JoharQueryResult.Places(
+                places = places,
+                intro = "${origin.name} se 5 km ke andar ye jagah mili hain. Doori seedhi rekha mein hai, sadak ki doori nahi.",
+                kind = if (category.isUtility) PlaceResultKind.UTILITY else PlaceResultKind.DISCOVERY,
+            )
         }
     }
 
-    private fun askOrigin() = JoharQueryResult.Text("Kis locality ya landmark ke paas? Jaise Lalpur ya Ranchi railway station.")
-    private fun knowledge(query: String) = JoharQueryResult.Text(knowledgeAnswer(query))
+    private fun askOrigin(category: Category) = JoharQueryResult.Clarification(
+        prompt = "${category.displayName} kis locality ya landmark ke paas dhoondhein?",
+        options = listOf("Lalpur", "Ranchi railway station", "Kanke", "Doranda"),
+    )
+
+    private fun knowledge(query: String) = JoharQueryResult.Grounded(knowledgeAnswer(query))
 
     /** Require all meaningful name tokens; the spatial engine's rank alone is not confidence. */
     private fun strongMatches(queryWords: List<String>, candidates: List<RanchiSpatialPlace>): List<RanchiSpatialPlace> {
@@ -119,29 +200,69 @@ class JoharQueryRouter(
         return candidates.filter { place -> queryWords.all { it in words(place.name) } }
     }
 
-    private enum class Category(val words: Set<String>, val types: Set<String>) {
-        TEMPLE(setOf("mandir", "temple", "temples"), setOf("TEMPLE", "PILGRIMAGE")),
-        HOSPITAL(setOf("hospital", "hospitals"), setOf("HOSPITAL")),
-        PARK(setOf("park", "parks", "garden"), setOf("PARK", "GARDEN")),
-        MARKET(setOf("market", "markets", "bazar", "haat"), setOf("MARKET"));
+    private enum class Category(
+        val displayName: String,
+        val words: Set<String>,
+        val types: Set<String>,
+        val isUtility: Boolean = false,
+    ) {
+        TEMPLE("Mandir", setOf("mandir", "temple", "temples"), setOf("TEMPLE", "PILGRIMAGE")),
+        HOSPITAL("Hospital", setOf("hospital", "hospitals", "clinic", "clinics"), setOf("HOSPITAL", "CLINIC"), true),
+        PHARMACY("Pharmacy", setOf("pharmacy", "chemist", "medical"), setOf("PHARMACY", "SHOP"), true),
+        POLICE("Police station", setOf("police", "thana"), setOf("POLICE_STATION"), true),
+        FIRE("Fire station", setOf("fire"), setOf("FIRE_STATION", "EMERGENCY_SERVICE"), true),
+        ATM("ATM", setOf("atm", "atms"), setOf("ATM"), true),
+        BANK("Bank", setOf("bank", "banks"), setOf("BANK"), true),
+        FUEL("Petrol pump", setOf("petrol", "fuel", "pump"), setOf("FUEL"), true),
+        EV_CHARGING("EV charging", setOf("charging", "ev"), setOf("EV_CHARGING"), true),
+        TOILET("Public toilet", setOf("toilet", "washroom"), setOf("TOILET"), true),
+        PARKING("Parking", setOf("parking"), setOf("PARKING"), true),
+        RESTAURANT("Restaurant", setOf("restaurant", "restaurants", "dhaba", "food"), setOf("RESTAURANT", "STREET_FOOD")),
+        CAFE("Cafe", setOf("cafe", "cafes", "coffee"), setOf("CAFE")),
+        HOTEL("Hotel", setOf("hotel", "hotels", "hostel", "guesthouse"), setOf("HOTEL")),
+        MARKET("Market", setOf("market", "markets", "bazar", "bazaar", "haat", "mandi"), setOf("MARKET", "MARKET_COLLECTION", "MARKET_TYPE")),
+        PARK("Park", setOf("park", "parks", "garden", "playground"), setOf("PARK", "GARDEN")),
+        WATERFALL("Waterfall", setOf("waterfall", "waterfalls", "falls", "jharna"), setOf("WATERFALL", "NATURAL_FEATURE")),
+        HILL("Hill", setOf("hill", "hills", "pahar", "viewpoint"), setOf("HILL", "VIEWPOINT", "TOURIST_ATTRACTION")),
+        MUSEUM("Museum", setOf("museum", "museums", "heritage"), setOf("MUSEUM", "HERITAGE_SITE")),
+        MALL("Mall", setOf("mall", "malls", "shopping"), setOf("MALL")),
+        CINEMA("Cinema", setOf("cinema", "movie", "theatre"), setOf("CINEMA")),
+        LIBRARY("Library", setOf("library", "libraries"), setOf("LIBRARY"), true),
+        SCHOOL("School", setOf("school", "schools"), setOf("SCHOOL"), true),
+        COLLEGE("College", setOf("college", "colleges", "university", "universities"), setOf("COLLEGE", "UNIVERSITY", "COLLEGE_UNIVERSITY"), true);
 
-        val searchTypes: Set<String> get() = types + setOf("TOURIST_ATTRACTION", "FACILITY", "PLACE")
-        fun matches(place: RanchiSpatialPlace): Boolean = place.type.uppercase(Locale.ROOT) in types ||
-            (place.type.uppercase(Locale.ROOT) in searchTypes && words(place.name).any { it in words })
+        val searchTypes: Set<String> get() = types + setOf("TOURIST_ATTRACTION", "FACILITY", "PLACE", "SHOP")
+        fun matches(place: RanchiSpatialPlace): Boolean {
+            val type = place.type.uppercase(Locale.ROOT)
+            return type in types || (type in searchTypes && words(place.name).any { it in words })
+        }
     }
 
     private data class RouteRequest(val origin: String, val destination: String)
+    private data class ComparisonRequest(val left: String, val right: String)
 
     private companion object {
-        val LOOKUP_FILLER = setOf("kahan", "kaha", "hai", "hain", "where", "is", "the", "location", "address", "map", "on", "show", "me", "mein", "in", "batao", "dikhao", "please", "ki", "ka", "ke")
+        val LOOKUP_FILLER = setOf(
+            "kahan", "kaha", "hai", "hain", "where", "is", "the", "location", "address", "map", "on", "show", "me",
+            "mein", "in", "batao", "dikhao", "please", "ki", "ka", "ke", "find", "search", "list", "some", "mujhe",
+        )
+        val DISCOVERY_FILLER = setOf("find", "search", "list", "show", "some", "best", "good", "top")
         val NEAR_WORDS = setOf("near", "nearby", "paas", "aas", "around")
-        val NEAR_FILLER = NEAR_WORDS + setOf("mere", "meri", "my", "me", "to")
-        val LIVE_WORDS = setOf("open", "closed", "now", "today", "aaj", "timing", "timings", "hours", "weather", "stock", "available", "availability")
-        val KNOWLEDGE_WORDS = setOf("kya", "what", "why", "kyun", "history", "itihaas", "open", "closed", "now", "today", "aaj", "timing", "timings", "hours", "price", "fee", "fees", "rating", "safe", "safety", "weather", "stock", "available", "availability", "kab", "kitna", "kitne", "walking", "stairs", "accessible")
-        val QUESTION_WORDS = KNOWLEDGE_WORDS + NEAR_WORDS + setOf("how", "kaise")
+        val NEAR_FILLER = NEAR_WORDS + setOf("mere", "meri", "my", "me", "to", "ke", "ki", "ka")
+        val LIVE_WORDS = setOf("open", "closed", "now", "today", "aaj", "timing", "timings", "hours", "weather", "stock", "available", "availability", "traffic")
+        val KNOWLEDGE_WORDS = setOf(
+            "kya", "what", "why", "kyun", "history", "itihaas", "price", "fee", "fees", "rating", "safe", "safety",
+            "kab", "kitna", "kitne", "walking", "stairs", "accessible", "about", "explain", "famous", "special",
+        )
+        val QUESTION_WORDS = KNOWLEDGE_WORDS + LIVE_WORDS + NEAR_WORDS + setOf("how", "kaise")
         val ROUTE_WORDS = setOf("route", "navigate", "navigation", "kaise", "how", "from", "se", "to", "jaye", "jana")
+        val COMPARISON_FILLER = setOf("vs", "versus", "compare", "better", "best", "or", "ya")
         val ROUTE_PATTERN = Regex(
             "^(?:route\\s+)?(?:from\\s+)?(.+?)\\s+(?:to|se)\\s+(.+?)(?:\\s+(?:kaise(?:\\s+jaye)?|route|navigate|navigation|jana))?$",
+            RegexOption.IGNORE_CASE,
+        )
+        val COMPARISON_PATTERN = Regex(
+            "^(?:compare\\s+)?(.+?)\\s+(?:vs|versus|or|ya)\\s+(.+?)(?:\\s+(?:which\\s+is\\s+better|better|kaun\\s+better))?$",
             RegexOption.IGNORE_CASE,
         )
 
@@ -153,23 +274,89 @@ class JoharQueryRouter(
             return if (origin.isBlank() || destination.isBlank()) null else RouteRequest(origin, destination)
         }
 
+        fun parseComparisonRequest(text: String): ComparisonRequest? {
+            val cleaned = text.trim().trimEnd('?', '!', '.')
+            val match = COMPARISON_PATTERN.matchEntire(cleaned) ?: return null
+            val left = match.groupValues[1].trim()
+            val right = match.groupValues[2].trim()
+            return if (left.isBlank() || right.isBlank()) null else ComparisonRequest(left, right)
+        }
+
+        fun parseExplicitItinerary(text: String): List<String>? {
+            val normalized = text.trim().trimEnd('?', '!', '.')
+            val lower = normalized.lowercase(Locale.ROOT)
+            if (listOf("itinerary", "plan", "day trip").none(lower::contains)) return null
+            val payload = normalized
+                .replace(Regex("(?i)^.*?(?:itinerary|plan|day trip)\\s*(?::|for)?\\s*"), "")
+                .trim()
+            if (payload.isBlank()) return null
+            val stops = payload.split(Regex("(?i)\\s*(?:,|->| then | and | aur )\\s*"))
+                .map(String::trim)
+                .filter { it.length >= 3 }
+            return stops.takeIf { it.size >= 2 }
+        }
+
         fun words(text: String): List<String> = text.lowercase(Locale.ROOT)
             .replace(Regex("[^\\p{L}\\p{N}\\s]"), " ").trim().split(Regex("\\s+"))
             .filter(String::isNotBlank).map {
-                when (it) { "junction" -> "station"; "temple" -> "mandir"; else -> it }
+                when (it) {
+                    "junction" -> "station"
+                    "temple" -> "mandir"
+                    "guest" -> "guesthouse"
+                    else -> it
+                }
             }.filterNot { it == "railway" }
+
         fun validCoordinate(place: RanchiSpatialPlace) = place.coordinate.latitude.isFinite() &&
             place.coordinate.longitude.isFinite() && place.coordinate.latitude in -90.0..90.0 &&
             place.coordinate.longitude in -180.0..180.0
     }
 }
 
+enum class GroundedTone {
+    NORMAL,
+    OFFLINE,
+    NOT_CONFIRMED,
+    WARNING,
+}
+
+enum class PlaceResultKind {
+    DISCOVERY,
+    UTILITY,
+}
+
 sealed interface JoharQueryResult {
-    data class Text(val text: String) : JoharQueryResult
-    data class Places(val places: List<RanchiSpatialPlace>, val intro: String) : JoharQueryResult
+    data class Grounded(
+        val answer: JoharAnswer,
+        val tone: GroundedTone = GroundedTone.NORMAL,
+        val prefix: String? = null,
+    ) : JoharQueryResult
+
+    data class Places(
+        val places: List<RanchiSpatialPlace>,
+        val intro: String,
+        val kind: PlaceResultKind = PlaceResultKind.DISCOVERY,
+    ) : JoharQueryResult
+
     data class Route(
         val origin: RanchiSpatialPlace,
         val destination: RanchiSpatialPlace,
         val route: RanchiRouteResult.Success,
+    ) : JoharQueryResult
+
+    data class Comparison(
+        val left: RanchiSpatialPlace,
+        val right: RanchiSpatialPlace,
+    ) : JoharQueryResult
+
+    data class Itinerary(
+        val title: String,
+        val places: List<RanchiSpatialPlace>,
+        val summary: String,
+    ) : JoharQueryResult
+
+    data class Clarification(
+        val prompt: String,
+        val options: List<String>,
     ) : JoharQueryResult
 }
