@@ -1,0 +1,89 @@
+name: Phase 1 ingest - Santal Folk Tales
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/phase1-ingest-santal.yml"
+      - "corpus/tools/ingest_tei.py"
+      - "corpus/tools/validate_chunks.py"
+      - "corpus/sources/book_santal_folk_tales_1891.json"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: phase1-ingest-santal
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Johar AI
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Acquire pinned public-domain source
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOURCE_REPO=/tmp/santal-folk-tales-source
+          git clone --quiet https://github.com/GutenbergSource/35060-Campbell-Santal-Folk-Tales.git "$SOURCE_REPO"
+
+          EXPECTED_BLOB_SHA="$(python - <<'PY'
+          import json
+          source = json.load(open('corpus/sources/book_santal_folk_tales_1891.json', encoding='utf-8'))
+          print(source['upstreamMachineReadableSource']['sha'])
+          PY
+          )"
+          ACTUAL_BLOB_SHA="$(git -C "$SOURCE_REPO" hash-object SantalFolkTales-1.0.tei)"
+
+          echo "expected upstream blob: $EXPECTED_BLOB_SHA"
+          echo "actual upstream blob:   $ACTUAL_BLOB_SHA"
+          test "$EXPECTED_BLOB_SHA" = "$ACTUAL_BLOB_SHA"
+          cp "$SOURCE_REPO/SantalFolkTales-1.0.tei" /tmp/SantalFolkTales-1.0.tei
+
+      - name: Build full page-aware chunk pack
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT=corpus/processed/book_santal_folk_tales_1891
+          python corpus/tools/ingest_tei.py \
+            --input /tmp/SantalFolkTales-1.0.tei \
+            --source corpus/sources/book_santal_folk_tales_1891.json \
+            --out-dir "$OUT"
+
+          python corpus/tools/validate_chunks.py \
+            --chunks "$OUT/rag_chunks.jsonl" \
+            --stats "$OUT/stats.json" \
+            --source corpus/sources/book_santal_folk_tales_1891.json \
+            --out "$OUT/quality-report.json" \
+            --min-pages 100 \
+            --min-chunks 20 \
+            --max-words 700
+
+          rm -f "$OUT/rag_chunks.partial.jsonl" "$OUT/stats.partial.json"
+
+      - name: Commit generated corpus
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add corpus/processed/book_santal_folk_tales_1891
+
+          if git diff --cached --quiet; then
+            echo "Generated corpus already matches repository."
+            exit 0
+          fi
+
+          git commit -m "corpus: ingest full Santal Folk Tales [skip ci]"
+          git push
