@@ -38,7 +38,6 @@ import androidx.compose.ui.unit.dp
 import com.akeshridev.johar.designsystem.JoharCardAction
 import com.akeshridev.johar.designsystem.JoharColors
 import com.akeshridev.johar.designsystem.JoharComparisonCard
-import com.akeshridev.johar.designsystem.JoharDrummerMascot
 import com.akeshridev.johar.designsystem.JoharInfoCard
 import com.akeshridev.johar.designsystem.JoharInfoTone
 import com.akeshridev.johar.designsystem.JoharItineraryCard
@@ -47,6 +46,7 @@ import com.akeshridev.johar.designsystem.JoharPlaceCarousel
 import com.akeshridev.johar.designsystem.JoharPlaceCard
 import com.akeshridev.johar.designsystem.JoharPreferenceChips
 import com.akeshridev.johar.designsystem.JoharPrimaryButton
+import com.akeshridev.johar.designsystem.JoharRanchiSatelliteEmblem
 import com.akeshridev.johar.designsystem.JoharRouteCard
 import com.akeshridev.johar.designsystem.JoharSourceRow
 import com.akeshridev.johar.designsystem.JoharSuggestionCard
@@ -173,21 +173,15 @@ private fun JoharChatHeader() {
                 .padding(horizontal = 18.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Surface(
-                shape = RoundedCornerShape(16.dp),
-                color = JoharColors.SoftOrange,
-            ) {
-                JoharDrummerMascot(
-                    modifier = Modifier.padding(6.dp),
-                    size = 42.dp,
-                    animated = false,
-                )
-            }
+            JoharRanchiSatelliteEmblem(
+                size = 54.dp,
+                animated = true,
+            )
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = "Johar",
+                        text = "Johar AI",
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,
@@ -207,7 +201,7 @@ private fun JoharChatHeader() {
                     }
                 }
                 Text(
-                    text = "Local • grounded • offline-first",
+                    text = "Jharkhand in Your Hands • offline-first",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -296,53 +290,23 @@ private fun JoharBubble(
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(10.dp)) {
         when (content) {
-            is JoharContent.Text -> JoharInfoCard(
-                title = "Johar",
-                text = content.text,
-                tone = JoharInfoTone.NORMAL,
-            )
+            is JoharContent.Text -> JoharInfoCard(title = "Johar", text = content.text, tone = JoharInfoTone.NORMAL)
             is JoharContent.Grounded -> {
-                JoharInfoCard(
-                    title = "Johar",
-                    text = content.text,
-                    tone = content.tone,
-                )
+                JoharInfoCard(title = "Johar", text = content.text, tone = content.tone)
                 content.sources.forEach { source ->
-                    JoharSourceRow(
-                        sourceName = source.sourceName,
-                        verified = source.verified,
-                    )
+                    JoharSourceRow(sourceName = source.sourceName, verified = source.verified)
                 }
             }
             is JoharContent.Places -> {
-                content.intro?.let {
-                    JoharInfoCard(
-                        title = "Johar",
-                        text = it,
-                        tone = JoharInfoTone.NORMAL,
-                    )
-                }
+                content.intro?.let { JoharInfoCard(title = "Johar", text = it, tone = JoharInfoTone.NORMAL) }
                 if (content.items.size == 1) {
-                    JoharPlaceCard(
-                        model = content.items.single(),
-                        onAction = onAction,
-                    )
+                    JoharPlaceCard(model = content.items.single(), onAction = onAction)
                 } else {
-                    JoharPlaceCarousel(
-                        places = content.items,
-                        title = "Places",
-                        onAction = onAction,
-                    )
+                    JoharPlaceCarousel(places = content.items, title = "Places", onAction = onAction)
                 }
             }
             is JoharContent.Utilities -> {
-                content.intro?.let {
-                    JoharInfoCard(
-                        title = "Johar",
-                        text = it,
-                        tone = JoharInfoTone.NORMAL,
-                    )
-                }
+                content.intro?.let { JoharInfoCard(title = "Johar", text = it, tone = JoharInfoTone.NORMAL) }
                 content.items.forEach { item ->
                     JoharUtilityCard(
                         title = item.title,
@@ -353,14 +317,8 @@ private fun JoharBubble(
                     )
                 }
             }
-            is JoharContent.Route -> JoharRouteCard(
-                model = content.route,
-                onAction = onAction,
-            )
-            is JoharContent.Itinerary -> JoharItineraryCard(
-                model = content.plan,
-                onAction = onAction,
-            )
+            is JoharContent.Route -> JoharRouteCard(model = content.route, onAction = onAction)
+            is JoharContent.Itinerary -> JoharItineraryCard(model = content.plan, onAction = onAction)
             is JoharContent.Comparison -> JoharComparisonCard(
                 leftTitle = content.leftTitle,
                 rightTitle = content.rightTitle,
@@ -368,16 +326,8 @@ private fun JoharBubble(
                 recommendation = content.recommendation,
             )
             is JoharContent.Clarification -> {
-                JoharInfoCard(
-                    title = "Johar",
-                    text = content.prompt,
-                    tone = JoharInfoTone.NORMAL,
-                )
-                JoharPreferenceChips(
-                    title = "Choose one",
-                    options = content.options,
-                    onOptionClick = onSend,
-                )
+                JoharInfoCard(title = "Johar", text = content.prompt, tone = JoharInfoTone.NORMAL)
+                JoharPreferenceChips(title = "Choose one", options = content.options, onOptionClick = onSend)
             }
             is JoharContent.Info -> JoharInfoCard(
                 title = content.title,
