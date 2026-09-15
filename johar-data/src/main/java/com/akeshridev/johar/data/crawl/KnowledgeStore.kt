@@ -13,6 +13,7 @@ import com.akeshridev.johar.domain.crawl.CrawlKeyword
 import com.akeshridev.johar.domain.crawl.CrawlSeed
 import com.akeshridev.johar.domain.entity.EntityType
 import com.akeshridev.johar.domain.entity.KnowledgeEntity
+import com.akeshridev.johar.domain.source.SourceFact
 
 internal class KnowledgeStore(
     private val knowledgeDao: KnowledgeDao,
@@ -156,6 +157,34 @@ internal class KnowledgeStore(
         insertKeywords(result.keywords)
     }
 
+    fun persistRanchiOsmBackfill(
+        seeds: List<CrawlSeed>,
+        facts: List<SourceFact>,
+    ) {
+        val canonicalByOsmEntityId = seeds.mapNotNull { seed ->
+            val canonicalId = seed.entityId ?: return@mapNotNull null
+            val osmRef = seed.externalRefs[OSM_REF] ?: return@mapNotNull null
+            val parts = osmRef.split(':', limit = 2)
+            if (parts.size != 2) return@mapNotNull null
+            "osm:${parts[0]}:${parts[1]}" to canonicalId
+        }.toMap()
+
+        val remappedFacts = facts.mapNotNull { fact ->
+            val canonicalId = canonicalByOsmEntityId[fact.entityId] ?: return@mapNotNull null
+            fact.copy(entityId = canonicalId)
+        }
+
+        val rows = remappedFacts.map { it.toRow() }
+        val scopes = rows.mapTo(linkedSetOf()) { it.entityId to it.sourceUrl }
+        scopes.forEach { (entityId, sourceUrl) -> knowledgeDao.deleteFactsForSource(entityId, sourceUrl) }
+        if (rows.isNotEmpty()) knowledgeDao.upsertFacts(rows)
+
+        val now = System.currentTimeMillis()
+        seeds.mapNotNull { it.entityId }.forEach { entityId ->
+            knowledgeDao.markEntityCrawled(entityId, now)
+        }
+    }
+
     fun markEntityCrawled(entityId: String, nowEpochMillis: Long = System.currentTimeMillis()) {
         knowledgeDao.markEntityCrawled(entityId, nowEpochMillis)
     }
@@ -218,7 +247,7 @@ internal class KnowledgeStore(
     private fun replaceFacts(
         ownerEntityId: String,
         resultSourceUrl: String,
-        facts: List<com.akeshridev.johar.domain.source.SourceFact>,
+        facts: List<SourceFact>,
     ) {
         val rows = facts.map { it.toRow() }
         val scopes = rows.mapTo(linkedSetOf()) { it.entityId to it.sourceUrl }
@@ -270,6 +299,7 @@ internal class KnowledgeStore(
     }
 
     companion object {
+        private const val OSM_REF = "osm"
         private const val MAX_RAW_SNAPSHOT_CHARS = 750_000
         private const val MAX_KEYWORD_FAILURES = 5
     }
