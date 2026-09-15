@@ -75,6 +75,9 @@ interface KnowledgeDao {
     )
     fun factsForEntity(entityId: String): List<SourceFactRow>
 
+    @Query("SELECT * FROM source_facts ORDER BY entityId ASC, domain ASC, field ASC")
+    fun allFacts(): List<SourceFactRow>
+
     @Query(
         """
         SELECT * FROM entity_relationships
