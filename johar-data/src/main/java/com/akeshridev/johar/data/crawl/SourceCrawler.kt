@@ -39,11 +39,9 @@ internal class SourceCrawler(
         check(rootSuccesses > 0) { "No source succeeded for root ${root.name}" }
 
         crawlPendingKeywords(target)
-        // Ranchi V1 is intentionally bounded. The packaged/base database still contains statewide
-        // entities, and crawling the global pending queue here causes Ranchi runs to wander into
-        // Palamu, Latehar, Bokaro, etc. Ranchi discovery already persists the entities it finds;
-        // enrichment of arbitrary pending entities is reserved for explicit non-Ranchi targets.
-        if (target != CrawlTarget.RANCHI) {
+        if (target == CrawlTarget.RANCHI) {
+            crawlRanchiOsmBackfill()
+        } else {
             crawlPendingEntities(target, excludingEntityId = root.entityId)
         }
 
@@ -121,6 +119,42 @@ internal class SourceCrawler(
         return BROAD_OSM_TERMS.any(term::contains)
     }
 
+    private suspend fun crawlRanchiOsmBackfill() {
+        val overpass = sourceAdapters.firstOrNull { it.id == OPENSTREETMAP_ADAPTER_ID }
+            ?: return
+        val staleBefore = System.currentTimeMillis() - RANCHI_OSM_BACKFILL_STALE_MILLIS
+        val pending = persistenceMutex.withLock {
+            store.ranchiOsmBackfillCandidates(staleBefore, RANCHI_OSM_BACKFILL_PER_RUN)
+        }
+        if (pending.isEmpty()) return
+
+        Log.i(TAG, "ranchi_osm_backfill_start candidates=${pending.size}")
+        pending.chunked(CONCURRENT_BATCH_SIZE).forEach { batch ->
+            coroutineScope {
+                batch.map { seed ->
+                    async(Dispatchers.IO) { crawlRanchiOsmEntity(seed, overpass) }
+                }.awaitAll()
+            }
+        }
+        Log.i(TAG, "ranchi_osm_backfill_end candidates=${pending.size}")
+    }
+
+    private suspend fun crawlRanchiOsmEntity(
+        seed: CrawlSeed,
+        overpass: CrawlSourceAdapter,
+    ) {
+        val entityId = requireNotNull(seed.entityId)
+        try {
+            val result = crawlSource(overpass, seed)
+            persistenceMutex.withLock {
+                if (result != null) store.persist(seed, result)
+                store.markEntityCrawled(entityId)
+            }
+        } catch (error: Exception) {
+            Log.w(TAG, "ranchi_osm_backfill_failed entity=${seed.name}", error)
+        }
+    }
+
     private suspend fun crawlPendingEntities(target: CrawlTarget, excludingEntityId: String?) {
         val staleBefore = System.currentTimeMillis() - ENTITY_STALE_MILLIS
         val limit = if (target == CrawlTarget.RANCHI) RANCHI_ENTITIES_PER_RUN else DEFAULT_ENTITIES_PER_RUN
@@ -185,21 +219,19 @@ internal class SourceCrawler(
         private const val BOOTSTRAP_SOURCE = "bootstrap"
         private const val OPENSTREETMAP_ADAPTER_ID = "openstreetmap"
 
-        // One WorkManager job may fetch up to ten independent crawl items in parallel. Keep
-        // persistence serialized because canonical identity resolution is read-modify-write.
         private const val CONCURRENT_BATCH_SIZE = 10
         private const val OVERPASS_CONCURRENCY = 2
 
-        // Ranchi V1 is a prototype breadth pass. Keep the budget bounded so public sources are
-        // treated politely, but large enough that manual crawl runs produce useful coverage.
         private const val RANCHI_ENTITIES_PER_RUN = 12
         private const val RANCHI_KEYWORDS_PER_RUN = 10
+        private const val RANCHI_OSM_BACKFILL_PER_RUN = 40
         private const val DEFAULT_ENTITIES_PER_RUN = 6
         private const val DEFAULT_KEYWORDS_PER_RUN = 3
 
         private const val MAX_DISCOVERY_DEPTH = 2
         private const val ENTITY_STALE_MILLIS = 24L * 60L * 60L * 1_000L
         private const val KEYWORD_STALE_MILLIS = 30L * 24L * 60L * 60L * 1_000L
+        private const val RANCHI_OSM_BACKFILL_STALE_MILLIS = 30L * 24L * 60L * 60L * 1_000L
 
         private val BROAD_OSM_TERMS = listOf(
             "places in jharkhand",
