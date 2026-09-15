@@ -138,6 +138,6 @@ private val PROTOTYPE_STEPS = listOf(
     PrototypeStep("Ranchi railway station se Tagore Hill kaise jaun?"),
     PrototypeStep("Dhuska kya hota hai?"),
     PrototypeStep("Kanke Dam family ke liye acha hai?"),
-    PrototypeStep("Ranchi mein local market ya haat batao"),
+    PrototypeStep("Ranchi mein vegetarian restaurant suggest karo"),
     PrototypeStep("Aaj Kanke Dam open hai?"),
 )
