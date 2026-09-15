@@ -40,6 +40,6 @@ internal data class DiscoveryResult(
     val publisher: String,
     val rawContent: String,
     val entities: List<KnowledgeEntity> = emptyList(),
-    val facts: List<SourceFact> = emptyList(),
     val keywords: List<CrawlKeyword> = emptyList(),
+    val facts: List<SourceFact> = emptyList(),
 )
