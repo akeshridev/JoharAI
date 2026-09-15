@@ -70,8 +70,6 @@ private fun JoharRoot(
 
     LaunchedEffect(showSplash, autoRunPrototype) {
         if (showSplash || !autoRunPrototype) return@LaunchedEffect
-
-        // Give the clean chat surface a moment to settle before the recorded demo begins.
         delay(PROTOTYPE_START_DELAY_MILLIS)
 
         PROTOTYPE_STEPS.forEach { step ->
@@ -96,7 +94,11 @@ private fun JoharRoot(
     }
 
     if (showSplash) {
-        JoharSplashScreen()
+        JoharSplashScreen(
+            title = "Johar AI",
+            subtitle = "Jharkhand in Your Hands",
+            tagline = "Local knowledge • Offline-first • Built for Jharkhand",
+        )
     } else {
         JoharBrandedChatScreen(
             messages = messages,
@@ -114,7 +116,7 @@ private fun typingDelayMillis(character: Char): Long = when {
     else -> 48L + (character.code % 4) * 9L
 }
 
-private const val SPLASH_DURATION_MILLIS = 1_100L
+private const val SPLASH_DURATION_MILLIS = 3_000L
 private const val PROTOTYPE_START_DELAY_MILLIS = 3_000L
 private const val PROTOTYPE_BEFORE_SEND_DELAY_MILLIS = 450L
 private const val PROTOTYPE_QUESTION_DELAY_MILLIS = 3_000L
