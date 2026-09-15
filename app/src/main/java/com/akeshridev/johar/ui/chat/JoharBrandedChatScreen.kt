@@ -302,31 +302,65 @@ private fun JoharBubble(
                 tone = JoharInfoTone.NORMAL,
             )
             is JoharContent.Grounded -> {
-                JoharInfoCard(title = "Johar", text = content.text, tone = content.tone)
+                JoharInfoCard(
+                    title = "Johar",
+                    text = content.text,
+                    tone = content.tone,
+                )
                 content.sources.forEach { source ->
-                    JoharSourceRow(source.sourceName, source.verified)
+                    JoharSourceRow(
+                        sourceName = source.sourceName,
+                        verified = source.verified,
+                    )
                 }
             }
             is JoharContent.Places -> {
                 content.intro?.let {
-                    JoharInfoCard(title = "Johar", text = it, tone = JoharInfoTone.NORMAL)
+                    JoharInfoCard(
+                        title = "Johar",
+                        text = it,
+                        tone = JoharInfoTone.NORMAL,
+                    )
                 }
                 if (content.items.size == 1) {
-                    JoharPlaceCard(content.items.single(), onAction = onAction)
+                    JoharPlaceCard(
+                        model = content.items.single(),
+                        onAction = onAction,
+                    )
                 } else {
-                    JoharPlaceCarousel(content.items, onAction = onAction)
+                    JoharPlaceCarousel(
+                        places = content.items,
+                        title = "Places",
+                        onAction = onAction,
+                    )
                 }
             }
             is JoharContent.Utilities -> {
                 content.intro?.let {
-                    JoharInfoCard(title = "Johar", text = it, tone = JoharInfoTone.NORMAL)
+                    JoharInfoCard(
+                        title = "Johar",
+                        text = it,
+                        tone = JoharInfoTone.NORMAL,
+                    )
                 }
                 content.items.forEach { item ->
-                    JoharUtilityCard(item, onAction = onAction)
+                    JoharUtilityCard(
+                        title = item.title,
+                        subtitle = item.subtitle,
+                        metadata = item.metadata,
+                        actions = item.actions,
+                        onAction = onAction,
+                    )
                 }
             }
-            is JoharContent.Route -> JoharRouteCard(content.route, onAction = onAction)
-            is JoharContent.Itinerary -> JoharItineraryCard(content.plan, onAction = onAction)
+            is JoharContent.Route -> JoharRouteCard(
+                model = content.route,
+                onAction = onAction,
+            )
+            is JoharContent.Itinerary -> JoharItineraryCard(
+                model = content.plan,
+                onAction = onAction,
+            )
             is JoharContent.Comparison -> JoharComparisonCard(
                 leftTitle = content.leftTitle,
                 rightTitle = content.rightTitle,
@@ -334,8 +368,16 @@ private fun JoharBubble(
                 recommendation = content.recommendation,
             )
             is JoharContent.Clarification -> {
-                JoharInfoCard(title = "Johar", text = content.prompt, tone = JoharInfoTone.NORMAL)
-                JoharPreferenceChips(options = content.options, onSelected = onSend)
+                JoharInfoCard(
+                    title = "Johar",
+                    text = content.prompt,
+                    tone = JoharInfoTone.NORMAL,
+                )
+                JoharPreferenceChips(
+                    title = "Choose one",
+                    options = content.options,
+                    onOptionClick = onSend,
+                )
             }
             is JoharContent.Info -> JoharInfoCard(
                 title = content.title,
