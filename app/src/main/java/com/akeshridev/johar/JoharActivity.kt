@@ -93,7 +93,7 @@ private fun JoharRoot(
                 viewModel.triggerFirstMapActionForLatestPlaces()
                 delay(PROTOTYPE_MAP_HOLD_MILLIS)
             } else {
-                delay(readingPauseMillis(step.question))
+                delay(step.holdMillis ?: readingPauseMillis(step.question))
             }
         }
     }
@@ -131,11 +131,12 @@ private const val PROTOTYPE_START_DELAY_MILLIS = 3_000L
 private const val PROTOTYPE_BEFORE_SEND_DELAY_MILLIS = 460L
 private const val PROTOTYPE_SEND_PRESS_DURATION_MILLIS = 240L
 private const val PROTOTYPE_BEFORE_ACTION_DELAY_MILLIS = 1_100L
-private const val PROTOTYPE_MAP_HOLD_MILLIS = 5_500L
+private const val PROTOTYPE_MAP_HOLD_MILLIS = 4_200L
 
 private data class PrototypeStep(
     val question: String,
     val openFirstMapResult: Boolean = false,
+    val holdMillis: Long? = null,
 )
 
 private val PROTOTYPE_STEPS = listOf(
@@ -143,13 +144,24 @@ private val PROTOTYPE_STEPS = listOf(
         question = "Lalpur ke paas ATM batao",
         openFirstMapResult = true,
     ),
-    PrototypeStep("Ranchi mein kids ke liye park suggest karo"),
-    PrototypeStep("Ranchi mein peaceful family place suggest karo, parents ke saath jana hai"),
-    PrototypeStep("Main Road ke paas restaurant batao"),
-    PrototypeStep("Emergency hospital number"),
-    PrototypeStep("Ranchi railway station se Tagore Hill kaise jaun?"),
-    PrototypeStep("Dhuska kya hota hai?"),
-    PrototypeStep("Kanke Dam family ke liye acha hai?"),
-    PrototypeStep("Ranchi mein vegetarian restaurant suggest karo"),
-    PrototypeStep("Aaj Kanke Dam open hai?"),
+    PrototypeStep(
+        question = "Ranchi mein kids ke liye park suggest karo",
+        holdMillis = 3_000L,
+    ),
+    PrototypeStep(
+        question = "Emergency hospital number",
+        holdMillis = 3_300L,
+    ),
+    PrototypeStep(
+        question = "Ranchi railway station se Tagore Hill kaise jaun?",
+        holdMillis = 4_000L,
+    ),
+    PrototypeStep(
+        question = "Dhuska kya hota hai?",
+        holdMillis = 3_200L,
+    ),
+    PrototypeStep(
+        question = "Aaj Kanke Dam open hai?",
+        holdMillis = 3_600L,
+    ),
 )
