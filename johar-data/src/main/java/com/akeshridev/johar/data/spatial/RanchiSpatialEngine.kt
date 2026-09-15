@@ -48,13 +48,24 @@ class RanchiSpatialEngine internal constructor(private val dao: KnowledgeDao) {
             .toList()
     }
 
-    /** Category discovery must not depend on a category word occurring in the place name. */
+    /**
+     * Category discovery must not depend on a category word occurring in the place name.
+     *
+     * Discovery order is intentionally quality-ranked rather than alphabetical. Raw OSM/imported
+     * datasets can contain technically valid but demo-hostile labels such as "89" or tiny generic
+     * locality names. Those should never outrank a recognizable named hill, falls, park or museum.
+     */
     fun discoverPlaces(types: Set<String>, limit: Int = 20): List<RanchiSpatialPlace> =
         dao.allEnabledEntities().asSequence()
             .filter(::isRanchiScoped)
-            .mapNotNull(::toSpatialPlace)
-            .filter { it.type in types }
-            .sortedBy { it.name }
+            .filter { hasUsableDisplayName(it.name) }
+            .mapNotNull { entity -> toSpatialPlace(entity)?.let { it to discoveryQualityScore(entity, it) } }
+            .filter { (place, _) -> place.type in types }
+            .sortedWith(
+                compareByDescending<Pair<RanchiSpatialPlace, Int>> { it.second }
+                    .thenBy { it.first.name.lowercase() },
+            )
+            .map { (place, _) -> place }
             .take(limit)
             .toList()
 
@@ -123,6 +134,35 @@ class RanchiSpatialEngine internal constructor(private val dao: KnowledgeDao) {
         return score
     }
 
+    private fun discoveryQualityScore(entity: KnowledgeEntityRow, place: RanchiSpatialPlace): Int {
+        val name = place.name.lowercase()
+        val type = place.type.uppercase()
+        var score = when (type) {
+            "WATERFALL" -> 120
+            "HILL", "VIEWPOINT" -> 115
+            "MUSEUM", "HERITAGE_SITE" -> 110
+            "TEMPLE", "PILGRIMAGE" -> 105
+            "GARDEN" -> 100
+            "PARK" -> 95
+            "TOURIST_ATTRACTION" -> 90
+            else -> 70
+        }
+
+        if (!entity.description.isNullOrBlank()) score += 35
+        if (name.split(Regex("\\s+")).size >= 2) score += 12
+        if (RECOGNIZABLE_PLACE_WORDS.any(name::contains)) score += 25
+        if (LOW_VALUE_PLACE_WORDS.any(name::contains)) score -= 35
+        if (name.length < 4) score -= 50
+        return score
+    }
+
+    private fun hasUsableDisplayName(name: String): Boolean {
+        val trimmed = name.trim()
+        if (trimmed.length < 3) return false
+        if (trimmed.all(Char::isDigit)) return false
+        return trimmed.any(Char::isLetter)
+    }
+
     private fun toSpatialPlace(entity: KnowledgeEntityRow): RanchiSpatialPlace? {
         val latitude = entity.latitude ?: return null
         val longitude = entity.longitude ?: return null
@@ -143,6 +183,12 @@ class RanchiSpatialEngine internal constructor(private val dao: KnowledgeDao) {
         const val RANCHI = "Ranchi"
         val SEARCH_STOP_WORDS = setOf(
             "ranchi", "mein", "me", "ke", "ka", "ki", "ko", "se", "paas", "near", "kahan", "hai",
+        )
+        val RECOGNIZABLE_PLACE_WORDS = setOf(
+            "hill", "falls", "waterfall", "dam", "lake", "garden", "park", "mandir", "temple", "museum", "rock",
+        )
+        val LOW_VALUE_PLACE_WORDS = setOf(
+            "colony ground", "play ground", "playground", "community ground", "sector ground",
         )
     }
 }
