@@ -296,7 +296,11 @@ private fun JoharBubble(
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(10.dp)) {
         when (content) {
-            is JoharContent.Text -> JoharInfoCard(title = "Johar", text = content.text)
+            is JoharContent.Text -> JoharInfoCard(
+                title = "Johar",
+                text = content.text,
+                tone = JoharInfoTone.NORMAL,
+            )
             is JoharContent.Grounded -> {
                 JoharInfoCard(title = "Johar", text = content.text, tone = content.tone)
                 content.sources.forEach { source ->
@@ -304,7 +308,9 @@ private fun JoharBubble(
                 }
             }
             is JoharContent.Places -> {
-                content.intro?.let { JoharInfoCard(title = "Johar", text = it) }
+                content.intro?.let {
+                    JoharInfoCard(title = "Johar", text = it, tone = JoharInfoTone.NORMAL)
+                }
                 if (content.items.size == 1) {
                     JoharPlaceCard(content.items.single(), onAction = onAction)
                 } else {
@@ -312,7 +318,9 @@ private fun JoharBubble(
                 }
             }
             is JoharContent.Utilities -> {
-                content.intro?.let { JoharInfoCard(title = "Johar", text = it) }
+                content.intro?.let {
+                    JoharInfoCard(title = "Johar", text = it, tone = JoharInfoTone.NORMAL)
+                }
                 content.items.forEach { item ->
                     JoharUtilityCard(item, onAction = onAction)
                 }
