@@ -10,11 +10,12 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 /**
- * Narrow OSM discovery for Ranchi education entities.
+ * Narrow OSM discovery for Ranchi schools.
  *
- * Education is kept separate from generic place discovery because a query such as
- * "schools in Ranchi" must never degrade into a tourism scan. Results remain canonical
- * KnowledgeEntity rows and are later enriched by the normal entity/source pipeline.
+ * School discovery is kept separate from generic place discovery because a seed such as
+ * "schools in Ranchi" must never degrade into a tourism scan. College, university and library
+ * seeds are already handled by OverpassSpecializedDiscoveryAdapter and are intentionally not
+ * duplicated here.
  */
 internal class RanchiEducationDiscoveryAdapter(
     private val fetcher: HttpTextFetcher,
@@ -26,22 +27,15 @@ internal class RanchiEducationDiscoveryAdapter(
         if (keyword.discoveredFrom != "bootstrap") return false
         if (keyword.category != DiscoveryCategory.PLACES) return false
         val term = normalizeText(keyword.term)
-        return "ranchi" in term && EDUCATION_TERMS.any(term::contains)
+        return "ranchi" in term && "school" in term
     }
 
     override fun discover(keyword: CrawlKeyword): DiscoveryResult {
-        val term = normalizeText(keyword.term)
-        val amenity = when {
-            "school" in term -> "school"
-            "college" in term -> "college"
-            "universit" in term -> "university"
-            "librar" in term -> "library"
-            else -> error("Unsupported education seed: ${keyword.term}")
-        }
+        require(supports(keyword)) { "Unsupported education seed: ${keyword.term}" }
         val query = """
             [out:json][timeout:30];
             area["boundary"="administrative"]["name"="Ranchi"]->.searchArea;
-            nwr(area.searchArea)["amenity"="$amenity"]["name"];
+            nwr(area.searchArea)["amenity"="school"]["name"];
             out center tags $DISCOVERY_LIMIT;
         """.trimIndent()
         val raw = fetcher.postForm(endpoint, mapOf("data" to query))
@@ -66,7 +60,7 @@ internal class RanchiEducationDiscoveryAdapter(
                         externalRefs = mapOf(
                             "osm" to "${element.optString("type")}:${element.optLong("id")}",
                             "joharDiscoveryScope" to "Ranchi",
-                            "joharPackType" to packType(amenity),
+                            "joharPackType" to "SCHOOL",
                         ),
                     ),
                 )
@@ -78,14 +72,6 @@ internal class RanchiEducationDiscoveryAdapter(
             rawContent = raw,
             entities = entities.distinctBy { it.id },
         )
-    }
-
-    private fun packType(amenity: String): String = when (amenity) {
-        "school" -> "SCHOOL"
-        "college" -> "COLLEGE"
-        "university" -> "UNIVERSITY"
-        "library" -> "LIBRARY"
-        else -> "EDUCATION"
     }
 
     private fun coordinates(element: JSONObject): Pair<Double, Double>? {
@@ -110,7 +96,7 @@ internal class RanchiEducationDiscoveryAdapter(
             tags.optString("description:en"),
             address,
             tags.optString("operator"),
-            "Education facility in Ranchi",
+            "School in Ranchi",
         ).first(String::isNotBlank)
     }
 
@@ -128,6 +114,5 @@ internal class RanchiEducationDiscoveryAdapter(
         private const val PUBLISHER = "OpenStreetMap contributors"
         private const val DEFAULT_ENDPOINT = "https://overpass-api.de/api/interpreter"
         private const val DISCOVERY_LIMIT = 150
-        private val EDUCATION_TERMS = listOf("school", "college", "universit", "librar")
     }
 }
