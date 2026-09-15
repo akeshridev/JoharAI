@@ -55,10 +55,11 @@ class JoharQueryRouter(
 
         val category = Category.entries.firstOrNull { c -> words.any { it in c.words } }
         val isRecommendation = words.any { it in RECOMMENDATION_WORDS }
+        val isNearby = words.any { it in NEAR_WORDS }
 
-        // Recommendation sentences can be long and conversational. Keep them on the place path
-        // instead of turning them into generic Ranchi knowledge just because they contain filler.
-        if (isRecommendation) {
+        // Recommendation sentences can be long and conversational. Nearby remains more specific
+        // and is handled below before any generic recommendation discovery.
+        if (isRecommendation && !isNearby) {
             pendingCategory = null
             val named = resolveNamedPlaceInQuery(words)
             if (named != null) {
@@ -95,9 +96,8 @@ class JoharQueryRouter(
             return knowledge(query)
         }
 
-        val isNearby = words.any { it in NEAR_WORDS }
         if (isNearby && category != null) {
-            val originWords = words.filterNot { it in category.words || it in NEAR_FILLER || it in LOOKUP_FILLER }
+            val originWords = words.filterNot { it in category.words || it in NEAR_FILLER || it in LOOKUP_FILLER || it in RECOMMENDATION_FILLER }
             pendingCategory = category
             if (originWords.isEmpty()) return askOrigin(category)
             return nearbyFrom(originWords.joinToString(" "), category)
@@ -133,8 +133,6 @@ class JoharQueryRouter(
         }
         return if (matches.isEmpty()) {
             if (isDiscovery) {
-                // Category entities such as schools, colleges and hospitals may be source-backed
-                // without coordinates. Prefer that verified knowledge over a false spatial gap.
                 val grounded = knowledgeAnswer(query)
                 if (grounded.evidence.isNotEmpty()) {
                     JoharQueryResult.Grounded(
@@ -296,10 +294,6 @@ class JoharQueryRouter(
 
     private fun knowledge(query: String) = JoharQueryResult.Grounded(knowledgeAnswer(query))
 
-    /**
-     * Prefer exact name-token matches, then accept only conservative typo matches.
-     * Every meaningful query token still has to map to a token in the resolved place name.
-     */
     private fun strongMatches(queryWords: List<String>, candidates: List<RanchiSpatialPlace>): List<RanchiSpatialPlace> {
         if (queryWords.isEmpty()) return emptyList()
         val exact = candidates.filter { words(it.name) == queryWords }
