@@ -12,6 +12,7 @@ import com.akeshridev.johar.data.remote.OverpassFailoverHttpTextFetcher
 import com.akeshridev.johar.data.source.CommonsMediaSourceAdapter
 import com.akeshridev.johar.data.source.MediaWikiTextSourceAdapter
 import com.akeshridev.johar.data.source.OpenMeteoSourceAdapter
+import com.akeshridev.johar.data.source.OsmPracticalFactEnrichingDiscoveryAdapter
 import com.akeshridev.johar.data.source.OverpassSourceAdapter
 import com.akeshridev.johar.data.source.OverpassSpecializedDiscoveryAdapter
 import com.akeshridev.johar.data.source.RanchiDistrictOfficialSourceAdapter
@@ -39,8 +40,12 @@ class SourceCrawlWorker(
             val overpassFetcher = OverpassFailoverHttpTextFetcher(fetcher)
             val wikidata = WikidataSourceAdapter(fetcher)
             val overpass = OverpassSourceAdapter(overpassFetcher)
-            val specializedOverpass = OverpassSpecializedDiscoveryAdapter(overpassFetcher)
-            val ranchiEducation = RanchiEducationDiscoveryAdapter(overpassFetcher)
+            val specializedOverpass = OsmPracticalFactEnrichingDiscoveryAdapter(
+                OverpassSpecializedDiscoveryAdapter(overpassFetcher),
+            )
+            val ranchiEducation = OsmPracticalFactEnrichingDiscoveryAdapter(
+                RanchiEducationDiscoveryAdapter(overpassFetcher),
+            )
             val ranchiOfficial = RanchiDistrictOfficialSourceAdapter(fetcher)
             val wikipedia = MediaWikiTextSourceAdapter(
                 id = "wikipedia",
