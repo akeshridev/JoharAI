@@ -1,6 +1,8 @@
 package com.akeshridev.johar.ui.chat
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -26,14 +28,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.akeshridev.johar.designsystem.JoharCardAction
 import com.akeshridev.johar.designsystem.JoharColors
@@ -55,6 +61,7 @@ import com.akeshridev.johar.map.RanchiRouteMapCard
 import com.akeshridev.johar.ui.model.JoharContent
 import com.akeshridev.johar.ui.model.JoharMessageUiModel
 import com.akeshridev.johar.ui.model.Sender
+import kotlinx.coroutines.delay
 
 @Composable
 fun JoharBrandedChatScreen(
@@ -64,6 +71,7 @@ fun JoharBrandedChatScreen(
     onAction: (JoharCardAction) -> Unit,
     modifier: Modifier = Modifier,
     demoDraft: String? = null,
+    demoSendPressToken: Int = 0,
 ) {
     var input by rememberSaveable { mutableStateOf("") }
     val displayedInput = demoDraft ?: input
@@ -75,11 +83,16 @@ fun JoharBrandedChatScreen(
     val isFreshConversation = visibleMessages.isEmpty()
     val latestJoharId = visibleMessages.lastOrNull { it.sender == Sender.JOHAR }?.id
 
+    // Let new content settle for a beat, then follow it with Compose's smooth list animation.
+    // This feels closer to a person reading a chat than instantly snapping to the newest item.
     LaunchedEffect(visibleMessages.size, isThinking) {
         val extraItem = if (isThinking) 1 else 0
         val heroItem = if (isFreshConversation) 1 else 0
         val target = visibleMessages.size + extraItem + heroItem - 1
-        if (target >= 0) listState.animateScrollToItem(target)
+        if (target >= 0) {
+            delay(90L)
+            listState.animateScrollToItem(target)
+        }
     }
 
     Surface(
@@ -133,6 +146,7 @@ fun JoharBrandedChatScreen(
             JoharComposer(
                 value = displayedInput,
                 enabled = !isThinking,
+                demoSendPressToken = demoSendPressToken,
                 onValueChange = { if (demoDraft == null) input = it },
                 onSend = {
                     val query = displayedInput.trim()
@@ -237,9 +251,29 @@ private fun JoharWelcomeHero(onSend: (String) -> Unit) {
 private fun JoharComposer(
     value: String,
     enabled: Boolean,
+    demoSendPressToken: Int,
     onValueChange: (String) -> Unit,
     onSend: () -> Unit,
 ) {
+    val sendInteractionSource = remember { MutableInteractionSource() }
+    var sendButtonSize by remember { mutableStateOf(IntSize.Zero) }
+
+    // Demo-only visual tap. It drives the very same Material interaction source as a finger press,
+    // so ripple, elevation and press-scale are captured naturally by screen recording.
+    LaunchedEffect(demoSendPressToken) {
+        if (demoSendPressToken <= 0 || !enabled || value.isBlank()) return@LaunchedEffect
+        val size = sendButtonSize
+        val position = if (size.width > 0 && size.height > 0) {
+            Offset(size.width / 2f, size.height / 2f)
+        } else {
+            Offset.Zero
+        }
+        val press = PressInteraction.Press(position)
+        sendInteractionSource.emit(press)
+        delay(145L)
+        sendInteractionSource.emit(PressInteraction.Release(press))
+    }
+
     Surface(
         color = MaterialTheme.colorScheme.surfaceVariant,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.24f)),
@@ -289,8 +323,11 @@ private fun JoharComposer(
                 )
                 JoharPrimaryButton(
                     label = "Send",
-                    modifier = Modifier.testTag(JoharTestTags.SEND_BUTTON),
+                    modifier = Modifier
+                        .testTag(JoharTestTags.SEND_BUTTON)
+                        .onSizeChanged { sendButtonSize = it },
                     enabled = value.isNotBlank() && enabled,
+                    interactionSource = sendInteractionSource,
                     onClick = onSend,
                 )
             }
