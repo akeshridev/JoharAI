@@ -1,7 +1,7 @@
 package com.akeshridev.johar.map
 
-import android.content.Intent
 import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
@@ -12,18 +12,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
@@ -31,6 +31,9 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.akeshridev.johar.data.spatial.RanchiCoordinate
 import com.akeshridev.johar.data.spatial.RanchiSpatialPlace
+import com.akeshridev.johar.designsystem.JoharRouteCardModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.maplibre.android.MapLibre
 import org.maplibre.android.camera.CameraPosition
 import org.maplibre.android.camera.CameraUpdateFactory
@@ -100,6 +103,78 @@ fun RanchiMapCard(
             }
             if (navigationUnavailable) Text("No navigation app is available on this device.")
             Text("© OpenStreetMap contributors")
+        }
+    }
+}
+
+/**
+ * Route-first chat card. The route polyline is the primary information; repeated start/destination
+ * text is intentionally omitted because the user's query already establishes those endpoints.
+ */
+@Composable
+fun RanchiRouteMapCard(
+    model: JoharRouteCardModel,
+    origin: RanchiSpatialPlace,
+    destination: RanchiSpatialPlace,
+    route: List<RanchiCoordinate>,
+    modifier: Modifier = Modifier,
+) {
+    val context = LocalContext.current
+    var mapLoaded by remember { mutableStateOf(false) }
+    var navigationUnavailable by remember { mutableStateOf(false) }
+    val mapFile by produceState<File?>(null, context) {
+        value = withContext(Dispatchers.IO) { RanchiMapPackStore(context).ensureInstalled() }
+        mapLoaded = true
+    }
+
+    Card(modifier = modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Text(
+                text = model.title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Text(
+                text = "${model.durationLabel} • ${model.distanceLabel}",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+
+            val installedMap = mapFile
+            if (installedMap == null) {
+                Text(
+                    if (mapLoaded) {
+                        "Offline map unavailable. The Ranchi map pack is not installed."
+                    } else {
+                        "Loading offline route…"
+                    },
+                )
+            } else {
+                OfflineMap(
+                    mapFile = installedMap,
+                    destination = destination.coordinate,
+                    origin = origin.coordinate,
+                    route = route,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(230.dp),
+                )
+            }
+
+            Button(onClick = { navigationUnavailable = !openNavigation(context, destination.coordinate) }) {
+                Text("Open navigation")
+            }
+            if (navigationUnavailable) {
+                Text("No navigation app is available on this device.")
+            }
+            Text(
+                text = "Offline route • © OpenStreetMap contributors",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }
