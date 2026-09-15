@@ -11,10 +11,21 @@ import org.junit.Test
 class ShortQueryRegressionTest {
     private val food = entity("Golgappa", "FOOD", "[\"pani puri\",\"puchka\",\"phuchka\"]")
     private val school = entity("Vidya Mandir", "FACILITY", "[]", "SCHOOL")
-    private val fact = SourceFactRow(
+    private val pahari = entity("Pahari Mandir", "TOURIST_ATTRACTION", "[\"Pahari Temple\"]", "TEMPLE")
+    private val foodFact = SourceFactRow(
         "fact", food.id, "https://example.org/fixture/food", "Test fixture", 1,
         "FOOD", "description", "TEXT", "A street snack.", null, null, null,
         "A street snack.", "STATIC", "KNOWN", "STATIC_OR_SLOW",
+    )
+    private val schoolFact = SourceFactRow(
+        "school-fact", school.id, "https://example.org/fixture/school", "Test fixture", 1,
+        "EDUCATION", "address", "TEXT", "Ranchi", null, null, null,
+        "School address in Ranchi.", "STATIC", "KNOWN", "STATIC_OR_SLOW",
+    )
+    private val stairsFact = SourceFactRow(
+        "stairs-fact", pahari.id, "https://example.org/fixture/temple", "Test fixture", 1,
+        "ACCESS", "steps", "TEXT", "468 steps", null, null, null,
+        "Visitors climb 468 steps.", "STATIC", "KNOWN", "STATIC_OR_SLOW",
     )
 
     @Test fun storedFoodAliasesReachScoringAndPreserveEvidence() {
@@ -22,7 +33,7 @@ class ShortQueryRegressionTest {
         for (query in listOf("pani puri", "puchka", "phuchka", "golgappa", "PANI-PURI", "puchka kya hai")) {
             val hit = retriever.retrieve(query).first()
             assertEquals(query, food.id, hit.entityId)
-            assertEquals(fact.sourceUrl, hit.facts.single().sourceUrl)
+            assertEquals(foodFact.sourceUrl, hit.facts.single().sourceUrl)
         }
     }
 
@@ -40,6 +51,32 @@ class ShortQueryRegressionTest {
         val places = RanchiSpatialEngine(dao).discoverPlaces(setOf("SCHOOL"))
         assertEquals(listOf(school.id), places.map { it.id })
         assertEquals("SCHOOL", places.single().type)
+    }
+
+    @Test fun broadSchoolQueryListsSupportedSchoolEvidence() {
+        val answer = DeterministicJoharAnswerGenerator(OfflineKnowledgeRetriever(dao(listOf(school)))).answer("school")
+        assertEquals(JoharAnswerMode.DETERMINISTIC, answer.mode)
+        assertTrue(answer.text.contains("Vidya Mandir"))
+        assertEquals(school.id, answer.evidence.single().entityId)
+        assertEquals(schoolFact.sourceUrl, answer.evidence.single().facts.single().sourceUrl)
+    }
+
+    @Test fun namedTempleDetailUsesMatchingFactInsteadOfCategoryMix() {
+        val answer = DeterministicJoharAnswerGenerator(OfflineKnowledgeRetriever(dao(listOf(pahari)))).answer(
+            "Pahari Mandir mein stairs hain?",
+        )
+        assertEquals(JoharAnswerMode.DETERMINISTIC, answer.mode)
+        assertTrue(answer.text.contains("468 steps"))
+        assertEquals(listOf(pahari.id), answer.evidence.map { it.entityId })
+    }
+
+    @Test fun missingRequestedAttributeDoesNotSubstituteAnotherFact() {
+        val answer = DeterministicJoharAnswerGenerator(OfflineKnowledgeRetriever(dao(listOf(pahari)))).answer(
+            "Pahari Mandir wheelchair accessible hai?",
+        )
+        assertEquals(JoharAnswerMode.NO_ANSWER, answer.mode)
+        assertTrue(answer.text.contains("source-backed information"))
+        assertEquals(listOf(pahari.id), answer.evidence.map { it.entityId })
     }
 
     @Test fun optionalTraceDoesNotChangeResultsAndReportsGateAndAliases() {
@@ -60,7 +97,12 @@ class ShortQueryRegressionTest {
     ) { _, method, args ->
         when (method.name) {
             "allEnabledEntities" -> entities
-            "factsForEntity" -> if (args!![0] == food.id) listOf(fact) else emptyList<SourceFactRow>()
+            "factsForEntity" -> when (args!![0]) {
+                food.id -> listOf(foodFact)
+                school.id -> listOf(schoolFact)
+                pahari.id -> listOf(stairsFact)
+                else -> emptyList<SourceFactRow>()
+            }
             else -> error("Unexpected DAO call: ${method.name}")
         }
     } as KnowledgeDao
