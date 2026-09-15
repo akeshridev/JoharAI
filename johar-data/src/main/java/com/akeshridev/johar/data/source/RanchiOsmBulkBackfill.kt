@@ -33,13 +33,21 @@ internal class RanchiOsmBulkBackfill(
     }
 
     internal fun buildQuery(refs: List<String>): String {
-        val clauses = refs
+        val idsByType = refs
             .filter(::isValidRef)
             .distinct()
-            .joinToString("\n") { ref ->
+            .map { ref ->
                 val (type, id) = ref.split(':', limit = 2)
-                "  $type(id:$id);"
+                type to id
             }
+            .groupBy({ it.first }, { it.second })
+
+        val clauses = OSM_TYPES.mapNotNull { type ->
+            val ids = idsByType[type].orEmpty()
+            if (ids.isEmpty()) null else "  $type(id:${ids.joinToString(",")});"
+        }.joinToString("\n")
+
+        require(clauses.isNotBlank()) { "No valid OSM refs for bulk backfill" }
         return """
             [out:json][timeout:25];
             (
@@ -65,6 +73,6 @@ internal class RanchiOsmBulkBackfill(
         private const val OSM_REF = "osm"
         private const val PUBLISHER = "OpenStreetMap contributors"
         private const val DEFAULT_ENDPOINT = "https://overpass-api.de/api/interpreter"
-        private val OSM_TYPES = setOf("node", "way", "relation")
+        private val OSM_TYPES = listOf("node", "way", "relation")
     }
 }
