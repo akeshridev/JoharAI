@@ -2,15 +2,9 @@
 
 ## Purpose
 
-Before changing production behavior, Johar will be measured against a frozen 1000-case end-to-end evaluation matrix. The goal is to establish a reproducible Baseline V1, classify failure modes, then improve one category at a time without losing visibility into regressions.
+Johar uses a frozen 1000-case end-to-end matrix to measure Ranchi V1 before and after product changes. The benchmark is a reproducible engineering baseline: capture failures, group them by behavior, fix category-level problems, then re-run the exact same IDs to measure movement.
 
-This is an evaluation change only. It does not change routing, retrieval, spatial search, UI behavior, grounding policy, or product answers.
-
-## Why 1000 cases
-
-The original 200-command matrix proved the instrumentation path and exposed real gaps, especially typo/alias resolution, data coverage, live-data guardrails, and fallback quality. A 1000-case matrix gives enough variation to distinguish isolated phrase failures from category-level weaknesses.
-
-The matrix is intentionally structured rather than being 1000 random prompts:
+## Coverage
 
 | Family | Cases |
 | --- | ---: |
@@ -27,7 +21,7 @@ The matrix is intentionally structured rather than being 1000 random prompts:
 | Stateful conversation | 30 |
 | **Total** | **1000** |
 
-The first 200 IDs are preserved from the original matrix. IDs 201-1000 extend coverage. Once Baseline V1 is captured, these IDs are immutable; future cases should be appended above 1000.
+The first 200 IDs preserve the historical 200-command matrix. IDs 201-1000 extend coverage. Baseline V1 IDs are frozen; future cases should be appended rather than reshuffling these IDs.
 
 ## Behavior contracts
 
@@ -35,7 +29,7 @@ Each generated TSV row contains:
 
 `id -> family -> query/turns -> allowed result types -> behavior contract -> state group`
 
-Examples of contracts:
+Representative contracts:
 
 - `grounded_or_safe_fallback`
 - `resolve_real_place_or_data_gap`
@@ -48,62 +42,70 @@ Examples of contracts:
 - `conservative_resolution_no_unsafe_guess`
 - `must_not_fabricate`
 
-These contracts are more useful than a raw expected string because many valid responses depend on current offline data coverage while still having strict safety and routing requirements.
+Automated classification is triage, not a substitute for reviewing visible answers.
 
-## Stateful cases
+## Runtime harness model
 
-IDs 971-1000 contain two-turn conversations. `|||` separates turns in the generated asset. Both turns execute in the same fresh activity, while no state leaks between different test cases.
+The host runner executes 50-case process shards.
 
-Examples include:
+Within each shard:
 
-- place -> nearby follow-up
-- place -> route follow-up
-- comparison -> follow-up comparison
-- itinerary -> add/reorder stop
-- live question -> follow-up live question
-- clarification -> supplied location
-- invalid entity -> route request, which must not escalate into fabrication
-- unknown query -> recovery with a valid place query
+`fresh app process -> one JoharActivity -> reset conversation -> case -> capture -> reset -> next case`
 
-## Harness flow
+Independent cases reset only chat/session state. Room, repositories, spatial lookup and the routing graph remain warm. Stateful cases reset once before the scenario and preserve all `|||` turns inside that scenario. The process is force-stopped after each shard to bound long-run heap/native accumulation.
 
-`tests/agent/generate_1000_cases.py` generates `tests/agent/assets/johar-1000-cases.tsv` deterministically from the frozen 200 cases plus the 800-case expansion.
+The harness inspects only the latest Johar answer subtree so earlier cards cannot determine the final result type.
 
-`Johar1000CommandUiTest` then:
+## Baseline V1
 
-1. launches a fresh `JoharActivity` per evaluation case;
-2. enters every turn through the real Compose chat input;
-3. taps the real send button;
-4. waits until the rendered answer count increases and the thinking state disappears;
-5. inspects the final answer semantics and visible text;
-6. performs a first-pass classification;
-7. emits one JSON result row through the stable `JoharAgent` log tag.
+The first valid complete 1000-row run after routing-memory hardening produced:
 
-`tests/agent/run.sh` regenerates the matrix, runs only the 1000-case class, captures logcat, verifies that exactly 1000 rows were exported, then writes `tests/agent/results.jsonl`.
+| Classification | Count |
+| --- | ---: |
+| PASS | 508 |
+| DATA_GAP | 399 |
+| PARSER_GAP | 73 |
+| SAFETY_GROUNDING_FAIL | 19 |
+| HARNESS_ERROR | 1 |
+| **Total** | **1000** |
+
+Important observations:
+
+- The full run completed without the previous routing OOM after the routing graph/A* memory redesign.
+- Routing returned PASS for 100/150 route cases in this baseline.
+- The 19 safety failures were concentrated in `current status` / `live status` wording that bypassed the existing live-data vocabulary and fell through to ordinary grounded knowledge.
+- Typo/ambiguity remained a major parser weakness.
+- Nearby and utility failures are dominated by offline data coverage and should remain distinct from parsing failures.
+- Case 983 (`Tagore Hill se Ranchi Junction ka route batao|||reverse route?`) produced the single harness timeout and must be investigated separately from product-quality counts.
+
+## First post-baseline reliability changes
+
+The first category-level fix targets safety and typo tolerance without changing the benchmark IDs.
+
+### Live/current safety
+
+Live-data guarding now runs before route/comparison/itinerary parsing. The guarded vocabulary includes existing time/availability words plus `current`, `live`, `status`, `crowded`, `working`, and schedule terms. Any such query stays explicitly `NOT_CONFIRMED`; offline knowledge must never be presented as evidence of current status.
+
+### Conservative typo tolerance
+
+Place matching keeps exact matching first, then allows bounded edit-distance matching between meaningful query tokens and tokens in real resolved place names. Common generic place-type variants such as station/mandir/falls/dam/ground are normalized before resolution. This is deliberately conservative: typo tolerance may select only from real spatial candidates returned by the offline resolver; it does not synthesize a place name.
+
+Unit tests cover `current status`, `live status`, typo-tolerant landmark matching, and a common station typo.
 
 ## Baseline workflow
 
-1. Do not change production behavior.
-2. Generate and compile the 1000-case harness.
-3. Run the complete suite once without interruption.
-4. Preserve the first complete result as **Baseline V1**.
-5. Analyze outcomes by family and classification.
-6. Manually review all safety failures and suspicious automated PASS results.
-7. Prioritize category-level fixes rather than phrase-specific patches.
-8. Re-run the same stable matrix after each meaningful product change.
+1. Keep the 1000 IDs unchanged.
+2. Make one coherent reliability change at a time.
+3. Run focused unit/instrumentation checks first.
+4. Re-run the same full 1000 cases only after the focused checks are green.
+5. Compare classification deltas against Baseline V1.
+6. Manually inspect all safety failures and suspicious automated PASS rows.
+7. Keep `DATA_GAP` separate from parser/runtime regressions.
 
-Track movement such as:
+The useful portfolio story is not the raw number of tests. It is the measurable sequence:
 
-`PASS 61% -> 74%`
-
-`PARSER_GAP 18% -> 6%`
-
-`SAFETY_GROUNDING_FAIL 4% -> 0.5%`
-
-A stable `DATA_GAP` count may be acceptable until the offline corpus is deliberately expanded.
+`frozen benchmark -> failure cluster -> architecture/product fix -> same benchmark -> measured delta`
 
 ## Interpretation
 
-A green Android instrumentation report means the harness executed; it does not mean product quality is 100%. Product quality comes from the JSONL classifications plus manual review of the responses.
-
-The first 1000-case run is therefore a measurement artifact, not a release gate by itself.
+A green Android instrumentation report means the harness executed successfully; it does not mean product quality is 100%. Product quality is determined from structured result classifications plus manual review of representative responses.
