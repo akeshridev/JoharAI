@@ -32,6 +32,7 @@ class CrawlBootstrapTest {
         assertTrue(terms.any { "toilet" in it })
         assertTrue(terms.any { "restaurant" in it })
         assertTrue(terms.any { "haat" in it })
+        assertTrue(terms.any { "school" in it })
         assertTrue(terms.any { "college" in it })
         assertTrue(terms.any { "universit" in it })
         assertTrue(terms.any { "traditional food" in it })
