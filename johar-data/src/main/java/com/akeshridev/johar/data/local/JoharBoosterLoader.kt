@@ -18,6 +18,7 @@ internal object JoharBoosterLoader {
         "johar/johar-booster-2026.09-v1.json",
         "johar/johar-booster-2026.09-v2.json",
         "johar/johar-booster-2026.09-v3-spatial.json",
+        "johar/johar-booster-2026.09-v4-ranchi-essentials.json",
     )
     private const val MARKER_PREFIX = "asset://johar-booster/"
     private const val TAG = "JoharBooster"
@@ -170,9 +171,9 @@ internal object JoharBoosterLoader {
         type: String? = null,
     ): ExistingEntity? {
         val sql = if (type == null) {
-            "SELECT id, description, externalRefsJson, latitude, longitude, region FROM knowledge_entities WHERE normalizedName = ? ORDER BY enabled DESC, discoveryDepth ASC LIMIT 1"
+            "SELECT id, description, externalRefsJson, aliasesJson, latitude, longitude, region FROM knowledge_entities WHERE normalizedName = ? ORDER BY enabled DESC, discoveryDepth ASC LIMIT 1"
         } else {
-            "SELECT id, description, externalRefsJson, latitude, longitude, region FROM knowledge_entities WHERE normalizedName = ? AND type = ? ORDER BY enabled DESC, discoveryDepth ASC LIMIT 1"
+            "SELECT id, description, externalRefsJson, aliasesJson, latitude, longitude, region FROM knowledge_entities WHERE normalizedName = ? AND type = ? ORDER BY enabled DESC, discoveryDepth ASC LIMIT 1"
         }
         val args = if (type == null) arrayOf(normalizedName) else arrayOf(normalizedName, type)
         return db.query(sql, args).use { cursor ->
@@ -181,9 +182,10 @@ internal object JoharBoosterLoader {
                 id = cursor.getString(0),
                 description = if (cursor.isNull(1)) null else cursor.getString(1),
                 externalRefsJson = cursor.getString(2),
-                latitude = if (cursor.isNull(3)) null else cursor.getDouble(3),
-                longitude = if (cursor.isNull(4)) null else cursor.getDouble(4),
-                region = if (cursor.isNull(5)) null else cursor.getString(5),
+                aliasesJson = if (cursor.isNull(3)) "[]" else cursor.getString(3),
+                latitude = if (cursor.isNull(4)) null else cursor.getDouble(4),
+                longitude = if (cursor.isNull(5)) null else cursor.getDouble(5),
+                region = if (cursor.isNull(6)) null else cursor.getString(6),
             )
         }
     }
@@ -207,6 +209,23 @@ internal object JoharBoosterLoader {
         item.optString("region").takeIf(String::isNotBlank)?.let { desiredRegion ->
             if (!existing.region.equals(desiredRegion, ignoreCase = true)) values.put("region", desiredRegion)
         }
+
+        val mergedAliases = linkedMapOf<String, String>()
+        runCatching { JSONArray(existing.aliasesJson.ifBlank { "[]" }) }.getOrNull()?.let { aliases ->
+            for (index in 0 until aliases.length()) {
+                aliases.optString(index).takeIf(String::isNotBlank)?.let { alias ->
+                    mergedAliases.putIfAbsent(normalizeText(alias), alias)
+                }
+            }
+        }
+        item.optJSONArray("aliases")?.let { aliases ->
+            for (index in 0 until aliases.length()) {
+                aliases.optString(index).takeIf(String::isNotBlank)?.let { alias ->
+                    mergedAliases.putIfAbsent(normalizeText(alias), alias)
+                }
+            }
+        }
+        values.put("aliasesJson", JSONArray(mergedAliases.values.toList()).toString())
 
         val refs = runCatching { JSONObject(existing.externalRefsJson.ifBlank { "{}" }) }.getOrElse { JSONObject() }
         val boosterRefs = boosterRefs(item)
@@ -233,6 +252,7 @@ internal object JoharBoosterLoader {
         val id: String,
         val description: String?,
         val externalRefsJson: String,
+        val aliasesJson: String,
         val latitude: Double?,
         val longitude: Double?,
         val region: String?,
