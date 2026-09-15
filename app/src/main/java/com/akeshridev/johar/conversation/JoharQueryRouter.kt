@@ -60,6 +60,13 @@ class JoharQueryRouter(
         }
 
         val category = Category.entries.firstOrNull { c -> words.any { it in c.words } }
+
+        // Family/children questions require evidence about the requested facility, not just any park card.
+        if (category == Category.PARK && words.any { it in CHILD_WORDS }) {
+            pendingCategory = null
+            return knowledge(query)
+        }
+
         val isNearby = words.any { it in NEAR_WORDS }
         if (isNearby && category != null) {
             val originWords = words.filterNot { it in category.words || it in NEAR_FILLER || it in LOOKUP_FILLER }
@@ -289,6 +296,11 @@ class JoharQueryRouter(
         CAFE("Cafe", setOf("cafe", "cafes", "coffee"), setOf("CAFE")),
         HOTEL("Hotel", setOf("hotel", "hotels", "hostel", "guesthouse"), setOf("HOTEL")),
         MARKET("Market", setOf("market", "markets", "bazar", "bazaar", "haat", "mandi"), setOf("MARKET", "MARKET_COLLECTION", "MARKET_TYPE")),
+        VISITOR(
+            "Ranchi ghumne ki jagah",
+            setOf("ghumne", "ghumna", "sightseeing", "attraction", "attractions", "tourist"),
+            setOf("TOURIST_ATTRACTION", "HILL", "VIEWPOINT", "PARK", "GARDEN", "WATERFALL", "TEMPLE", "MUSEUM"),
+        ),
         PARK("Park", setOf("park", "parks", "garden", "playground"), setOf("PARK", "GARDEN")),
         WATERFALL("Waterfall", setOf("waterfall", "waterfalls", "falls", "jharna"), setOf("WATERFALL", "NATURAL_FEATURE")),
         HILL("Hill", setOf("hill", "hills", "pahar", "viewpoint"), setOf("HILL", "VIEWPOINT", "TOURIST_ATTRACTION")),
@@ -314,7 +326,10 @@ class JoharQueryRouter(
             "kahan", "kaha", "hai", "hain", "where", "is", "the", "location", "address", "map", "on", "show", "me",
             "mein", "in", "batao", "dikhao", "please", "ki", "ka", "ke", "find", "search", "list", "some", "mujhe",
         )
-        val DISCOVERY_FILLER = setOf("find", "search", "list", "show", "some", "best", "good", "top")
+        val DISCOVERY_FILLER = setOf(
+            "find", "search", "list", "show", "some", "best", "good", "top", "jagah", "place", "places", "liye", "for",
+        )
+        val CHILD_WORDS = setOf("bachchon", "bacchon", "children", "child", "kids", "family")
         val NEAR_WORDS = setOf("near", "nearby", "paas", "aas", "around")
         val NEAR_FILLER = NEAR_WORDS + setOf("mere", "meri", "my", "me", "to", "ke", "ki", "ka")
         val LIVE_WORDS = setOf(
@@ -383,6 +398,7 @@ class JoharQueryRouter(
                 "fall", "waterfall", "waterfalls" -> "falls"
                 "damm", "daam" -> "dam"
                 "maidan", "grnd" -> "ground"
+                "resturant", "restaurnt" -> "restaurant"
                 else -> token
             }
             if (direct != token) return direct
@@ -418,7 +434,7 @@ class JoharQueryRouter(
         }
 
         val CANONICAL_QUERY_TOKENS = setOf(
-            "station", "railway", "mandir", "garden", "dam", "falls", "airport", "ground", "university", "ranchi",
+            "station", "railway", "mandir", "garden", "dam", "falls", "airport", "ground", "university", "ranchi", "restaurant",
         )
 
         fun validCoordinate(place: RanchiSpatialPlace) = place.coordinate.latitude.isFinite() &&
