@@ -30,9 +30,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.akeshridev.johar.designsystem.JoharCardAction
@@ -47,11 +47,11 @@ import com.akeshridev.johar.designsystem.JoharPlaceCard
 import com.akeshridev.johar.designsystem.JoharPreferenceChips
 import com.akeshridev.johar.designsystem.JoharPrimaryButton
 import com.akeshridev.johar.designsystem.JoharRanchiSatelliteEmblem
-import com.akeshridev.johar.designsystem.JoharRouteCard
 import com.akeshridev.johar.designsystem.JoharSourceRow
 import com.akeshridev.johar.designsystem.JoharSuggestionCard
 import com.akeshridev.johar.designsystem.JoharUtilityCard
 import com.akeshridev.johar.map.RanchiMapCard
+import com.akeshridev.johar.map.RanchiRouteMapCard
 import com.akeshridev.johar.ui.model.JoharContent
 import com.akeshridev.johar.ui.model.JoharMessageUiModel
 import com.akeshridev.johar.ui.model.Sender
@@ -317,7 +317,12 @@ private fun JoharBubble(
                     )
                 }
             }
-            is JoharContent.Route -> JoharRouteCard(model = content.route, onAction = onAction)
+            is JoharContent.Route -> RanchiRouteMapCard(
+                model = content.route,
+                origin = content.origin,
+                destination = content.destination,
+                route = content.routePoints,
+            )
             is JoharContent.Itinerary -> JoharItineraryCard(model = content.plan, onAction = onAction)
             is JoharContent.Comparison -> JoharComparisonCard(
                 leftTitle = content.leftTitle,
