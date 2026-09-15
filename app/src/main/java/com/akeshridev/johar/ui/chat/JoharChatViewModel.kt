@@ -71,6 +71,26 @@ class JoharChatViewModel(
     }
 
     /**
+     * Debug/demo hook that follows one real map action from the latest place result.
+     * Returns false when the latest answer has no registered map target.
+     */
+    fun triggerFirstMapActionForLatestPlaces(): Boolean {
+        if (_isThinking.value) return false
+        val places = _messages.value
+            .asReversed()
+            .firstNotNullOfOrNull { message -> message.content as? JoharContent.Places }
+            ?: return false
+        val action = places.items
+            .asSequence()
+            .flatMap { item -> item.actions.asSequence() }
+            .firstOrNull { candidate -> candidate.id in mapTargets }
+            ?: return false
+
+        onAction(action)
+        return true
+    }
+
+    /**
      * Evaluation-only session reset. Keeps repositories/router dependencies warm while
      * removing UI messages, map targets, and ephemeral router clarification context.
      */
