@@ -17,6 +17,7 @@ import com.akeshridev.johar.data.source.OverpassSourceAdapter
 import com.akeshridev.johar.data.source.OverpassSpecializedDiscoveryAdapter
 import com.akeshridev.johar.data.source.RanchiDistrictOfficialSourceAdapter
 import com.akeshridev.johar.data.source.RanchiEducationDiscoveryAdapter
+import com.akeshridev.johar.data.source.RanchiOsmBulkBackfill
 import com.akeshridev.johar.data.source.TracingDiscoveryAdapter
 import com.akeshridev.johar.data.source.TracingSourceAdapter
 import com.akeshridev.johar.data.source.WikidataSourceAdapter
@@ -47,6 +48,7 @@ class SourceCrawlWorker(
                 RanchiEducationDiscoveryAdapter(overpassFetcher),
             )
             val ranchiOfficial = RanchiDistrictOfficialSourceAdapter(fetcher)
+            val ranchiOsmBulkBackfill = RanchiOsmBulkBackfill(overpassFetcher)
             val wikipedia = MediaWikiTextSourceAdapter(
                 id = "wikipedia",
                 host = "en.wikipedia.org",
@@ -84,9 +86,7 @@ class SourceCrawlWorker(
             val entityAdapters = buildList {
                 if (target == CrawlTarget.RANCHI) add(ranchiOfficial)
                 add(wikidata)
-                // Ranchi discovery stays specialized, but the generic OSM source adapter is also
-                // registered so SourceCrawler can resolve exact OSM refs during the Ranchi backfill.
-                if (target == CrawlTarget.RANCHI || target == CrawlTarget.DASSAM_FALLS) add(overpass)
+                if (target == CrawlTarget.DASSAM_FALLS) add(overpass)
                 add(wikipedia)
                 add(wikivoyage)
                 add(commons)
@@ -96,8 +96,6 @@ class SourceCrawlWorker(
             val discoveryAdapters = buildList {
                 if (target == CrawlTarget.RANCHI) add(ranchiEducation)
                 add(specializedOverpass)
-                // Ranchi has explicit intent-to-OSM mappers. Running the older generic OSM
-                // discovery beside them reintroduces statewide/generic tourism noise.
                 if (target != CrawlTarget.RANCHI) add(overpass)
                 add(wikidata)
                 add(wikipedia)
@@ -108,6 +106,7 @@ class SourceCrawlWorker(
                 store = store,
                 sourceAdapters = entityAdapters,
                 discoveryAdapters = discoveryAdapters,
+                ranchiOsmBulkBackfill = if (target == CrawlTarget.RANCHI) ranchiOsmBulkBackfill else null,
             ).crawl(target)
 
             CrawlSummaryLogger.print(target, stats, database.knowledgeDao())
