@@ -1,0 +1,155 @@
+{
+  "version": "2026.09-v6-prototype-essentials",
+  "description": "Official-source prototype essentials for remaining Golden 100 gaps: Sun Temple, Rajrappa, Sita/Hirni falls, library and fire emergency.",
+  "entities": [
+    {
+      "key": "sun-temple-ranchi",
+      "name": "Sun Temple, Ranchi",
+      "type": "TOURIST_ATTRACTION",
+      "packType": "TEMPLE",
+      "aliases": ["Surya Mandir Ranchi", "Surya Temple Ranchi", "Sun Temple Ranchi"],
+      "description": "Sun Temple near Bundu on the Ranchi-Tata Road is built in the form of a chariot with 18 wheels and seven horses.",
+      "region": "Ranchi",
+      "country": "India",
+      "externalRefs": {"joharDiscoveryScope": "Ranchi", "officialUrl": "https://tourism.jharkhand.gov.in/destinationDetails/83"}
+    },
+    {
+      "key": "rajrappa-chhinnamastika",
+      "name": "Chhinnamastika Temple Rajrappa",
+      "type": "TOURIST_ATTRACTION",
+      "packType": "TEMPLE",
+      "aliases": ["Rajrappa Mandir", "Rajrappa Temple", "Maa Chhinnamastika Temple", "Chhinnamasta Temple Rajrappa"],
+      "description": "Maa Chhinnamastika Temple at Rajrappa is a Shakti site at the confluence of the Bhairavi and Damodar rivers near Ramgarh.",
+      "region": "Jharkhand",
+      "country": "India",
+      "externalRefs": {"officialUrl": "https://tourism.jharkhand.gov.in/destinationDetails/119"}
+    },
+    {
+      "key": "sita-falls",
+      "name": "Sita Falls",
+      "type": "NATURAL_FEATURE",
+      "packType": "WATERFALL",
+      "aliases": ["Sita Fall", "Sita Waterfall"],
+      "description": "Sita Falls is a lesser-known waterfall near Jonha, about 40 km from Ranchi.",
+      "region": "Ranchi",
+      "country": "India",
+      "externalRefs": {"joharDiscoveryScope": "Ranchi", "officialUrl": "https://tourism.jharkhand.gov.in/how-to-reach/96/3"}
+    },
+    {
+      "key": "hirni-falls",
+      "name": "Hirni Falls",
+      "type": "NATURAL_FEATURE",
+      "packType": "WATERFALL",
+      "aliases": ["Hirni Fall", "Hirni Waterfall"],
+      "description": "Hirni Falls is a forest waterfall around 70 km from Ranchi on the route toward Chakradharpur.",
+      "region": "Jharkhand",
+      "country": "India",
+      "externalRefs": {"officialUrl": "https://tourism.jharkhand.gov.in/destinationDetails/88"}
+    },
+    {
+      "key": "ranchi-university-central-library",
+      "name": "Ranchi University Central Library",
+      "type": "FACILITY",
+      "packType": "LIBRARY",
+      "aliases": ["Central Library Ranchi University", "RU Central Library"],
+      "description": "Ranchi University's Central Library is a three-storey academic library serving students, teachers and researchers.",
+      "region": "Ranchi",
+      "country": "India",
+      "externalRefs": {"joharDiscoveryScope": "Ranchi", "officialUrl": "https://ranchiuniversity.ac.in/"}
+    },
+    {
+      "key": "ranchi-fire-emergency",
+      "name": "Ranchi Fire Emergency",
+      "type": "EMERGENCY_SERVICE",
+      "packType": "FIRE_STATION",
+      "aliases": ["Fire emergency Ranchi", "Ranchi fire service", "Fire station Ranchi"],
+      "description": "Official government sources publish fire-emergency contacts for Ranchi and Jharkhand.",
+      "region": "Ranchi",
+      "country": "India",
+      "externalRefs": {"joharDiscoveryScope": "Ranchi", "officialUrl": "https://ranchi.nic.in/hi/%E0%A4%86%E0%A4%AA%E0%A4%A6%E0%A4%BE-%E0%A4%AA%E0%A5%8D%E0%A4%B0%E0%A4%AC%E0%A4%82%E0%A4%A7%E0%A4%A8/"}
+    }
+  ],
+  "facts": [
+    {
+      "entityKey": "sun-temple-ranchi",
+      "field": "design",
+      "value": "The temple is designed as a chariot with 18 wheels and seven horses.",
+      "domain": "TOURISM",
+      "sourceUrl": "https://tourism.jharkhand.gov.in/destinationDetails/83",
+      "publisher": "Jharkhand Tourism",
+      "freshness": "EVERGREEN",
+      "evidence": "Jharkhand Tourism describes the Sun Temple near Bundu on the Ranchi-Tata Road as a marble temple designed as a chariot with 18 wheels and seven horses."
+    },
+    {
+      "entityKey": "sun-temple-ranchi",
+      "field": "distanceFromRanchi",
+      "value": "About 35 km from Ranchi on the Ranchi-Tata Road near Bundu.",
+      "domain": "TRAVEL",
+      "sourceUrl": "https://tourism.jharkhand.gov.in/destinationDetails/83",
+      "publisher": "Jharkhand Tourism",
+      "freshness": "SEMI_DYNAMIC",
+      "evidence": "Jharkhand Tourism places the Sun Temple about 35 km from Ranchi on the Ranchi-Tata Road near Bundu."
+    },
+    {
+      "entityKey": "rajrappa-chhinnamastika",
+      "field": "location",
+      "value": "At Rajrappa, about 28 km from Ramgarh, at the confluence of the Bhairavi and Damodar rivers.",
+      "domain": "GEOGRAPHY",
+      "sourceUrl": "https://tourism.jharkhand.gov.in/destinationDetails/119",
+      "publisher": "Jharkhand Tourism",
+      "freshness": "EVERGREEN",
+      "evidence": "Jharkhand Tourism places Chhinnamastika Temple at the confluence of the Bhairavi and Damodar rivers, 28 km from Ramgarh."
+    },
+    {
+      "entityKey": "sita-falls",
+      "field": "distanceFromRanchi",
+      "value": "About 40 km from Ranchi; Jonha railway station is about 1.5 km from the Jonha/Sita Falls area.",
+      "domain": "TRAVEL",
+      "sourceUrl": "https://tourism.jharkhand.gov.in/how-to-reach/96/3",
+      "publisher": "Jharkhand Tourism",
+      "freshness": "SEMI_DYNAMIC",
+      "evidence": "Jharkhand Tourism describes Sita Falls as near Jonha and about 40 km from Ranchi."
+    },
+    {
+      "entityKey": "hirni-falls",
+      "field": "distanceFromRanchi",
+      "value": "About 70 km from Ranchi on the way toward Chakradharpur.",
+      "domain": "TRAVEL",
+      "sourceUrl": "https://tourism.jharkhand.gov.in/destinationDetails/88",
+      "publisher": "Jharkhand Tourism",
+      "freshness": "SEMI_DYNAMIC",
+      "evidence": "Jharkhand Tourism describes Hirni Falls as about 70 km from Ranchi on the way to Chakradharpur."
+    },
+    {
+      "entityKey": "ranchi-university-central-library",
+      "field": "collection",
+      "value": "The Central Library has more than one lakh books and serves Ranchi University students, teachers and researchers.",
+      "domain": "EDUCATION",
+      "sourceUrl": "https://ranchiuniversity.ac.in/assets/latest/Central%20Library%20Symposium%20Brochure.pdf",
+      "publisher": "Ranchi University",
+      "freshness": "SEMI_DYNAMIC",
+      "evidence": "Ranchi University describes its Central Library as a three-storey facility with more than 1.12 lakh volumes serving university users."
+    },
+    {
+      "entityKey": "ranchi-fire-emergency",
+      "field": "districtFireContact",
+      "value": "0651-2283825",
+      "domain": "EMERGENCY",
+      "sourceUrl": "https://ranchi.nic.in/hi/%E0%A4%86%E0%A4%AA%E0%A4%A6%E0%A4%BE-%E0%A4%AA%E0%A5%8D%E0%A4%B0%E0%A4%AC%E0%A4%82%E0%A4%A7%E0%A4%A8/",
+      "publisher": "District Administration Ranchi",
+      "freshness": "LIVE",
+      "evidence": "District Ranchi's disaster-management page publishes 0651-2283825 as the contact in case of fire."
+    },
+    {
+      "entityKey": "ranchi-fire-emergency",
+      "field": "stateFireHelpline",
+      "value": "102",
+      "domain": "EMERGENCY",
+      "sourceUrl": "https://www.jharkhand.gov.in/",
+      "publisher": "Government of Jharkhand",
+      "freshness": "LIVE",
+      "evidence": "The Government of Jharkhand state portal currently lists Fire 102 among statewide emergency numbers."
+    }
+  ],
+  "relationships": []
+}
