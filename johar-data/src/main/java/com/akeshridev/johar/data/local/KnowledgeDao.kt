@@ -126,16 +126,24 @@ interface KnowledgeDao {
               AND e.longitude BETWEEN 84.95 AND 85.75
             )
           )
+          AND (e.lastCrawledAtEpochMillis IS NULL OR e.lastCrawledAtEpochMillis < :staleBeforeEpochMillis)
           AND NOT EXISTS (
             SELECT 1 FROM source_facts f
             WHERE f.entityId = e.id
               AND f.field LIKE 'osm.%'
           )
-        ORDER BY e.discoveryDepth ASC, e.name ASC
+        ORDER BY
+          CASE WHEN e.lastCrawledAtEpochMillis IS NULL THEN 0 ELSE 1 END,
+          e.discoveryDepth ASC,
+          e.lastCrawledAtEpochMillis ASC,
+          e.name ASC
         LIMIT :limit
         """,
     )
-    fun ranchiOsmBackfillCandidates(limit: Int): List<KnowledgeEntityRow>
+    fun ranchiOsmBackfillCandidates(
+        staleBeforeEpochMillis: Long,
+        limit: Int,
+    ): List<KnowledgeEntityRow>
 
     @Query(
         """
