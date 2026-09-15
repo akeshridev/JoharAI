@@ -115,6 +115,30 @@ interface KnowledgeDao {
 
     @Query(
         """
+        SELECT e.*
+        FROM knowledge_entities e
+        WHERE e.enabled = 1
+          AND e.externalRefsJson LIKE '%"osm"%'
+          AND (
+            e.externalRefsJson LIKE '%"joharDiscoveryScope":"Ranchi"%'
+            OR (
+              e.latitude BETWEEN 22.95 AND 23.65
+              AND e.longitude BETWEEN 84.95 AND 85.75
+            )
+          )
+          AND NOT EXISTS (
+            SELECT 1 FROM source_facts f
+            WHERE f.entityId = e.id
+              AND f.field LIKE 'osm.%'
+          )
+        ORDER BY e.discoveryDepth ASC, e.name ASC
+        LIMIT :limit
+        """,
+    )
+    fun ranchiOsmBackfillCandidates(limit: Int): List<KnowledgeEntityRow>
+
+    @Query(
+        """
         UPDATE knowledge_entities
         SET lastCrawledAtEpochMillis = :crawledAtEpochMillis,
             updatedAtEpochMillis = :crawledAtEpochMillis
