@@ -67,13 +67,17 @@ class RanchiSpatialEngine internal constructor(private val dao: KnowledgeDao) {
      * Discovery order is intentionally quality-ranked rather than alphabetical. Raw OSM/imported
      * datasets can contain technically valid but demo-hostile labels such as "89" or tiny generic
      * locality names. Those should never outrank a recognizable named hill, falls, park or museum.
+     *
+     * Some upstream sources classify named waterfalls as TOURIST_ATTRACTION rather than WATERFALL.
+     * Treat those as waterfall candidates when their display name explicitly says falls/waterfall.
      */
-    fun discoverPlaces(types: Set<String>, limit: Int = 20): List<RanchiSpatialPlace> =
-        dao.allEnabledEntities().asSequence()
+    fun discoverPlaces(types: Set<String>, limit: Int = 20): List<RanchiSpatialPlace> {
+        val normalizedTypes = types.map { it.uppercase() }.toSet()
+        return dao.allEnabledEntities().asSequence()
             .filter(::isRanchiScoped)
             .filter { hasUsableDisplayName(it.name) }
             .mapNotNull { entity -> toSpatialPlace(entity)?.let { it to discoveryQualityScore(entity, it) } }
-            .filter { (place, _) -> place.type in types }
+            .filter { (place, _) -> matchesDiscoveryTypes(place, normalizedTypes) }
             .sortedWith(
                 compareByDescending<Pair<RanchiSpatialPlace, Int>> { it.second }
                     .thenBy { it.first.name.lowercase() },
@@ -81,6 +85,7 @@ class RanchiSpatialEngine internal constructor(private val dao: KnowledgeDao) {
             .map { (place, _) -> place }
             .take(limit)
             .toList()
+    }
 
     fun nearby(
         origin: RanchiCoordinate,
@@ -161,12 +166,24 @@ class RanchiSpatialEngine internal constructor(private val dao: KnowledgeDao) {
             else -> 70
         }
 
-        if (!entity.description.isNullOrBlank()) score += 35
+        if (!place.description.isNullOrBlank()) score += 35
         if (name.split(Regex("\\s+")).size >= 2) score += 12
         if (RECOGNIZABLE_PLACE_WORDS.any(name::contains)) score += 25
         if (LOW_VALUE_PLACE_WORDS.any(name::contains)) score -= 35
         if (name.length < 4) score -= 50
         return score
+    }
+
+    private fun matchesDiscoveryTypes(place: RanchiSpatialPlace, requestedTypes: Set<String>): Boolean {
+        val type = place.type.uppercase()
+        if (type in requestedTypes) return true
+
+        // Generic waterfall queries should still find records sourced as tourist attractions.
+        if ("WATERFALL" in requestedTypes && type == "TOURIST_ATTRACTION") {
+            val normalizedName = normalizeText(place.name)
+            return WATERFALL_NAME_WORDS.any(normalizedName::contains)
+        }
+        return false
     }
 
     private fun hasUsableDisplayName(name: String): Boolean {
@@ -179,15 +196,42 @@ class RanchiSpatialEngine internal constructor(private val dao: KnowledgeDao) {
     private fun toSpatialPlace(entity: KnowledgeEntityRow): RanchiSpatialPlace? {
         val latitude = entity.latitude ?: return null
         val longitude = entity.longitude ?: return null
+        val resolvedType = runCatching { JSONObject(entity.externalRefsJson).optString("joharPackType") }
+            .getOrNull()?.takeIf(String::isNotBlank) ?: entity.type
         return RanchiSpatialPlace(
             id = entity.id,
             name = entity.name,
-            type = runCatching { JSONObject(entity.externalRefsJson).optString("joharPackType") }
-                .getOrNull()?.takeIf(String::isNotBlank) ?: entity.type,
+            type = resolvedType,
             coordinate = RanchiCoordinate(latitude, longitude),
             region = entity.region,
-            description = entity.description,
+            description = safeDescription(entity.name, resolvedType, entity.description),
         )
+    }
+
+    /**
+     * Defensive presentation guard for imported/canonicalized place descriptions.
+     *
+     * For named waterfalls, a description that talks about another named falls without mentioning
+     * the card's own distinguishing name is worse than showing no description at all. This prevents
+     * cases such as a Jonha card rendering a Hundru paragraph while the underlying data is repaired.
+     */
+    private fun safeDescription(name: String, type: String, description: String?): String? {
+        val text = description?.trim()?.takeIf(String::isNotBlank) ?: return null
+        val normalizedType = type.uppercase()
+        val normalizedName = normalizeText(name)
+        val normalizedDescription = normalizeText(text)
+        val isWaterfall = normalizedType in setOf("WATERFALL", "NATURAL_FEATURE", "TOURIST_ATTRACTION") &&
+            WATERFALL_NAME_WORDS.any(normalizedName::contains)
+        if (!isWaterfall) return text
+
+        val identityTokens = normalizedName
+            .split(' ')
+            .filter { token -> token.length >= 4 && token !in GENERIC_WATERFALL_WORDS }
+        if (identityTokens.isEmpty()) return text
+
+        val mentionsOwnIdentity = identityTokens.any(normalizedDescription::contains)
+        val namesAnotherFalls = WATERFALL_NAME_WORDS.any(normalizedDescription::contains) && !mentionsOwnIdentity
+        return if (namesAnotherFalls) null else text
     }
 
     private fun containsAny(text: String, vararg values: String): Boolean = values.any(text::contains)
@@ -207,6 +251,8 @@ class RanchiSpatialEngine internal constructor(private val dao: KnowledgeDao) {
         val LOW_VALUE_PLACE_WORDS = setOf(
             "colony ground", "play ground", "playground", "community ground", "sector ground",
         )
+        val WATERFALL_NAME_WORDS = setOf("falls", "fall", "waterfall")
+        val GENERIC_WATERFALL_WORDS = WATERFALL_NAME_WORDS + setOf("ranchi", "jharkhand")
     }
 }
 
