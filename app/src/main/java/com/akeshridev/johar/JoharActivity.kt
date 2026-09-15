@@ -128,16 +128,16 @@ private data class PrototypeStep(
 )
 
 private val PROTOTYPE_STEPS = listOf(
-    PrototypeStep("Ranchi mein peaceful family place suggest karo, parents ke saath jana hai"),
-    PrototypeStep("Kanke Dam family ke liye acha hai?"),
-    PrototypeStep("Ranchi mein waterfall kahan hai?"),
-    PrototypeStep("Main Road ke paas restaurant batao"),
-    PrototypeStep("Dhuska kya hota hai?"),
-    PrototypeStep("RIMS kahan hai?"),
-    PrototypeStep("Ranchi railway station se Tagore Hill kaise jaun?"),
     PrototypeStep(
         question = "Lalpur ke paas ATM batao",
         openFirstMapResult = true,
     ),
+    PrototypeStep("Ranchi mein peaceful family place suggest karo, parents ke saath jana hai"),
+    PrototypeStep("Main Road ke paas restaurant batao"),
+    PrototypeStep("Emergency hospital number"),
+    PrototypeStep("Ranchi railway station se Tagore Hill kaise jaun?"),
+    PrototypeStep("Dhuska kya hota hai?"),
+    PrototypeStep("Kanke Dam family ke liye acha hai?"),
+    PrototypeStep("Ranchi mein waterfall kahan hai?"),
     PrototypeStep("Aaj Kanke Dam open hai?"),
 )
