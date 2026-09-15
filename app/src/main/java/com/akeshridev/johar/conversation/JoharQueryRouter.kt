@@ -65,7 +65,7 @@ class JoharQueryRouter(
             if (named != null) {
                 return JoharQueryResult.Places(
                     places = listOf(named),
-                    intro = "${named.name} offline data mein mila. Aapki preference (family/peaceful/access) ka specific evidence jitna available hai utna hi dikhaya ja raha hai; suitability ko guess nahi kar rahe.",
+                    intro = recommendationIntro(words, named.name),
                 )
             }
 
@@ -78,7 +78,7 @@ class JoharQueryRouter(
             if (candidates.isNotEmpty()) {
                 return JoharQueryResult.Places(
                     places = candidates,
-                    intro = "Offline Ranchi data mein ye options mile. Peaceful/family suitability ka specific evidence limited ho sakta hai, isliye Johar unverified preference claims nahi kar raha.",
+                    intro = recommendationIntro(words),
                     kind = if (recommendationCategory.isUtility) PlaceResultKind.UTILITY else PlaceResultKind.DISCOVERY,
                 )
             }
@@ -105,7 +105,16 @@ class JoharQueryRouter(
 
         val pending = pendingCategory
         pendingCategory = null
-        if (pending != null && words.size <= 5 && words.none { it in QUESTION_WORDS }) {
+        // A pending nearby clarification only owns a short bare locality/landmark reply. If the
+        // user starts a new explicit category or recommendation, discard the stale clarification.
+        if (
+            pending != null &&
+            category == null &&
+            !isRecommendation &&
+            !isNearby &&
+            words.size <= 5 &&
+            words.none { it in QUESTION_WORDS }
+        ) {
             return nearbyFrom(query, pending)
         }
 
@@ -292,6 +301,24 @@ class JoharQueryRouter(
         options = listOf("Lalpur", "Ranchi railway station", "Kanke", "Doranda"),
     )
 
+    private fun recommendationIntro(queryWords: List<String>, placeName: String? = null): String {
+        val lead = placeName?.let { "$it offline data mein mila. " }
+            ?: "Offline Ranchi data mein ye options mile. "
+        val caveat = when {
+            queryWords.any { it in KID_WORDS } ->
+                "Kids-friendly suitability ka specific verified evidence limited ho sakta hai, isliye Johar guess nahi kar raha."
+            queryWords.any { it in VEGETARIAN_WORDS } ->
+                "Vegetarian availability ka verified evidence har restaurant ke liye available nahi hai, isliye Johar unverified food claims nahi kar raha."
+            queryWords.any { it in FAMILY_WORDS } ->
+                "Family suitability ka specific verified evidence limited ho sakta hai, isliye Johar guess nahi kar raha."
+            queryWords.any { it in PEACEFUL_WORDS } ->
+                "Peaceful/quiet suitability ka specific verified evidence limited ho sakta hai, isliye Johar guess nahi kar raha."
+            else ->
+                "Preference-specific suitability ka verified evidence limited ho sakta hai, isliye Johar unverified claims nahi kar raha."
+        }
+        return lead + caveat
+    }
+
     private fun knowledge(query: String) = JoharQueryResult.Grounded(knowledgeAnswer(query))
 
     private fun strongMatches(queryWords: List<String>, candidates: List<RanchiSpatialPlace>): List<RanchiSpatialPlace> {
@@ -393,7 +420,11 @@ class JoharQueryRouter(
         val DISCOVERY_FILLER = setOf(
             "find", "search", "list", "show", "some", "best", "good", "top", "jagah", "place", "places", "liye", "for",
         )
-        val CHILD_WORDS = setOf("bachchon", "bacchon", "children", "child", "kids", "family", "parents", "parent")
+        val KID_WORDS = setOf("bachchon", "bacchon", "children", "child", "kids")
+        val FAMILY_WORDS = setOf("family", "parents", "parent")
+        val CHILD_WORDS = KID_WORDS + FAMILY_WORDS
+        val VEGETARIAN_WORDS = setOf("vegetarian", "veg", "veggie", "shakahari")
+        val PEACEFUL_WORDS = setOf("peaceful", "quiet", "shaant", "shant")
         val RECOMMENDATION_WORDS = setOf(
             "suggest", "suggestion", "recommend", "recommendation", "best", "good", "acha", "accha", "peaceful", "quiet",
             "family", "parents", "parent", "kids", "children", "suitable", "suitability",
