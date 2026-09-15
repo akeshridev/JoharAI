@@ -71,6 +71,10 @@ internal class KnowledgeStore(
         .nextEntitiesToCrawl(staleBeforeEpochMillis, limit)
         .map { it.toCrawlSeed() }
 
+    fun ranchiOsmBackfillCandidates(limit: Int): List<CrawlSeed> = knowledgeDao
+        .ranchiOsmBackfillCandidates(limit)
+        .map { it.toCrawlSeed() }
+
     fun nextKeywordsToCrawl(
         staleBeforeEpochMillis: Long,
         limit: Int,
