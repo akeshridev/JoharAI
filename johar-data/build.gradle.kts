@@ -25,6 +25,7 @@ dependencies {
     ksp("androidx.room:room-compiler:2.8.5")
 
     implementation("androidx.work:work-runtime:2.11.2")
+    implementation("androidx.work:work-runtime-ktx:2.11.2")
     implementation("org.jsoup:jsoup:1.23.2")
 
     // Official LiteRT-LM Android Maven package. Keep model delivery separate from the APK.
