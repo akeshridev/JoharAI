@@ -3,8 +3,8 @@ package com.akeshridev.johar.designsystem
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.heightIn
@@ -32,9 +32,10 @@ fun JoharPrimaryButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    interactionSource: MutableInteractionSource? = null,
 ) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
+    val resolvedInteractionSource = interactionSource ?: remember { MutableInteractionSource() }
+    val isPressed by resolvedInteractionSource.collectIsPressedAsState()
     val scale by animateFloatAsState(
         targetValue = if (isPressed) 0.96f else 1f,
         animationSpec = tween(durationMillis = if (isPressed) 70 else 120),
@@ -50,7 +51,7 @@ fun JoharPrimaryButton(
                 scaleY = scale
             },
         enabled = enabled,
-        interactionSource = interactionSource,
+        interactionSource = resolvedInteractionSource,
         shape = RoundedCornerShape(JoharRadius.Pill),
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primary,
