@@ -178,9 +178,20 @@ Evaluate by domain as well as Golden-100:
 
 Golden-100 should improve naturally, but it is not the acquisition objective.
 
-## First implementation decision
-The Ranchi bootstrap seed list is now separated from crawler orchestration into `RanchiCommonManAcquisitionPlan`.
+## Implementation decisions
+
+### 1. Product-oriented bootstrap plan
+The Ranchi bootstrap seed list is separated from crawler orchestration into `RanchiCommonManAcquisitionPlan`.
 
 Reason: product priority, source behavior and persistence are different responsibilities. A flat source-oriented keyword list made it difficult to reason about common-man coverage or change priorities safely.
 
 This change intentionally does not introduce a second storage model or change canonical Room persistence.
+
+### 2. Explicit school acquisition
+`schools in Ranchi` is a P0 education seed. It is handled by `RanchiEducationDiscoveryAdapter`, which issues a bounded OSM query for `amenity=school` inside the Ranchi administrative area and writes normal `KnowledgeEntity` candidates with OSM provenance and `joharPackType=SCHOOL`.
+
+Reason: before this adapter, a school seed using the generic `PLACES` category could fall through to generic tourism discovery. Schools are a common-man requirement and need precise source semantics rather than phrase-level retrieval workarounds.
+
+The adapter intentionally handles only schools. College, university and library discovery already exists in `OverpassSpecializedDiscoveryAdapter`; keeping the school adapter narrow prevents duplicate Overpass requests and duplicate candidate streams.
+
+School discovery remains static/practical metadata only. OSM presence does not prove current admission status, opening state, fees, board affiliation or seat availability. Those require stronger or fresher evidence.
