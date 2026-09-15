@@ -100,7 +100,9 @@ private fun JoharRoot(
                 demoDraft = demoDraft,
             )
 
-            if (onDeveloperCrawlRanchi != null || enablePrototypeRunner) {
+            // Keep debug controls available to start the demo, but hide them completely while
+            // recording so the product surface is the only thing visible on screen.
+            if (!isPrototypeRunning && (onDeveloperCrawlRanchi != null || enablePrototypeRunner)) {
                 Column(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
@@ -116,7 +118,7 @@ private fun JoharRoot(
 
                     if (enablePrototypeRunner) {
                         TextButton(
-                            enabled = !isPrototypeRunning && !isThinking,
+                            enabled = !isThinking,
                             onClick = {
                                 isPrototypeRunning = true
                                 scope.launch {
@@ -133,8 +135,10 @@ private fun JoharRoot(
                                             viewModel.isThinking.first { thinking -> !thinking }
                                             if (step.openFirstMapResult) {
                                                 viewModel.triggerFirstMapActionForLatestPlaces()
+                                                delay(PROTOTYPE_MAP_HOLD_MILLIS)
+                                            } else {
+                                                delay(PROTOTYPE_QUESTION_DELAY_MILLIS)
                                             }
-                                            delay(PROTOTYPE_QUESTION_DELAY_MILLIS)
                                         }
                                     } finally {
                                         demoDraft = null
@@ -143,7 +147,7 @@ private fun JoharRoot(
                                 }
                             },
                         ) {
-                            Text(if (isPrototypeRunning) "DEV: Demo running…" else "DEV: Run 9Q Demo")
+                            Text("DEV: Run 9Q Demo")
                         }
                     }
                 }
@@ -160,6 +164,7 @@ private fun typingDelayMillis(character: Char): Long = when {
 
 private const val PROTOTYPE_BEFORE_SEND_DELAY_MILLIS = 450L
 private const val PROTOTYPE_QUESTION_DELAY_MILLIS = 3_000L
+private const val PROTOTYPE_MAP_HOLD_MILLIS = 5_500L
 
 private data class PrototypeStep(
     val question: String,
