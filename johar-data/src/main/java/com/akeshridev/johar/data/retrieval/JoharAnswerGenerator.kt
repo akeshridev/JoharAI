@@ -167,15 +167,43 @@ class DeterministicJoharAnswerGenerator(
             queryTerms = setOf("college", "colleges", "university", "universities"),
             packTypes = setOf("COLLEGE", "UNIVERSITY", "COLLEGE_UNIVERSITY"), entityTypes = setOf("ORGANIZATION", "FACILITY"),
         )
+        containsAny(query, "library", "libraries") -> ListCategory(
+            queryTerms = setOf("library", "libraries"), packTypes = setOf("LIBRARY"), entityTypes = setOf("FACILITY", "ORGANIZATION"),
+        )
         containsAny(query, "hospital", "hospitals", "clinic", "clinics") -> ListCategory(
             queryTerms = setOf("hospital", "hospitals", "clinic", "clinics"), packTypes = setOf("HOSPITAL"), entityTypes = setOf("HOSPITAL"),
+        )
+        containsAny(query, "pharmacy", "chemist", "medical store", "medical shop") -> ListCategory(
+            queryTerms = setOf("pharmacy", "chemist", "medical", "store", "shop"), packTypes = setOf("PHARMACY"), entityTypes = setOf("SHOP"),
         )
         containsAny(query, "police", "thana") -> ListCategory(
             queryTerms = setOf("police", "thana", "station"), packTypes = setOf("POLICE_STATION"), entityTypes = setOf("POLICE_STATION"),
         )
+        query.contains("fire station") -> ListCategory(
+            queryTerms = setOf("fire", "station"), packTypes = setOf("FIRE_STATION"), entityTypes = setOf("EMERGENCY_SERVICE"),
+        )
         containsAny(query, "market", "markets", "bazar", "bazaar", "haat", "mandi") -> ListCategory(
-            queryTerms = setOf("market", "markets", "bazar", "bazaar", "haat", "mandi"),
-            packTypes = setOf("MARKET", "MARKET_COLLECTION", "MARKET_TYPE"), entityTypes = setOf("MARKET"),
+            queryTerms = setOf("market", "markets", "bazar", "bazaar", "haat", "mandi", "sabzi"),
+            packTypes = setOf("MARKET", "MARKET_COLLECTION", "MARKET_TYPE", "VEGETABLE_SHOP"), entityTypes = setOf("MARKET", "SHOP"),
+        )
+        containsAny(query, "restaurant", "restaurants", "resturant", "restaurnt", "dhaba") -> ListCategory(
+            queryTerms = setOf("restaurant", "restaurants", "resturant", "restaurnt", "dhaba"),
+            packTypes = setOf("RESTAURANT", "STREET_FOOD"), entityTypes = setOf("RESTAURANT"),
+        )
+        containsAny(query, "cafe", "cafes", "coffee") -> ListCategory(
+            queryTerms = setOf("cafe", "cafes", "coffee"), packTypes = setOf("CAFE"), entityTypes = setOf("RESTAURANT"),
+        )
+        containsAny(query, "atm", "atms") -> ListCategory(
+            queryTerms = setOf("atm", "atms"), packTypes = setOf("ATM"), entityTypes = setOf("FACILITY"),
+        )
+        containsAny(query, "petrol", "fuel", "pump") -> ListCategory(
+            queryTerms = setOf("petrol", "fuel", "pump"), packTypes = setOf("FUEL"), entityTypes = setOf("FACILITY"),
+        )
+        containsAny(query, "public toilet", "toilet", "washroom") -> ListCategory(
+            queryTerms = setOf("public", "toilet", "washroom"), packTypes = setOf("TOILET"), entityTypes = setOf("FACILITY"),
+        )
+        query.contains("parking") -> ListCategory(
+            queryTerms = setOf("parking"), packTypes = setOf("PARKING"), entityTypes = setOf("FACILITY"),
         )
         containsAny(query, "park", "parks", "garden") -> ListCategory(
             queryTerms = setOf("park", "parks", "garden"), packTypes = setOf("PARK", "GARDEN"), entityTypes = setOf("TOURIST_ATTRACTION"),
@@ -200,6 +228,7 @@ class DeterministicJoharAnswerGenerator(
     private fun looksHinglish(query: String): Boolean = containsAny(
         query,
         " kya ", " ka ", " ki ", " ke ", " hai", " me ", " mein ", " batao", " kaha", " kahan", " paas", " rajya ", "jharna",
+        "bachchon", "bacchon", "liye", "ghumne",
     ) || query.startsWith("kya ") || query.startsWith("rajya ")
 
     private fun humanField(value: String): String = splitFieldName(value).replaceFirstChar { it.uppercase() }
@@ -226,6 +255,10 @@ class DeterministicJoharAnswerGenerator(
             "steps" to setOf("stairs", "steps", "step"),
             "wheelchair" to setOf("wheelchair", "accessible", "accessibility"),
             "accessible" to setOf("wheelchair", "accessible", "accessibility"),
+            "bachchon" to setOf("children", "child", "kids", "swings", "rides", "playground"),
+            "bacchon" to setOf("children", "child", "kids", "swings", "rides", "playground"),
+            "children" to setOf("children", "child", "kids", "swings", "rides", "playground"),
+            "kids" to setOf("children", "child", "kids", "swings", "rides", "playground"),
             "address" to setOf("address", "location", "locality"),
             "kahan" to setOf("address", "location", "locality"),
             "phone" to setOf("phone", "contact", "helpline"),
