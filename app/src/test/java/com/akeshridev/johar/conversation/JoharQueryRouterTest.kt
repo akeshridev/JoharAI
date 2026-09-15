@@ -230,6 +230,40 @@ class JoharQueryRouterTest {
         assertEquals(listOf(tagoreHill, rockGarden), result.places)
     }
 
+    @Test
+    fun bareEducationCategoriesUseDiscoveryEvenWithoutNameMatches() {
+        val school = place("school", "Vidya Mandir", "SCHOOL")
+        val router = JoharQueryRouter(
+            resolvePlace = { emptyList() },
+            nearby = { _, _ -> error("No origin supplied") },
+            discoverPlaces = { types -> if ("SCHOOL" in types) listOf(school) else emptyList() },
+            knowledgeAnswer = { error("Category must not fall through to knowledge: $it") },
+        )
+        for (query in listOf("school", "schools", "list schools in Ranchi")) {
+            val result = router.answer(query) as JoharQueryResult.Places
+            assertEquals(listOf(school), result.places)
+            assertEquals(PlaceResultKind.UTILITY, result.kind)
+        }
+    }
+
+    @Test
+    fun missingCategoryIsContextualAndNeverFabricatesPlaces() {
+        val result = router().answer("school") as JoharQueryResult.Grounded
+        assertEquals(JoharAnswerMode.NO_ANSWER, result.answer.mode)
+        assertTrue(result.answer.text.contains("School"))
+        assertTrue(result.answer.evidence.isEmpty())
+    }
+
+    @Test
+    fun foodAliasesStayInGroundedKnowledgeAndLiveGuardStillWins() {
+        for (query in listOf("pani puri", "puchka", "golgappa")) {
+            val result = router().answer(query) as JoharQueryResult.Grounded
+            assertEquals("knowledge:$query", result.answer.text)
+        }
+        val result = router().answer("school open now") as JoharQueryResult.Grounded
+        assertEquals(GroundedTone.NOT_CONFIRMED, result.tone)
+    }
+
     private fun router(
         resolve: (String) -> List<RanchiSpatialPlace> = { emptyList() },
         nearby: (RanchiCoordinate, Set<String>) -> List<RanchiSpatialPlace> = { _, _ -> emptyList() },

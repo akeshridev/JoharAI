@@ -30,5 +30,6 @@ dependencies {
     // Official LiteRT-LM Android Maven package. Keep model delivery separate from the APK.
     implementation("com.google.ai.edge.litertlm:litertlm-android:0.17.0")
 
+    testImplementation("org.json:json:20240303")
     testImplementation(kotlin("test-junit"))
 }

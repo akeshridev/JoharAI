@@ -1,0 +1,18 @@
+{
+  "evaluatedAtUtc": "2026-09-15T02:14:06.817629+00:00",
+  "assetSha256": "7337394dfd093399c1dcfa4dfb43174962742e9fea6437021ac7381098c73674",
+  "start": 1,
+  "end": 100,
+  "mode": "actual_android_pipeline",
+  "database": "existing working Room DB; not cleared or replaced",
+  "gitHead": "4e7de5197c258264c7c246f49db43cbfeadb6547",
+  "workingTreeDirty": true,
+  "device": "sdk_gphone16k_arm64",
+  "packagePresentBeforeRun": true,
+  "runtimeSnapshot": {
+    "startedAtEpochMillis": 1789438434360,
+    "entityCount": 395,
+    "factCount": 209,
+    "database": "working johar.db; normal seed/booster initialization"
+  }
+}

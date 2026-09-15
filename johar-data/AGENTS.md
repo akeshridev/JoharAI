@@ -138,3 +138,13 @@ Manual enqueue performs an immediate crawl and ensures a unique 24-hour statewid
 - Gemma 3 1B int4 uses the LiteRT-LM CPU backend with a 2,048-token context and per-request conversations. Emulator CPU inference is allowed for developer validation, matching the earlier Vault Mind approach; physical-device performance remains the production acceptance target. A 90-second caller timeout retires the worker; native cleanup waits for any blocked JNI call to return.
 - Validate the separately delivered local `.litertlm` file before engine creation. Inference never downloads. `LocalModelStore` remains the delivery boundary for future PAD/download support. Header validation is not integrity verification; provisioning must verify the selected Gemma artifact size/checksum. No Qwen size or URL applies to Gemma.
 - SDK is pinned to 0.17.0. Keep model payloads outside APK/assets and Git. See `docs/litert-lm-device-testing.md` for physical-device acceptance checks.
+
+## Short-query regression contract
+- `2850190` added a name-only admission gate ahead of alias scoring. Admission and identity ranking must also recognize complete, normalized aliases from `aliasesJson`; arbitrary fact/description overlap must not bypass the gate. Do not add food-specific router exceptions.
+- Category discovery belongs in `RanchiSpatialEngine.discoverPlaces`: filter Ranchi-scoped records using sourced `joharPackType` (falling back to entity type), rather than requiring category text in names. Preserve coordinates and Ranchi scope.
+- `ShortQueryRegressionTest` covers pani puri/puchka, related aliases, punctuation, unsupported/partial queries, evidence preservation and school metadata discovery. See `docs/short-query-regression.md` for seed limitations and validation.
+
+## Optional retrieval diagnostics
+- `OfflineKnowledgeRetriever` accepts an optional `OfflineRetrievalTrace` observer for developer evaluation. Production graph leaves it null. It reports actual normalized query, preferred types, matched stored aliases, at most 20 ranked post-filter candidates (or the requested limit if greater), and admission/filter fallback reasons.
+- Observation must not alter returned hits, ordering, limits, grounding or answer behavior. `ShortQueryRegressionTest.optionalTraceDoesNotChangeResultsAndReportsGateAndAliases` protects this boundary.
+- These traces are not exhaustive rejected-candidate explanations. Do not infer that a missing candidate proves absence from the whole database. Golden evaluator handles detailed output in androidTest; see `docs/golden-100.md`.

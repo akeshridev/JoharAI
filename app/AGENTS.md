@@ -50,3 +50,15 @@ The harness runs retrieval, deterministic answers, frozen retrieval evaluation, 
 
 ## Baseline V1 reliability work
 The frozen 1000-case Baseline V1 is documented in `docs/johar-1000-evaluation.md`. Do not rewrite benchmark IDs to make a fix look better. Fix the product category, run focused tests, then compare the same 1000 IDs against the baseline.
+
+## Bare category queries
+- Route bare categories such as `school`, `schools` and `list schools in Ranchi` through spatial category discovery before named lookup fallback. Empty category results get a contextual offline category response, not a generic knowledge answer.
+- Category words do not establish that a place exists. Keep live wording, explicit nearby origin and route endpoint guards ahead of discovery.
+- `JoharQueryRouterTest` covers these category queries, empty discovery, grounded food aliases and live-school wording alongside existing route/nearby guards. Data-layer identity admission and category metadata belong in `johar-data`; see `docs/short-query-regression.md`.
+
+## Golden 100 evaluation
+- `Golden100EvaluationTest` in androidTest is a developer-only pipeline evaluator, independent of the frozen 1000 UI harness. It reuses production router/data engines and `JoharContentMapper`, resets conversation state between cases, and records actual dependency calls plus mapped answer text.
+- Keep evaluation serialization, provenance inspection and grading out of product UI. The test's read-only SQLite provenance access must not expose Room internals or mutate corpus data.
+- When changing `JoharGraph` wiring/limits or mapped content, keep Golden evaluator wiring/serialization aligned. Golden does not replace UI/Compose testing.
+- Run via `tests/golden/run.py` (explicit APK replacement and one instrumentation class); connected-test cleanup can remove the app before private-file collection.
+- See `docs/golden-100.md`; the product target is 95+/100 useful handling, not inflated automatic PASS counts.

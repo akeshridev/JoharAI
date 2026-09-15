@@ -23,6 +23,7 @@ class JoharGraph(context: Context) {
         return JoharQueryRouter(
             resolvePlace = { ranchiSpatialEngine.resolvePlace(it, limit = 20) },
             nearby = { origin, types -> ranchiSpatialEngine.nearby(origin, radiusKm = 5.0, types = types, limit = 100) },
+            discoverPlaces = { ranchiSpatialEngine.discoverPlaces(it) },
             knowledgeAnswer = { answerGenerator.answer(it) },
             routeInstalled = { ranchiOfflineRouter.isInstalled() },
             route = { origin, destination -> ranchiOfflineRouter.route(origin, destination) },

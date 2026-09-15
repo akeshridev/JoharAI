@@ -12,6 +12,7 @@ class JoharQueryRouter(
     private val resolvePlace: (String) -> List<RanchiSpatialPlace>,
     private val nearby: (RanchiCoordinate, Set<String>) -> List<RanchiSpatialPlace>,
     private val knowledgeAnswer: (String) -> JoharAnswer,
+    private val discoverPlaces: (Set<String>) -> List<RanchiSpatialPlace> = { emptyList() },
     private val routeInstalled: () -> Boolean = { false },
     private val route: (RanchiCoordinate, RanchiCoordinate) -> RanchiRouteResult = { _, _ ->
         RanchiRouteResult.Unavailable("Offline routing pack is not installed.")
@@ -82,14 +83,22 @@ class JoharQueryRouter(
         val isDiscovery = category != null && nameWords.all {
             it == "ranchi" || it in category.words || it in DISCOVERY_FILLER
         }
-        val candidates = resolvePlace(nameWords.joinToString(" ")).filter(::validCoordinate)
+        val candidates = (if (isDiscovery) {
+            discoverPlaces(category.types) + resolvePlace(nameWords.joinToString(" "))
+        } else resolvePlace(nameWords.joinToString(" "))).filter(::validCoordinate)
         val matches = if (isDiscovery) {
             candidates.filter { category.matches(it) }
         } else {
             strongMatches(nameWords, candidates)
         }
         return if (matches.isEmpty()) {
-            knowledge(query)
+            if (isDiscovery) JoharQueryResult.Grounded(
+                JoharAnswer(
+                    "${category.displayName}: offline Ranchi data mein matching jagah nahi mili. Iska matlab yeh nahi ki yahan koi jagah nahi hai.",
+                    emptyList(), JoharAnswerMode.NO_ANSWER,
+                ),
+                tone = GroundedTone.OFFLINE,
+            ) else knowledge(query)
         } else {
             JoharQueryResult.Places(
                 places = matches.distinctBy { it.id }.take(5),

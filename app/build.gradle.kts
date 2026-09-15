@@ -26,6 +26,7 @@ android {
     }
 
     sourceSets["androidTest"].assets.srcDir(rootProject.file("tests/agent/assets"))
+    sourceSets["androidTest"].assets.srcDir(rootProject.file("tests/golden/assets"))
 }
 
 dependencies {

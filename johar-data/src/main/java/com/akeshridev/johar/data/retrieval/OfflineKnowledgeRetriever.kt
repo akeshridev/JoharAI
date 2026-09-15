@@ -5,10 +5,16 @@ import com.akeshridev.johar.data.crawl.normalizeText
 import com.akeshridev.johar.data.local.JoharDatabaseProvider
 import com.akeshridev.johar.data.local.KnowledgeEntityRow
 import com.akeshridev.johar.data.local.SourceFactRow
+import org.json.JSONArray
 import org.json.JSONObject
+import com.akeshridev.johar.data.local.KnowledgeDao
 
-class OfflineKnowledgeRetriever(context: Context) {
-    private val dao = JoharDatabaseProvider.get(context.applicationContext).knowledgeDao()
+class OfflineKnowledgeRetriever internal constructor(
+    private val dao: KnowledgeDao,
+    private val trace: ((OfflineRetrievalTrace) -> Unit)? = null,
+) {
+    constructor(context: Context, trace: ((OfflineRetrievalTrace) -> Unit)? = null) :
+        this(JoharDatabaseProvider.get(context.applicationContext).knowledgeDao(), trace)
 
     fun retrieve(query: String, limit: Int = 5): List<OfflineKnowledgeHit> {
         val normalizedQuery = normalizeQueryAliases(normalizeText(query))
@@ -21,11 +27,15 @@ class OfflineKnowledgeRetriever(context: Context) {
         val preferredPackTypes = preferredPackTypes(normalizedQuery)
         val asksStateFact = containsAny(normalizedQuery, "state animal", "state bird", "state tree", "state flower")
         val hasSupportedIntent = preferredTypes.isNotEmpty() || preferredPackTypes.isNotEmpty() || asksStateFact
-        val hasNamedEntityMatch = entities.any { queryContainsEntityName(normalizedQuery, it.name) }
+        val hasNamedEntityMatch = entities.any { queryMatchesIdentity(normalizedQuery, it) }
 
-        if (!hasSupportedIntent && !hasNamedEntityMatch) return emptyList()
+        if (!hasSupportedIntent && !hasNamedEntityMatch) {
+            trace?.invoke(OfflineRetrievalTrace(normalizedQuery, preferredTypes + preferredPackTypes,
+                emptyList(), emptyMap(), "NO_SUPPORTED_INTENT_OR_CORPUS_IDENTITY"))
+            return emptyList()
+        }
 
-        return entities.asSequence()
+        val hits = entities.asSequence()
             .map { entity ->
                 val facts = dao.factsForEntity(entity.id)
                 val packType = packType(entity)
@@ -55,8 +65,19 @@ class OfflineKnowledgeRetriever(context: Context) {
             }
             .map { it.hit }
             .sortedWith(compareByDescending<OfflineKnowledgeHit> { it.score }.thenBy { it.name })
-            .take(limit)
+            .take(if (trace == null) limit else maxOf(limit, 20))
             .toList()
+        trace?.let { observer ->
+            val matchedAliases = entities.mapNotNull { entity ->
+                val aliases = runCatching { JSONArray(entity.aliasesJson) }.getOrNull()
+                val matched = if (aliases == null) emptyList() else (0 until aliases.length())
+                    .map { aliases.optString(it) }.filter { queryContainsEntityName(normalizedQuery, it) }
+                if (matched.isEmpty()) null else entity.id to matched
+            }.toMap()
+            observer(OfflineRetrievalTrace(normalizedQuery, preferredTypes + preferredPackTypes,
+                hits, matchedAliases, if (hits.isEmpty()) "NO_CANDIDATE_AFTER_SCORING_OR_LOCATION_FILTER" else null))
+        }
+        return hits.take(limit)
     }
 
     private fun locationMatch(
@@ -121,7 +142,7 @@ class OfflineKnowledgeRetriever(context: Context) {
         score += queryTokens.intersect(factTokens).size * 5
         if (queryTokens.isNotEmpty() && nameTokens.containsAll(queryTokens)) score += 20
         if (nameTokens.size >= 2 && queryTokens.containsAll(nameTokens)) score += 28
-        if (queryContainsEntityName(queryTokens.joinToString(" "), normalizedName)) score += 36
+        if (queryMatchesIdentity(queryTokens.joinToString(" "), entity)) score += 36
         if (entity.type in preferredTypes) score += 18
         else if (preferredTypes.isNotEmpty() && entity.type in GENERIC_LOCATION_TYPES) score -= 8
 
@@ -305,6 +326,15 @@ class OfflineKnowledgeRetriever(context: Context) {
         .replace("sita waterfall", "sita falls")
         .replace("dassam waterfall", "dassam falls")
 
+    // Admit complete stored aliases, never arbitrary description/fact token overlap.
+    private fun queryMatchesIdentity(query: String, entity: KnowledgeEntityRow): Boolean {
+        if (queryContainsEntityName(query, entity.name)) return true
+        val aliases = runCatching { JSONArray(entity.aliasesJson) }.getOrNull() ?: return false
+        return (0 until aliases.length()).any { index ->
+            queryContainsEntityName(query, aliases.optString(index))
+        }
+    }
+
     private fun queryContainsEntityName(query: String, entityName: String): Boolean {
         val normalizedEntityName = normalizeText(entityName)
         if (normalizedEntityName.length < 4) return false
@@ -368,4 +398,13 @@ data class OfflineKnowledgeFact(
     val value: String,
     val freshness: String,
     val sourceUrl: String,
+)
+
+/** Optional evaluator-only observation; never attached by the production graph or rendered in chat. */
+data class OfflineRetrievalTrace(
+    val normalizedQuery: String,
+    val preferredTypes: Set<String>,
+    val candidates: List<OfflineKnowledgeHit>,
+    val matchedAliases: Map<String, List<String>>,
+    val fallbackReason: String?,
 )

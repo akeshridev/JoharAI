@@ -4,6 +4,8 @@ import android.content.Context
 import com.akeshridev.johar.data.crawl.normalizeText
 import com.akeshridev.johar.data.local.JoharDatabaseProvider
 import com.akeshridev.johar.data.local.KnowledgeEntityRow
+import com.akeshridev.johar.data.local.KnowledgeDao
+import org.json.JSONObject
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
@@ -16,8 +18,8 @@ import kotlin.math.sqrt
  * Only entities explicitly discovered for Ranchi (or sourced from District Ranchi) participate.
  * The exact district polygon is generated separately for the offline map pack.
  */
-class RanchiSpatialEngine(context: Context) {
-    private val dao = JoharDatabaseProvider.get(context.applicationContext).knowledgeDao()
+class RanchiSpatialEngine internal constructor(private val dao: KnowledgeDao) {
+    constructor(context: Context) : this(JoharDatabaseProvider.get(context.applicationContext).knowledgeDao())
 
     fun resolvePlace(query: String, limit: Int = 5): List<RanchiSpatialPlace> {
         val normalized = normalizeText(query)
@@ -45,6 +47,16 @@ class RanchiSpatialEngine(context: Context) {
             .take(limit)
             .toList()
     }
+
+    /** Category discovery must not depend on a category word occurring in the place name. */
+    fun discoverPlaces(types: Set<String>, limit: Int = 20): List<RanchiSpatialPlace> =
+        dao.allEnabledEntities().asSequence()
+            .filter(::isRanchiScoped)
+            .mapNotNull(::toSpatialPlace)
+            .filter { it.type in types }
+            .sortedBy { it.name }
+            .take(limit)
+            .toList()
 
     fun nearby(
         origin: RanchiCoordinate,
@@ -117,7 +129,8 @@ class RanchiSpatialEngine(context: Context) {
         return RanchiSpatialPlace(
             id = entity.id,
             name = entity.name,
-            type = entity.type,
+            type = runCatching { JSONObject(entity.externalRefsJson).optString("joharPackType") }
+                .getOrNull()?.takeIf(String::isNotBlank) ?: entity.type,
             coordinate = RanchiCoordinate(latitude, longitude),
             region = entity.region,
             description = entity.description,
