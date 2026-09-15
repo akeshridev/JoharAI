@@ -2,7 +2,7 @@ package com.akeshridev.johar.data.work
 
 import android.content.Context
 import android.util.Log
-import androidx.work.Worker
+import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.akeshridev.johar.data.crawl.KnowledgeStore
 import com.akeshridev.johar.data.crawl.SourceCrawler
@@ -27,9 +27,9 @@ import com.akeshridev.johar.domain.source.KnowledgeDomain
 class SourceCrawlWorker(
     appContext: Context,
     workerParams: WorkerParameters,
-) : Worker(appContext, workerParams) {
+) : CoroutineWorker(appContext, workerParams) {
 
-    override fun doWork(): Result {
+    override suspend fun doWork(): Result {
         val target = inputData.getString(KEY_TARGET)
             ?.let { runCatching { CrawlTarget.valueOf(it) }.getOrNull() }
             ?: return Result.failure()
