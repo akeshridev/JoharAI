@@ -78,6 +78,7 @@ private fun JoharRoot(
 ) {
     var showSplash by remember { mutableStateOf(true) }
     var isPrototypeRunning by remember { mutableStateOf(false) }
+    var demoDraft by remember { mutableStateOf<String?>(null) }
     val messages by viewModel.messages.collectAsStateWithLifecycle()
     val isThinking by viewModel.isThinking.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
@@ -96,6 +97,7 @@ private fun JoharRoot(
                 isThinking = isThinking,
                 onSend = viewModel::sendQuery,
                 onAction = viewModel::onAction,
+                demoDraft = demoDraft,
             )
 
             if (onDeveloperCrawlRanchi != null || enablePrototypeRunner) {
@@ -120,7 +122,14 @@ private fun JoharRoot(
                                 scope.launch {
                                     try {
                                         PROTOTYPE_STEPS.forEach { step ->
+                                            demoDraft = ""
+                                            step.question.forEachIndexed { index, character ->
+                                                demoDraft = step.question.substring(0, index + 1)
+                                                delay(typingDelayMillis(character))
+                                            }
+                                            delay(PROTOTYPE_BEFORE_SEND_DELAY_MILLIS)
                                             viewModel.sendQuery(step.question)
+                                            demoDraft = null
                                             viewModel.isThinking.first { thinking -> !thinking }
                                             if (step.openFirstMapResult) {
                                                 viewModel.triggerFirstMapActionForLatestPlaces()
@@ -128,6 +137,7 @@ private fun JoharRoot(
                                             delay(PROTOTYPE_QUESTION_DELAY_MILLIS)
                                         }
                                     } finally {
+                                        demoDraft = null
                                         isPrototypeRunning = false
                                     }
                                 }
@@ -142,6 +152,13 @@ private fun JoharRoot(
     }
 }
 
+private fun typingDelayMillis(character: Char): Long = when {
+    character == ' ' -> 85L
+    character in ",.?" -> 150L
+    else -> 48L + (character.code % 4) * 9L
+}
+
+private const val PROTOTYPE_BEFORE_SEND_DELAY_MILLIS = 450L
 private const val PROTOTYPE_QUESTION_DELAY_MILLIS = 3_000L
 
 private data class PrototypeStep(
