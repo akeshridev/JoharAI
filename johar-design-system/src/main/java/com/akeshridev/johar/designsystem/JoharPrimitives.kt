@@ -37,8 +37,8 @@ fun JoharPrimaryButton(
     val resolvedInteractionSource = interactionSource ?: remember { MutableInteractionSource() }
     val isPressed by resolvedInteractionSource.collectIsPressedAsState()
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.96f else 1f,
-        animationSpec = tween(durationMillis = if (isPressed) 70 else 120),
+        targetValue = if (isPressed) 0.94f else 1f,
+        animationSpec = tween(durationMillis = if (isPressed) 90 else 135),
         label = "johar-primary-button-scale",
     )
 
@@ -59,7 +59,7 @@ fun JoharPrimaryButton(
         ),
         elevation = ButtonDefaults.buttonElevation(
             defaultElevation = 1.dp,
-            pressedElevation = 4.dp,
+            pressedElevation = 6.dp,
             disabledElevation = 0.dp,
         ),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 18.dp, vertical = 11.dp),
