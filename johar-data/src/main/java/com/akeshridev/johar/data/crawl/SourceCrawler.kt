@@ -4,6 +4,7 @@ import android.util.Log
 import com.akeshridev.johar.data.source.CrawlSourceAdapter
 import com.akeshridev.johar.data.source.DiscoveryResult
 import com.akeshridev.johar.data.source.KeywordDiscoveryAdapter
+import com.akeshridev.johar.data.source.RanchiOsmBulkBackfill
 import com.akeshridev.johar.data.source.SourceResult
 import com.akeshridev.johar.domain.crawl.CrawlKeyword
 import com.akeshridev.johar.domain.crawl.CrawlSeed
@@ -22,6 +23,7 @@ internal class SourceCrawler(
     private val store: KnowledgeStore,
     private val sourceAdapters: List<CrawlSourceAdapter>,
     private val discoveryAdapters: List<KeywordDiscoveryAdapter>,
+    private val ranchiOsmBulkBackfill: RanchiOsmBulkBackfill? = null,
 ) {
     private val persistenceMutex = Mutex()
     private val overpassSemaphore = Semaphore(OVERPASS_CONCURRENCY)
@@ -120,38 +122,27 @@ internal class SourceCrawler(
     }
 
     private suspend fun crawlRanchiOsmBackfill() {
-        val overpass = sourceAdapters.firstOrNull { it.id == OPENSTREETMAP_ADAPTER_ID }
-            ?: return
+        val bulkBackfill = ranchiOsmBulkBackfill ?: return
         val staleBefore = System.currentTimeMillis() - RANCHI_OSM_BACKFILL_STALE_MILLIS
         val pending = persistenceMutex.withLock {
             store.ranchiOsmBackfillCandidates(staleBefore, RANCHI_OSM_BACKFILL_PER_RUN)
         }
         if (pending.isEmpty()) return
 
-        Log.i(TAG, "ranchi_osm_backfill_start candidates=${pending.size}")
-        pending.chunked(CONCURRENT_BATCH_SIZE).forEach { batch ->
-            coroutineScope {
-                batch.map { seed ->
-                    async(Dispatchers.IO) { crawlRanchiOsmEntity(seed, overpass) }
-                }.awaitAll()
-            }
-        }
-        Log.i(TAG, "ranchi_osm_backfill_end candidates=${pending.size}")
-    }
-
-    private suspend fun crawlRanchiOsmEntity(
-        seed: CrawlSeed,
-        overpass: CrawlSourceAdapter,
-    ) {
-        val entityId = requireNotNull(seed.entityId)
+        Log.i(TAG, "ranchi_osm_backfill_start candidates=${pending.size} mode=bulk")
         try {
-            val result = crawlSource(overpass, seed)
-            persistenceMutex.withLock {
-                if (result != null) store.persist(seed, result)
-                store.markEntityCrawled(entityId)
+            val result = overpassSemaphore.withPermit {
+                withContext(Dispatchers.IO) { bulkBackfill.fetch(pending) }
             }
+            persistenceMutex.withLock {
+                store.persistRanchiOsmBackfill(pending, result.facts)
+            }
+            Log.i(
+                TAG,
+                "ranchi_osm_backfill_end candidates=${pending.size} facts=${result.facts.size} mode=bulk",
+            )
         } catch (error: Exception) {
-            Log.w(TAG, "ranchi_osm_backfill_failed entity=${seed.name}", error)
+            Log.w(TAG, "ranchi_osm_backfill_failed candidates=${pending.size} mode=bulk", error)
         }
     }
 
@@ -219,8 +210,7 @@ internal class SourceCrawler(
         private const val BOOTSTRAP_SOURCE = "bootstrap"
         private const val OPENSTREETMAP_ADAPTER_ID = "openstreetmap"
 
-        // Temporary stress-test value. Reduce back to 10 after measuring prototype crawl speed.
-        private const val CONCURRENT_BATCH_SIZE = 20
+        private const val CONCURRENT_BATCH_SIZE = 10
         private const val OVERPASS_CONCURRENCY = 2
 
         private const val RANCHI_ENTITIES_PER_RUN = 12
