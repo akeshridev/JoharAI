@@ -2,6 +2,7 @@ package com.akeshridev.johar.data.work
 
 import android.util.Log
 import com.akeshridev.johar.data.crawl.CrawlStats
+import com.akeshridev.johar.data.crawl.FoundationCoverageReporter
 import com.akeshridev.johar.data.local.KnowledgeDao
 import com.akeshridev.johar.domain.crawl.CrawlTarget
 
@@ -17,7 +18,21 @@ internal object CrawlSummaryLogger {
         stats.entityTypes.forEach { (type, count) ->
             Log.i("JoharCrawl", "*** CATEGORY $type = $count ***")
         }
+
         val rows = dao.allEnabledEntities()
+        if (target == CrawlTarget.RANCHI) {
+            val report = FoundationCoverageReporter.build(rows, dao.allFacts())
+            Log.i("JoharCrawl", "*** RANCHI FOUNDATION COVERAGE ***")
+            report.domains.forEach { row ->
+                Log.i(
+                    "JoharCrawl",
+                    "*** FOUNDATION ${row.domain} entities=${row.entities} coords=${row.withCoordinates} " +
+                        "aliases=${row.withAliases} withFacts=${row.withFacts} facts=${row.facts} " +
+                        "evidenceCompleteFacts=${row.evidenceCompleteFacts} ***",
+                )
+            }
+        }
+
         rows.forEachIndexed { index, row ->
             Log.i("JoharCrawl", "*** ROW #${index + 1} name=${row.name} type=${row.type} id=${row.id} depth=${row.discoveryDepth} lat=${row.latitude} lon=${row.longitude} crawled=${row.lastCrawledAtEpochMillis} ***")
         }
