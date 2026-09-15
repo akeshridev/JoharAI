@@ -15,6 +15,7 @@ import com.akeshridev.johar.data.source.OpenMeteoSourceAdapter
 import com.akeshridev.johar.data.source.OverpassSourceAdapter
 import com.akeshridev.johar.data.source.OverpassSpecializedDiscoveryAdapter
 import com.akeshridev.johar.data.source.RanchiDistrictOfficialSourceAdapter
+import com.akeshridev.johar.data.source.RanchiEducationDiscoveryAdapter
 import com.akeshridev.johar.data.source.TracingDiscoveryAdapter
 import com.akeshridev.johar.data.source.TracingSourceAdapter
 import com.akeshridev.johar.data.source.WikidataSourceAdapter
@@ -39,6 +40,7 @@ class SourceCrawlWorker(
             val wikidata = WikidataSourceAdapter(fetcher)
             val overpass = OverpassSourceAdapter(overpassFetcher)
             val specializedOverpass = OverpassSpecializedDiscoveryAdapter(overpassFetcher)
+            val ranchiEducation = RanchiEducationDiscoveryAdapter(overpassFetcher)
             val ranchiOfficial = RanchiDistrictOfficialSourceAdapter(fetcher)
             val wikipedia = MediaWikiTextSourceAdapter(
                 id = "wikipedia",
@@ -87,9 +89,10 @@ class SourceCrawlWorker(
             }.map(::TracingSourceAdapter)
 
             val discoveryAdapters = buildList {
+                if (target == CrawlTarget.RANCHI) add(ranchiEducation)
                 add(specializedOverpass)
-                // Ranchi has an explicit intent-to-OSM mapper. Running the older generic OSM
-                // discovery beside it reintroduces statewide/generic tourism noise.
+                // Ranchi has explicit intent-to-OSM mappers. Running the older generic OSM
+                // discovery beside them reintroduces statewide/generic tourism noise.
                 if (target != CrawlTarget.RANCHI) add(overpass)
                 add(wikidata)
                 add(wikipedia)
