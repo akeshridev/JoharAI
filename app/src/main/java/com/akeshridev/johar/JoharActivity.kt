@@ -119,9 +119,12 @@ private fun JoharRoot(
                                 isPrototypeRunning = true
                                 scope.launch {
                                     try {
-                                        PROTOTYPE_QUESTIONS.forEach { question ->
-                                            viewModel.sendQuery(question)
+                                        PROTOTYPE_STEPS.forEach { step ->
+                                            viewModel.sendQuery(step.question)
                                             viewModel.isThinking.first { thinking -> !thinking }
+                                            if (step.openFirstMapResult) {
+                                                viewModel.triggerFirstMapActionForLatestPlaces()
+                                            }
                                             delay(PROTOTYPE_QUESTION_DELAY_MILLIS)
                                         }
                                     } finally {
@@ -130,7 +133,7 @@ private fun JoharRoot(
                                 }
                             },
                         ) {
-                            Text(if (isPrototypeRunning) "DEV: Demo running…" else "DEV: Run 8Q Demo")
+                            Text(if (isPrototypeRunning) "DEV: Demo running…" else "DEV: Run 9Q Demo")
                         }
                     }
                 }
@@ -141,13 +144,22 @@ private fun JoharRoot(
 
 private const val PROTOTYPE_QUESTION_DELAY_MILLIS = 3_000L
 
-private val PROTOTYPE_QUESTIONS = listOf(
-    "Ranchi mein peaceful family place suggest karo, parents ke saath jana hai",
-    "Kanke Dam family ke liye acha hai?",
-    "Ranchi mein waterfall kahan hai?",
-    "Main Road ke paas restaurant batao",
-    "Dhuska kya hota hai?",
-    "RIMS kahan hai?",
-    "Ranchi railway station se Tagore Hill kaise jaun?",
-    "Aaj Kanke Dam open hai?",
+private data class PrototypeStep(
+    val question: String,
+    val openFirstMapResult: Boolean = false,
+)
+
+private val PROTOTYPE_STEPS = listOf(
+    PrototypeStep("Ranchi mein peaceful family place suggest karo, parents ke saath jana hai"),
+    PrototypeStep("Kanke Dam family ke liye acha hai?"),
+    PrototypeStep("Ranchi mein waterfall kahan hai?"),
+    PrototypeStep("Main Road ke paas restaurant batao"),
+    PrototypeStep("Dhuska kya hota hai?"),
+    PrototypeStep("RIMS kahan hai?"),
+    PrototypeStep("Ranchi railway station se Tagore Hill kaise jaun?"),
+    PrototypeStep(
+        question = "Lalpur ke paas ATM batao",
+        openFirstMapResult = true,
+    ),
+    PrototypeStep("Aaj Kanke Dam open hai?"),
 )
