@@ -132,6 +132,7 @@ private val PROTOTYPE_STEPS = listOf(
         question = "Lalpur ke paas ATM batao",
         openFirstMapResult = true,
     ),
+    PrototypeStep("Ranchi mein kids ke liye park suggest karo"),
     PrototypeStep("Ranchi mein peaceful family place suggest karo, parents ke saath jana hai"),
     PrototypeStep("Main Road ke paas restaurant batao"),
     PrototypeStep("Emergency hospital number"),
