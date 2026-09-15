@@ -137,9 +137,15 @@ internal class KnowledgeStore(
             ?: 0
         persistSnapshot(ownerEntityId, result.sourceUrl, result.publisher, result.rawContent, now)
 
+        val canonicalIds = mutableMapOf<String, String>()
         result.entities.forEach { discovered ->
-            upsertDiscoveredEntity(discovered, parentDepth + 1, now)
+            canonicalIds[discovered.id] = upsertDiscoveredEntity(discovered, parentDepth + 1, now)
         }
+        val facts = result.facts.mapNotNull { fact ->
+            val canonicalId = canonicalIds[fact.entityId] ?: return@mapNotNull null
+            fact.copy(entityId = canonicalId)
+        }
+        replaceFacts(ownerEntityId, result.sourceUrl, facts)
         insertKeywords(result.keywords)
     }
 
