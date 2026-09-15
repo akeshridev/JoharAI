@@ -92,13 +92,26 @@ class JoharQueryRouter(
             strongMatches(nameWords, candidates)
         }
         return if (matches.isEmpty()) {
-            if (isDiscovery) JoharQueryResult.Grounded(
-                JoharAnswer(
-                    "${category.displayName}: offline Ranchi data mein matching jagah nahi mili. Iska matlab yeh nahi ki yahan koi jagah nahi hai.",
-                    emptyList(), JoharAnswerMode.NO_ANSWER,
-                ),
-                tone = GroundedTone.OFFLINE,
-            ) else knowledge(query)
+            if (isDiscovery) {
+                // Category entities such as schools, colleges and hospitals may be source-backed
+                // without coordinates. Prefer that verified knowledge over a false spatial gap.
+                val grounded = knowledgeAnswer(query)
+                if (grounded.evidence.isNotEmpty()) {
+                    JoharQueryResult.Grounded(
+                        answer = grounded,
+                        tone = GroundedTone.OFFLINE,
+                        prefix = "Offline verified data:",
+                    )
+                } else {
+                    JoharQueryResult.Grounded(
+                        JoharAnswer(
+                            "${category.displayName}: offline Ranchi data mein matching jagah nahi mili. Iska matlab yeh nahi ki yahan koi jagah nahi hai.",
+                            emptyList(), JoharAnswerMode.NO_ANSWER,
+                        ),
+                        tone = GroundedTone.OFFLINE,
+                    )
+                }
+            } else knowledge(query)
         } else {
             JoharQueryResult.Places(
                 places = matches.distinctBy { it.id }.take(5),
@@ -163,9 +176,9 @@ class JoharQueryRouter(
 
     private fun uniquePlace(query: String): RanchiSpatialPlace? {
         val queryWords = words(query).filterNot { it in LOOKUP_FILLER || it in ROUTE_WORDS || it in COMPARISON_FILLER }
-        return strongMatches(queryWords, resolvePlace(query).filter(::validCoordinate))
-            .distinctBy { it.id }
-            .singleOrNull()
+        val candidates = resolvePlace(query).filter(::validCoordinate).distinctBy { it.id }
+        val strong = strongMatches(queryWords, candidates).distinctBy { it.id }
+        return strong.singleOrNull() ?: candidates.singleOrNull()
     }
 
     private fun nearbyFrom(originQuery: String, category: Category): JoharQueryResult {
