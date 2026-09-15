@@ -173,15 +173,24 @@ internal class KnowledgeStore(
         discoveryDepth: Int,
         nowEpochMillis: Long,
     ): String {
-        val existing = knowledgeDao.findEntity(normalizeText(discovered.name), discovered.region)
-            ?: knowledgeDao.getEntity(discovered.id)
+        val existing = knowledgeDao.getEntity(discovered.id)
+            ?: CanonicalEntityResolver.resolve(discovered, knowledgeDao.allEnabledEntities())
         val canonicalId = existing?.id ?: stableId(
             "entity",
             normalizeText(discovered.name),
             discovered.region,
             discovered.country,
         )
-        val canonical = discovered.copy(id = canonicalId)
+        val canonical = if (existing == null) {
+            discovered.copy(id = canonicalId)
+        } else {
+            discovered.copy(
+                id = canonicalId,
+                name = existing.name,
+                aliases = (discovered.aliases + discovered.name)
+                    .distinctBy(::normalizeText),
+            )
+        }
         knowledgeDao.upsertEntity(
             canonical.toRow(
                 nowEpochMillis = nowEpochMillis,
