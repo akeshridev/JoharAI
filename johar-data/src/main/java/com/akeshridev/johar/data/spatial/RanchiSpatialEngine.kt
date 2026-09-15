@@ -26,7 +26,11 @@ class RanchiSpatialEngine internal constructor(private val dao: KnowledgeDao) {
         if (normalized.isBlank()) return emptyList()
 
         val candidates = linkedMapOf<String, KnowledgeEntityRow>()
-        dao.searchEntities(normalized, limit = maxOf(limit * 5, 20)).forEach { candidates[it.id] = it }
+        searchInto(normalized, limit, candidates)
+
+        COMMON_RANCHI_ALIASES[normalized].orEmpty().forEach { alias ->
+            searchInto(alias, limit, candidates)
+        }
 
         if (candidates.size < limit) {
             normalized
@@ -46,6 +50,15 @@ class RanchiSpatialEngine internal constructor(private val dao: KnowledgeDao) {
             .map { (place, _) -> place }
             .take(limit)
             .toList()
+    }
+
+    private fun searchInto(
+        normalized: String,
+        limit: Int,
+        candidates: MutableMap<String, KnowledgeEntityRow>,
+    ) {
+        dao.searchEntities(normalized, limit = maxOf(limit * 5, 20))
+            .forEach { candidates.putIfAbsent(it.id, it) }
     }
 
     /**
@@ -183,6 +196,10 @@ class RanchiSpatialEngine internal constructor(private val dao: KnowledgeDao) {
         const val RANCHI = "Ranchi"
         val SEARCH_STOP_WORDS = setOf(
             "ranchi", "mein", "me", "ke", "ka", "ki", "ko", "se", "paas", "near", "kahan", "hai",
+        )
+        val COMMON_RANCHI_ALIASES = mapOf(
+            "main road" to listOf("mahatma gandhi main road", "mahatma gandhi road", "mg road"),
+            "ranchi main road" to listOf("mahatma gandhi main road", "mahatma gandhi road", "mg road"),
         )
         val RECOGNIZABLE_PLACE_WORDS = setOf(
             "hill", "falls", "waterfall", "dam", "lake", "garden", "park", "mandir", "temple", "museum", "rock",
