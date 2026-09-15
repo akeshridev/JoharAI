@@ -53,15 +53,43 @@ class JoharQueryRouter(
             itinerary(requestedStops)?.let { return it }
         }
 
-        // Explanatory questions stay text-first and retain their source evidence.
+        val category = Category.entries.firstOrNull { c -> words.any { it in c.words } }
+        val isRecommendation = words.any { it in RECOMMENDATION_WORDS }
+
+        // Recommendation sentences can be long and conversational. Keep them on the place path
+        // instead of turning them into generic Ranchi knowledge just because they contain filler.
+        if (isRecommendation) {
+            pendingCategory = null
+            val named = resolveNamedPlaceInQuery(words)
+            if (named != null) {
+                return JoharQueryResult.Places(
+                    places = listOf(named),
+                    intro = "${named.name} offline data mein mila. Aapki preference (family/peaceful/access) ka specific evidence jitna available hai utna hi dikhaya ja raha hai; suitability ko guess nahi kar rahe.",
+                )
+            }
+
+            val recommendationCategory = category ?: Category.VISITOR
+            val candidates = discoverPlaces(recommendationCategory.types)
+                .filter(::validCoordinate)
+                .filter { recommendationCategory.matches(it) }
+                .distinctBy { it.id }
+                .take(5)
+            if (candidates.isNotEmpty()) {
+                return JoharQueryResult.Places(
+                    places = candidates,
+                    intro = "Offline Ranchi data mein ye options mile. Peaceful/family suitability ka specific evidence limited ho sakta hai, isliye Johar unverified preference claims nahi kar raha.",
+                    kind = if (recommendationCategory.isUtility) PlaceResultKind.UTILITY else PlaceResultKind.DISCOVERY,
+                )
+            }
+        }
+
+        // Explanatory/attribute questions stay text-first and retain their source evidence.
         if (words.any { it in KNOWLEDGE_WORDS }) {
             pendingCategory = null
             return knowledge(query)
         }
 
-        val category = Category.entries.firstOrNull { c -> words.any { it in c.words } }
-
-        // Family/children questions require evidence about the requested facility, not just any park card.
+        // Family/children questions about a specific park require evidence, not a guessed suitability claim.
         if (category == Category.PARK && words.any { it in CHILD_WORDS }) {
             pendingCategory = null
             return knowledge(query)
@@ -84,19 +112,24 @@ class JoharQueryRouter(
         // Unsupported near/route requests stay with grounded knowledge, never become a guessed place.
         if (isNearby || words.any { it in ROUTE_WORDS }) return knowledge(query)
 
-        val nameWords = words.filterNot { it in LOOKUP_FILLER }
-        if (nameWords.isEmpty() || words.size > 10) return knowledge(query)
+        val nameWords = words.filterNot { it in LOOKUP_FILLER || it in RECOMMENDATION_FILLER }
+        if (nameWords.isEmpty()) return knowledge(query)
 
         val isDiscovery = category != null && nameWords.all {
             it == "ranchi" || it in category.words || it in DISCOVERY_FILLER
         }
         val candidates = (if (isDiscovery) {
             discoverPlaces(category.types) + resolvePlace(nameWords.joinToString(" "))
-        } else resolvePlace(nameWords.joinToString(" "))).filter(::validCoordinate)
+        } else {
+            val direct = resolvePlace(nameWords.joinToString(" "))
+            if (direct.isNotEmpty()) direct else resolveNamedPlaceCandidates(nameWords)
+        }).filter(::validCoordinate)
         val matches = if (isDiscovery) {
             candidates.filter { category.matches(it) }
         } else {
-            strongMatches(nameWords, candidates)
+            strongMatches(nameWords, candidates).ifEmpty {
+                candidates.filter { candidate -> words(candidate.name).all { it in nameWords } }
+            }
         }
         return if (matches.isEmpty()) {
             if (isDiscovery) {
@@ -182,10 +215,47 @@ class JoharQueryRouter(
     }
 
     private fun uniquePlace(query: String): RanchiSpatialPlace? {
-        val queryWords = words(query).filterNot { it in LOOKUP_FILLER || it in ROUTE_WORDS || it in COMPARISON_FILLER }
-        val candidates = resolvePlace(query).filter(::validCoordinate).distinctBy { it.id }
+        val queryWords = words(query).filterNot {
+            it in LOOKUP_FILLER || it in ROUTE_WORDS || it in COMPARISON_FILLER || it in RECOMMENDATION_FILLER
+        }
+        val candidates = (resolvePlace(query) + resolvePlace(queryWords.joinToString(" ")) + resolveNamedPlaceCandidates(queryWords))
+            .filter(::validCoordinate)
+            .distinctBy { it.id }
         val strong = strongMatches(queryWords, candidates).distinctBy { it.id }
-        return strong.singleOrNull() ?: candidates.singleOrNull()
+        return strong.singleOrNull()
+            ?: candidates.singleOrNull { candidate -> words(candidate.name).all { it in queryWords } }
+            ?: candidates.singleOrNull()
+    }
+
+    private fun resolveNamedPlaceInQuery(queryWords: List<String>): RanchiSpatialPlace? {
+        val nameWords = queryWords.filterNot {
+            it in LOOKUP_FILLER || it in RECOMMENDATION_FILLER || it in KNOWLEDGE_WORDS || it in CHILD_WORDS
+        }
+        val candidates = resolveNamedPlaceCandidates(nameWords)
+        return candidates.singleOrNull()
+            ?: candidates.firstOrNull { candidate -> words(candidate.name).all { it in nameWords } }
+    }
+
+    private fun resolveNamedPlaceCandidates(nameWords: List<String>): List<RanchiSpatialPlace> {
+        if (nameWords.isEmpty()) return emptyList()
+        val maxNgram = minOf(5, nameWords.size)
+        val seen = linkedMapOf<String, RanchiSpatialPlace>()
+        for (size in maxNgram downTo 1) {
+            for (start in 0..nameWords.size - size) {
+                val phraseWords = nameWords.subList(start, start + size)
+                if (phraseWords.all { it in GENERIC_ENTITY_WORDS }) continue
+                val phrase = phraseWords.joinToString(" ")
+                resolvePlace(phrase)
+                    .filter(::validCoordinate)
+                    .forEach { place ->
+                        val placeWords = words(place.name)
+                        if (placeWords.isNotEmpty() && placeWords.all { it in nameWords }) {
+                            seen.putIfAbsent(place.id, place)
+                        }
+                    }
+            }
+        }
+        return seen.values.toList()
     }
 
     private fun nearbyFrom(originQuery: String, category: Category): JoharQueryResult {
@@ -298,7 +368,7 @@ class JoharQueryRouter(
         MARKET("Market", setOf("market", "markets", "bazar", "bazaar", "haat", "mandi"), setOf("MARKET", "MARKET_COLLECTION", "MARKET_TYPE")),
         VISITOR(
             "Ranchi ghumne ki jagah",
-            setOf("ghumne", "ghumna", "sightseeing", "attraction", "attractions", "tourist"),
+            setOf("ghumne", "ghumna", "sightseeing", "attraction", "attractions", "tourist", "place", "places", "jagah"),
             setOf("TOURIST_ATTRACTION", "HILL", "VIEWPOINT", "PARK", "GARDEN", "WATERFALL", "TEMPLE", "MUSEUM"),
         ),
         PARK("Park", setOf("park", "parks", "garden", "playground"), setOf("PARK", "GARDEN")),
@@ -329,7 +399,15 @@ class JoharQueryRouter(
         val DISCOVERY_FILLER = setOf(
             "find", "search", "list", "show", "some", "best", "good", "top", "jagah", "place", "places", "liye", "for",
         )
-        val CHILD_WORDS = setOf("bachchon", "bacchon", "children", "child", "kids", "family")
+        val CHILD_WORDS = setOf("bachchon", "bacchon", "children", "child", "kids", "family", "parents", "parent")
+        val RECOMMENDATION_WORDS = setOf(
+            "suggest", "suggestion", "recommend", "recommendation", "best", "good", "acha", "accha", "peaceful", "quiet",
+            "family", "parents", "parent", "kids", "children", "suitable", "suitability",
+        )
+        val RECOMMENDATION_FILLER = RECOMMENDATION_WORDS + setOf(
+            "liye", "for", "saath", "with", "jana", "jane", "want", "chahiye", "thoda", "little", "kam", "less",
+        )
+        val GENERIC_ENTITY_WORDS = LOOKUP_FILLER + DISCOVERY_FILLER + RECOMMENDATION_FILLER + setOf("ranchi")
         val NEAR_WORDS = setOf("near", "nearby", "paas", "aas", "around")
         val NEAR_FILLER = NEAR_WORDS + setOf("mere", "meri", "my", "me", "to", "ke", "ki", "ka")
         val LIVE_WORDS = setOf(
@@ -341,10 +419,10 @@ class JoharQueryRouter(
             "kab", "kitna", "kitne", "walking", "stairs", "accessible", "about", "explain", "famous", "special",
         )
         val QUESTION_WORDS = KNOWLEDGE_WORDS + LIVE_WORDS + NEAR_WORDS + setOf("how", "kaise")
-        val ROUTE_WORDS = setOf("route", "navigate", "navigation", "kaise", "how", "from", "se", "to", "jaye", "jana")
+        val ROUTE_WORDS = setOf("route", "navigate", "navigation", "kaise", "how", "from", "se", "to", "jaye", "jaaye", "jaun", "jau", "jana")
         val COMPARISON_FILLER = setOf("vs", "versus", "compare", "better", "best", "or", "ya")
         val ROUTE_PATTERN = Regex(
-            "^(?:route\\s+)?(?:from\\s+)?(.+?)\\s+(?:to|se)\\s+(.+?)(?:\\s+(?:kaise(?:\\s+jaye)?|route|navigate|navigation|jana))?$",
+            "^(?:route\\s+)?(?:from\\s+)?(.+?)\\s+(?:to|se)\\s+(.+?)(?:\\s+(?:kaise(?:\\s+(?:jaye|jaaye|jaun|jau|jana))?|route|navigate|navigation|jana))?$",
             RegexOption.IGNORE_CASE,
         )
         val COMPARISON_PATTERN = Regex(
