@@ -27,6 +27,16 @@ class JoharQueryRouter(
     fun answer(query: String): JoharQueryResult {
         val words = words(query)
 
+        // Safety first: current/live wording must never fall through to an offline route/place answer.
+        if (words.any { it in LIVE_WORDS }) {
+            pendingCategory = null
+            return JoharQueryResult.Grounded(
+                answer = knowledgeAnswer(query),
+                tone = GroundedTone.NOT_CONFIRMED,
+                prefix = "Abhi ki timing, status ya availability confirm nahi hai.",
+            )
+        }
+
         parseRouteRequest(query)?.let { request ->
             pendingCategory = null
             return route(request)
@@ -40,16 +50,6 @@ class JoharQueryRouter(
         parseExplicitItinerary(query)?.let { requestedStops ->
             pendingCategory = null
             itinerary(requestedStops)?.let { return it }
-        }
-
-        // Current/live wording must never be presented as verified by an offline pack.
-        if (words.any { it in LIVE_WORDS }) {
-            pendingCategory = null
-            return JoharQueryResult.Grounded(
-                answer = knowledgeAnswer(query),
-                tone = GroundedTone.NOT_CONFIRMED,
-                prefix = "Abhi ki timing, status ya availability confirm nahi hai.",
-            )
         }
 
         // Explanatory questions stay text-first and retain their source evidence.
@@ -197,12 +197,53 @@ class JoharQueryRouter(
 
     private fun knowledge(query: String) = JoharQueryResult.Grounded(knowledgeAnswer(query))
 
-    /** Require all meaningful name tokens; the spatial engine's rank alone is not confidence. */
+    /**
+     * Prefer exact name-token matches, then accept only conservative typo matches.
+     * Every meaningful query token still has to map to a token in the resolved place name.
+     */
     private fun strongMatches(queryWords: List<String>, candidates: List<RanchiSpatialPlace>): List<RanchiSpatialPlace> {
         if (queryWords.isEmpty()) return emptyList()
         val exact = candidates.filter { words(it.name) == queryWords }
         if (exact.isNotEmpty()) return exact
-        return candidates.filter { place -> queryWords.all { it in words(place.name) } }
+
+        return candidates.mapNotNull { place ->
+            val nameWords = words(place.name)
+            var totalDistance = 0
+            for (queryWord in queryWords) {
+                val distances = nameWords.map { nameWord -> tokenDistance(queryWord, nameWord) }
+                val bestDistance = distances.minOrNull() ?: return@mapNotNull null
+                if (bestDistance > allowedTokenDistance(queryWord, nameWords)) return@mapNotNull null
+                totalDistance += bestDistance
+            }
+            place to totalDistance
+        }.sortedBy { (_, distance) -> distance }
+            .map { (place, _) -> place }
+    }
+
+    private fun allowedTokenDistance(queryWord: String, candidateWords: List<String>): Int {
+        if (queryWord.length <= 3) return 0
+        val longest = maxOf(queryWord.length, candidateWords.maxOfOrNull(String::length) ?: 0)
+        return if (longest >= 7) 2 else 1
+    }
+
+    private fun tokenDistance(left: String, right: String): Int {
+        if (left == right) return 0
+        if (left.isEmpty()) return right.length
+        if (right.isEmpty()) return left.length
+        val previous = IntArray(right.length + 1) { it }
+        val current = IntArray(right.length + 1)
+        left.forEachIndexed { i, leftChar ->
+            current[0] = i + 1
+            right.forEachIndexed { j, rightChar ->
+                current[j + 1] = minOf(
+                    current[j] + 1,
+                    previous[j + 1] + 1,
+                    previous[j] + if (leftChar == rightChar) 0 else 1,
+                )
+            }
+            for (index in previous.indices) previous[index] = current[index]
+        }
+        return previous[right.length]
     }
 
     private enum class Category(
@@ -254,7 +295,10 @@ class JoharQueryRouter(
         val DISCOVERY_FILLER = setOf("find", "search", "list", "show", "some", "best", "good", "top")
         val NEAR_WORDS = setOf("near", "nearby", "paas", "aas", "around")
         val NEAR_FILLER = NEAR_WORDS + setOf("mere", "meri", "my", "me", "to", "ke", "ki", "ka")
-        val LIVE_WORDS = setOf("open", "closed", "now", "today", "aaj", "timing", "timings", "hours", "weather", "stock", "available", "availability", "traffic")
+        val LIVE_WORDS = setOf(
+            "open", "closed", "now", "today", "aaj", "timing", "timings", "hours", "weather", "stock",
+            "available", "availability", "traffic", "current", "live", "status", "crowded", "working", "schedule", "schedules",
+        )
         val KNOWLEDGE_WORDS = setOf(
             "kya", "what", "why", "kyun", "history", "itihaas", "price", "fee", "fees", "rating", "safe", "safety",
             "kab", "kitna", "kitne", "walking", "stairs", "accessible", "about", "explain", "famous", "special",
@@ -302,15 +346,58 @@ class JoharQueryRouter(
         }
 
         fun words(text: String): List<String> = text.lowercase(Locale.ROOT)
-            .replace(Regex("[^\\p{L}\\p{N}\\s]"), " ").trim().split(Regex("\\s+"))
-            .filter(String::isNotBlank).map {
-                when (it) {
-                    "junction" -> "station"
-                    "temple" -> "mandir"
-                    "guest" -> "guesthouse"
-                    else -> it
+            .replace(Regex("[^\\p{L}\\p{N}\\s]"), " ")
+            .trim()
+            .split(Regex("\\s+"))
+            .filter(String::isNotBlank)
+            .map(::normalizeToken)
+            .filterNot { it == "railway" }
+
+        fun normalizeToken(token: String): String {
+            val direct = when (token) {
+                "junction", "stn" -> "station"
+                "temple", "templ" -> "mandir"
+                "guest" -> "guesthouse"
+                "fall", "waterfall", "waterfalls" -> "falls"
+                "damm", "daam" -> "dam"
+                "maidan", "grnd" -> "ground"
+                else -> token
+            }
+            if (direct != token) return direct
+
+            val fuzzy = CANONICAL_QUERY_TOKENS
+                .map { candidate -> candidate to tokenDistanceStatic(token, candidate) }
+                .filter { (candidate, distance) ->
+                    val maxLength = maxOf(token.length, candidate.length)
+                    token.length >= 4 && distance <= if (maxLength >= 7) 2 else 1
                 }
-            }.filterNot { it == "railway" }
+                .sortedBy { (_, distance) -> distance }
+            return if (fuzzy.size == 1 || (fuzzy.size > 1 && fuzzy[0].second < fuzzy[1].second)) fuzzy[0].first else token
+        }
+
+        fun tokenDistanceStatic(left: String, right: String): Int {
+            if (left == right) return 0
+            if (left.isEmpty()) return right.length
+            if (right.isEmpty()) return left.length
+            val previous = IntArray(right.length + 1) { it }
+            val current = IntArray(right.length + 1)
+            left.forEachIndexed { i, leftChar ->
+                current[0] = i + 1
+                right.forEachIndexed { j, rightChar ->
+                    current[j + 1] = minOf(
+                        current[j] + 1,
+                        previous[j + 1] + 1,
+                        previous[j] + if (leftChar == rightChar) 0 else 1,
+                    )
+                }
+                for (index in previous.indices) previous[index] = current[index]
+            }
+            return previous[right.length]
+        }
+
+        val CANONICAL_QUERY_TOKENS = setOf(
+            "station", "railway", "mandir", "garden", "dam", "falls", "airport", "ground", "university", "ranchi",
+        )
 
         fun validCoordinate(place: RanchiSpatialPlace) = place.coordinate.latitude.isFinite() &&
             place.coordinate.longitude.isFinite() && place.coordinate.latitude in -90.0..90.0 &&
