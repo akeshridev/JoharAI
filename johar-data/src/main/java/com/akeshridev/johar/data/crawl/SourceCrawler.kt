@@ -219,7 +219,8 @@ internal class SourceCrawler(
         private const val BOOTSTRAP_SOURCE = "bootstrap"
         private const val OPENSTREETMAP_ADAPTER_ID = "openstreetmap"
 
-        private const val CONCURRENT_BATCH_SIZE = 10
+        // Temporary stress-test value. Reduce back to 10 after measuring prototype crawl speed.
+        private const val CONCURRENT_BATCH_SIZE = 20
         private const val OVERPASS_CONCURRENCY = 2
 
         private const val RANCHI_ENTITIES_PER_RUN = 12
