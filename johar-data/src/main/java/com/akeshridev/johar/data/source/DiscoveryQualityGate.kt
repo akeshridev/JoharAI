@@ -86,6 +86,7 @@ internal object DiscoveryQualityGate {
         "jharkhand state",
         "located in jharkhand",
         "situated in jharkhand",
+        "associated with jharkhand",
     )
 
     private val FOOD_TERMS = listOf(
