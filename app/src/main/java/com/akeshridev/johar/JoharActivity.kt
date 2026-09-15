@@ -5,23 +5,12 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.akeshridev.johar.designsystem.JoharSplashScreen
@@ -31,7 +20,6 @@ import com.akeshridev.johar.ui.chat.JoharBrandedChatScreen
 import com.akeshridev.johar.ui.chat.JoharChatViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 
 class JoharActivity : ComponentActivity() {
     private val graph by lazy { JoharGraph(applicationContext) }
@@ -53,12 +41,7 @@ class JoharActivity : ComponentActivity() {
             JoharTheme {
                 JoharRoot(
                     viewModel = chatViewModel,
-                    onDeveloperCrawlRanchi = if (isDebuggable) {
-                        { graph.scheduleSourceCrawlUseCase() }
-                    } else {
-                        null
-                    },
-                    enablePrototypeRunner = isDebuggable,
+                    autoRunPrototype = isDebuggable,
                 )
             }
         }
@@ -73,86 +56,55 @@ class JoharActivity : ComponentActivity() {
 @Composable
 private fun JoharRoot(
     viewModel: JoharChatViewModel,
-    onDeveloperCrawlRanchi: (() -> Unit)? = null,
-    enablePrototypeRunner: Boolean = false,
+    autoRunPrototype: Boolean = false,
 ) {
     var showSplash by remember { mutableStateOf(true) }
-    var isPrototypeRunning by remember { mutableStateOf(false) }
     var demoDraft by remember { mutableStateOf<String?>(null) }
     val messages by viewModel.messages.collectAsStateWithLifecycle()
     val isThinking by viewModel.isThinking.collectAsStateWithLifecycle()
-    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        delay(1100)
+        delay(SPLASH_DURATION_MILLIS)
         showSplash = false
+    }
+
+    LaunchedEffect(showSplash, autoRunPrototype) {
+        if (showSplash || !autoRunPrototype) return@LaunchedEffect
+
+        // Give the clean chat surface a moment to settle before the recorded demo begins.
+        delay(PROTOTYPE_START_DELAY_MILLIS)
+
+        PROTOTYPE_STEPS.forEach { step ->
+            demoDraft = ""
+            step.question.forEachIndexed { index, character ->
+                demoDraft = step.question.substring(0, index + 1)
+                delay(typingDelayMillis(character))
+            }
+
+            delay(PROTOTYPE_BEFORE_SEND_DELAY_MILLIS)
+            viewModel.sendQuery(step.question)
+            demoDraft = null
+            viewModel.isThinking.first { thinking -> !thinking }
+
+            if (step.openFirstMapResult) {
+                viewModel.triggerFirstMapActionForLatestPlaces()
+                delay(PROTOTYPE_MAP_HOLD_MILLIS)
+            } else {
+                delay(PROTOTYPE_QUESTION_DELAY_MILLIS)
+            }
+        }
     }
 
     if (showSplash) {
         JoharSplashScreen()
     } else {
-        Box(Modifier.fillMaxSize()) {
-            JoharBrandedChatScreen(
-                messages = messages,
-                isThinking = isThinking,
-                onSend = viewModel::sendQuery,
-                onAction = viewModel::onAction,
-                demoDraft = demoDraft,
-            )
-
-            // Keep debug controls available to start the demo, but hide them completely while
-            // recording so the product surface is the only thing visible on screen.
-            if (!isPrototypeRunning && (onDeveloperCrawlRanchi != null || enablePrototypeRunner)) {
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .statusBarsPadding()
-                        .padding(top = 8.dp, end = 8.dp),
-                    horizontalAlignment = Alignment.End,
-                ) {
-                    onDeveloperCrawlRanchi?.let { onCrawl ->
-                        TextButton(onClick = onCrawl) {
-                            Text("DEV: Crawl Ranchi")
-                        }
-                    }
-
-                    if (enablePrototypeRunner) {
-                        TextButton(
-                            enabled = !isThinking,
-                            onClick = {
-                                isPrototypeRunning = true
-                                scope.launch {
-                                    try {
-                                        PROTOTYPE_STEPS.forEach { step ->
-                                            demoDraft = ""
-                                            step.question.forEachIndexed { index, character ->
-                                                demoDraft = step.question.substring(0, index + 1)
-                                                delay(typingDelayMillis(character))
-                                            }
-                                            delay(PROTOTYPE_BEFORE_SEND_DELAY_MILLIS)
-                                            viewModel.sendQuery(step.question)
-                                            demoDraft = null
-                                            viewModel.isThinking.first { thinking -> !thinking }
-                                            if (step.openFirstMapResult) {
-                                                viewModel.triggerFirstMapActionForLatestPlaces()
-                                                delay(PROTOTYPE_MAP_HOLD_MILLIS)
-                                            } else {
-                                                delay(PROTOTYPE_QUESTION_DELAY_MILLIS)
-                                            }
-                                        }
-                                    } finally {
-                                        demoDraft = null
-                                        isPrototypeRunning = false
-                                    }
-                                }
-                            },
-                        ) {
-                            Text("DEV: Run 9Q Demo")
-                        }
-                    }
-                }
-            }
-        }
+        JoharBrandedChatScreen(
+            messages = messages,
+            isThinking = isThinking,
+            onSend = viewModel::sendQuery,
+            onAction = viewModel::onAction,
+            demoDraft = demoDraft,
+        )
     }
 }
 
@@ -162,6 +114,8 @@ private fun typingDelayMillis(character: Char): Long = when {
     else -> 48L + (character.code % 4) * 9L
 }
 
+private const val SPLASH_DURATION_MILLIS = 1_100L
+private const val PROTOTYPE_START_DELAY_MILLIS = 3_000L
 private const val PROTOTYPE_BEFORE_SEND_DELAY_MILLIS = 450L
 private const val PROTOTYPE_QUESTION_DELAY_MILLIS = 3_000L
 private const val PROTOTYPE_MAP_HOLD_MILLIS = 5_500L
