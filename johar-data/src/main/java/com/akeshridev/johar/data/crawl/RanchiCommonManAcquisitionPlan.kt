@@ -43,6 +43,7 @@ internal object RanchiCommonManAcquisitionPlan {
         Seed(Domain.FOOD_MARKETS, 0, DiscoveryCategory.LOCAL_BAZAR, "haat in Ranchi"),
         Seed(Domain.PLACES_RECREATION, 0, DiscoveryCategory.PLACES, "localities in Ranchi"),
         Seed(Domain.PLACES_RECREATION, 0, DiscoveryCategory.PLACES, "parks in Ranchi"),
+        Seed(Domain.EDUCATION, 0, DiscoveryCategory.PLACES, "schools in Ranchi"),
         Seed(Domain.EDUCATION, 0, DiscoveryCategory.PLACES, "colleges in Ranchi"),
         Seed(Domain.EDUCATION, 0, DiscoveryCategory.PLACES, "universities in Ranchi"),
 
