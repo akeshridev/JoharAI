@@ -97,6 +97,53 @@ class JoharQueryRouterTest {
     }
 
     @Test
+    fun currentStatusQuestionIsExplicitlyNotConfirmed() {
+        val router = router()
+
+        val result = router.answer("Dassam Falls ka current status kya hai?")
+
+        assertTrue(result is JoharQueryResult.Grounded)
+        result as JoharQueryResult.Grounded
+        assertEquals(GroundedTone.NOT_CONFIRMED, result.tone)
+        assertTrue(result.prefix.orEmpty().contains("confirm nahi"))
+    }
+
+    @Test
+    fun liveKeywordIsGuardedBeforeOtherIntentParsing() {
+        val router = router()
+
+        val result = router.answer("Ranchi traffic ka live status batao")
+
+        assertTrue(result is JoharQueryResult.Grounded)
+        result as JoharQueryResult.Grounded
+        assertEquals(GroundedTone.NOT_CONFIRMED, result.tone)
+    }
+
+    @Test
+    fun typoPlaceNameCanUseConservativeResolvedCandidate() {
+        val tagoreHill = place("tagore-hill", "Tagore Hill", "TOURIST_ATTRACTION")
+        val router = router(resolve = { query -> if (query.contains("hill")) listOf(tagoreHill) else emptyList() })
+
+        val result = router.answer("Tagre Hill kahan hai?")
+
+        assertTrue(result is JoharQueryResult.Places)
+        result as JoharQueryResult.Places
+        assertEquals(tagoreHill, result.places.single())
+    }
+
+    @Test
+    fun commonTypeTypoIsNormalizedBeforePlaceResolution() {
+        val station = place("ranchi-station", "Ranchi Railway Station", "STATION")
+        val router = router(resolve = { query -> if (query == "ranchi station") listOf(station) else emptyList() })
+
+        val result = router.answer("Ranchi staton kahan hai?")
+
+        assertTrue(result is JoharQueryResult.Places)
+        result as JoharQueryResult.Places
+        assertEquals(station, result.places.single())
+    }
+
+    @Test
     fun installedRoutingPackProducesRealRouteResult() {
         val tagoreHill = place("tagore-hill", "Tagore Hill", "TOURIST_ATTRACTION")
         val station = place("ranchi-station", "Ranchi Railway Station", "STATION")
