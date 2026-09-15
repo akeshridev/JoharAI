@@ -60,6 +60,7 @@ private fun JoharRoot(
 ) {
     var showSplash by remember { mutableStateOf(true) }
     var demoDraft by remember { mutableStateOf<String?>(null) }
+    var demoSendPressToken by remember { mutableStateOf(0) }
     val messages by viewModel.messages.collectAsStateWithLifecycle()
     val isThinking by viewModel.isThinking.collectAsStateWithLifecycle()
 
@@ -73,22 +74,33 @@ private fun JoharRoot(
         delay(PROTOTYPE_START_DELAY_MILLIS)
 
         PROTOTYPE_STEPS.forEach { step ->
+            // Human-like typing: characters arrive at slightly different speeds and punctuation
+            // naturally creates a longer pause.
             demoDraft = ""
             step.question.forEachIndexed { index, character ->
                 demoDraft = step.question.substring(0, index + 1)
-                delay(typingDelayMillis(character))
+                delay(typingDelayMillis(character, index))
             }
 
+            // A real user pauses after finishing a sentence, then taps Send. Drive the same
+            // interaction source as the Material button so ripple/press depth is visible on video.
             delay(PROTOTYPE_BEFORE_SEND_DELAY_MILLIS)
+            demoSendPressToken += 1
+            delay(PROTOTYPE_SEND_PRESS_DURATION_MILLIS)
+
             viewModel.sendQuery(step.question)
             demoDraft = null
             viewModel.isThinking.first { thinking -> !thinking }
 
             if (step.openFirstMapResult) {
+                // Let the user visually read the result before following its primary action.
+                delay(PROTOTYPE_BEFORE_ACTION_DELAY_MILLIS)
                 viewModel.triggerFirstMapActionForLatestPlaces()
                 delay(PROTOTYPE_MAP_HOLD_MILLIS)
             } else {
-                delay(PROTOTYPE_QUESTION_DELAY_MILLIS)
+                // Vary the reading pause slightly by query length instead of using a robotic
+                // fixed delay between every turn.
+                delay(readingPauseMillis(step.question))
             }
         }
     }
@@ -106,20 +118,26 @@ private fun JoharRoot(
             onSend = viewModel::sendQuery,
             onAction = viewModel::onAction,
             demoDraft = demoDraft,
+            demoSendPressToken = demoSendPressToken,
         )
     }
 }
 
-private fun typingDelayMillis(character: Char): Long = when {
-    character == ' ' -> 85L
-    character in ",.?" -> 150L
-    else -> 48L + (character.code % 4) * 9L
+private fun typingDelayMillis(character: Char, index: Int): Long = when {
+    character == ' ' -> 78L + (index % 3) * 9L
+    character in ",.?" -> 155L + (index % 2) * 35L
+    index > 0 && index % 14 == 0 -> 118L
+    else -> 46L + (character.code % 5) * 8L
 }
+
+private fun readingPauseMillis(question: String): Long =
+    (2_350L + question.length * 18L).coerceIn(2_600L, 3_650L)
 
 private const val SPLASH_DURATION_MILLIS = 3_000L
 private const val PROTOTYPE_START_DELAY_MILLIS = 3_000L
-private const val PROTOTYPE_BEFORE_SEND_DELAY_MILLIS = 450L
-private const val PROTOTYPE_QUESTION_DELAY_MILLIS = 3_000L
+private const val PROTOTYPE_BEFORE_SEND_DELAY_MILLIS = 420L
+private const val PROTOTYPE_SEND_PRESS_DURATION_MILLIS = 175L
+private const val PROTOTYPE_BEFORE_ACTION_DELAY_MILLIS = 1_100L
 private const val PROTOTYPE_MAP_HOLD_MILLIS = 5_500L
 
 private data class PrototypeStep(
