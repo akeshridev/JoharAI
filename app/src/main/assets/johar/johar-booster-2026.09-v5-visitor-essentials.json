@@ -1,0 +1,121 @@
+{
+  "version": "2026.09-v5-visitor-essentials",
+  "description": "Official-source visitor essentials for common Ranchi place and family queries.",
+  "entities": [
+    {
+      "key": "nakshatra-van",
+      "name": "Nakshatra Van",
+      "type": "TOURIST_ATTRACTION",
+      "packType": "PARK",
+      "aliases": ["Nakshatra Van Ranchi", "Nakshtra Van"],
+      "description": "Nakshatra Van is a thematic park in Ranchi near Raj Bhawan, created by the Jharkhand Forest Department."
+    },
+    {
+      "key": "ranchi-lake",
+      "name": "Ranchi Lake",
+      "type": "NATURAL_FEATURE",
+      "packType": "LAKE",
+      "aliases": ["Bada Talab", "Ranchi Bada Talab", "Bada Talab Ranchi"],
+      "description": "Ranchi Lake is a historic lake in the heart of Ranchi near Main Road and Marwari College.",
+      "region": "Ranchi",
+      "country": "India",
+      "externalRefs": {"joharDiscoveryScope": "Ranchi", "officialUrl": "https://tourism.jharkhand.gov.in/destinationDetails/90"}
+    },
+    {
+      "key": "patratu-valley",
+      "name": "Patratu Valley",
+      "type": "TOURIST_ATTRACTION",
+      "packType": "VIEWPOINT",
+      "aliases": ["Patratu valley", "Patratu Ghati"],
+      "description": "Patratu Valley is a scenic valley around 40 km from Ranchi, known for greenery, misty hills and winding roads.",
+      "region": "Ranchi",
+      "country": "India",
+      "externalRefs": {"joharDiscoveryScope": "Ranchi", "officialUrl": "https://tourism.jharkhand.gov.in/destination-map/190"}
+    },
+    {
+      "key": "sidhu-kanhu-park",
+      "name": "Sidhu and Kanhu Park",
+      "type": "TOURIST_ATTRACTION",
+      "packType": "PARK",
+      "aliases": ["Sidhu Kanhu Park", "Sido Kanhu Park", "Sidho Kanhu Park"],
+      "description": "Sidhu and Kanhu Park is a city park in Ranchi with children's swings and an open gym.",
+      "region": "Ranchi",
+      "country": "India",
+      "externalRefs": {"joharDiscoveryScope": "Ranchi", "officialUrl": "https://forest.jharkhand.gov.in/places-to-visit.aspx"}
+    },
+    {
+      "key": "biodiversity-park",
+      "name": "Biodiversity Park Ranchi",
+      "type": "TOURIST_ATTRACTION",
+      "packType": "PARK",
+      "aliases": ["Biodiversity Park", "Ranchi Biodiversity Park"],
+      "description": "Biodiversity Park in Ranchi is managed by the forest department and includes plant-focused gardens, trails and a children's park.",
+      "region": "Ranchi",
+      "country": "India",
+      "externalRefs": {"joharDiscoveryScope": "Ranchi", "officialUrl": "https://tourism.jharkhand.gov.in/how-to-reach/136/5"}
+    }
+  ],
+  "facts": [
+    {
+      "entityKey": "nakshatra-van",
+      "field": "features",
+      "value": "Children's park, gardens, artificial hillocks, waterfalls, a musical fountain and a medicinal-plant garden.",
+      "domain": "TOURISM",
+      "sourceUrl": "https://forest.jharkhand.gov.in/places-to-visit.aspx",
+      "publisher": "Jharkhand Forest Department",
+      "freshness": "EVERGREEN",
+      "evidence": "The official Forest Department places-to-visit page lists children's parks, gardens, artificial hillocks, waterfalls, a musical fountain and medicinal plants at Nakshatra Van."
+    },
+    {
+      "entityKey": "ranchi-lake",
+      "field": "history",
+      "value": "Ranchi Lake was excavated by Colonel Onsely in 1842.",
+      "domain": "HISTORY",
+      "sourceUrl": "https://tourism.jharkhand.gov.in/destinationDetails/90",
+      "publisher": "Jharkhand Tourism",
+      "freshness": "EVERGREEN",
+      "evidence": "Jharkhand Tourism states that Ranchi Lake was excavated by Colonel Onsely in 1842."
+    },
+    {
+      "entityKey": "ranchi-lake",
+      "field": "location",
+      "value": "Near Ranchi Main Road and Marwari College, about 4.5 km from Ranchi railway station.",
+      "domain": "GEOGRAPHY",
+      "sourceUrl": "https://tourism.jharkhand.gov.in/destinationDetails/90",
+      "publisher": "Jharkhand Tourism",
+      "freshness": "SEMI_DYNAMIC",
+      "evidence": "Jharkhand Tourism places the lake near Main Road and Marwari College and about 4.5 km from Ranchi railway station."
+    },
+    {
+      "entityKey": "patratu-valley",
+      "field": "distanceFromRanchi",
+      "value": "Approximately 40 km from Ranchi.",
+      "domain": "TRAVEL",
+      "sourceUrl": "https://tourism.jharkhand.gov.in/destination-map/190",
+      "publisher": "Jharkhand Tourism",
+      "freshness": "SEMI_DYNAMIC",
+      "evidence": "Jharkhand Tourism describes Patratu Valley as approximately 40 km from Ranchi."
+    },
+    {
+      "entityKey": "sidhu-kanhu-park",
+      "field": "childrenFacilities",
+      "value": "The park has swings and rides for children.",
+      "domain": "TOURISM",
+      "sourceUrl": "https://forest.jharkhand.gov.in/places-to-visit.aspx",
+      "publisher": "Jharkhand Forest Department",
+      "freshness": "SEMI_DYNAMIC",
+      "evidence": "The official Forest Department page says Sidhu and Kanhu Park has swings and rides for children."
+    },
+    {
+      "entityKey": "biodiversity-park",
+      "field": "childrenFacilities",
+      "value": "The park includes a children's park.",
+      "domain": "TOURISM",
+      "sourceUrl": "https://tourism.jharkhand.gov.in/how-to-reach/136/5",
+      "publisher": "Jharkhand Tourism",
+      "freshness": "SEMI_DYNAMIC",
+      "evidence": "Jharkhand Tourism says Biodiversity Park includes a children's park."
+    }
+  ],
+  "relationships": []
+}
