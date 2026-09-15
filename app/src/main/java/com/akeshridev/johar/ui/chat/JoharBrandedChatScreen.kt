@@ -111,25 +111,43 @@ fun JoharBrandedChatScreen(
 
                 if (isFreshConversation) {
                     item(key = "starter-suggestions") {
-                        Column(
-                            modifier = Modifier.padding(top = 18.dp),
-                            verticalArrangement = Arrangement.spacedBy(10.dp),
+                        Surface(
+                            shape = RoundedCornerShape(24.dp),
+                            color = JoharColors.White,
+                            border = BorderStroke(1.dp, JoharColors.Sand.copy(alpha = 0.85f)),
+                            shadowElevation = 3.dp,
                         ) {
-                            Text(
-                                text = "Start with something local",
-                                style = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.colorScheme.secondary,
-                                fontWeight = FontWeight.SemiBold,
-                            )
-                            JoharSuggestionCard(
-                                title = "Try asking Johar",
-                                suggestions = listOf(
-                                    "Rugra kya hai?",
-                                    "Tagore Hill kahan hai?",
-                                    "Lalpur ke paas mandir",
-                                ),
-                                onSuggestionClick = onSend,
-                            )
+                            Column(
+                                modifier = Modifier.padding(18.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp),
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    JoharRanchiSatelliteEmblem(size = 52.dp, animated = true)
+                                    Spacer(Modifier.width(12.dp))
+                                    Column {
+                                        Text(
+                                            text = "Ask Johar about Ranchi",
+                                            style = MaterialTheme.typography.titleMedium,
+                                            color = JoharColors.Forest,
+                                            fontWeight = FontWeight.Bold,
+                                        )
+                                        Text(
+                                            text = "Places, local food, routes, services and everyday help.",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = JoharColors.Muted,
+                                        )
+                                    }
+                                }
+                                JoharSuggestionCard(
+                                    title = "Try one",
+                                    suggestions = listOf(
+                                        "Lalpur ke paas ATM batao",
+                                        "Emergency hospital number",
+                                        "Ranchi mein peaceful family place suggest karo",
+                                    ),
+                                    onSuggestionClick = onSend,
+                                )
+                            }
                         }
                     }
                 }
@@ -163,8 +181,9 @@ fun JoharBrandedChatScreen(
 @Composable
 private fun JoharChatHeader() {
     Surface(
-        color = MaterialTheme.colorScheme.background,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.28f)),
+        color = JoharColors.White,
+        border = BorderStroke(1.dp, JoharColors.Sand.copy(alpha = 0.65f)),
+        shadowElevation = 1.dp,
     ) {
         Row(
             modifier = Modifier
@@ -183,7 +202,7 @@ private fun JoharChatHeader() {
                     Text(
                         text = "Johar AI",
                         style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = JoharColors.Forest,
                         fontWeight = FontWeight.Bold,
                     )
                     Spacer(Modifier.width(8.dp))
@@ -203,7 +222,7 @@ private fun JoharChatHeader() {
                 Text(
                     text = "Jharkhand in Your Hands • offline-first",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = JoharColors.Muted,
                 )
             }
         }
@@ -218,42 +237,59 @@ private fun JoharComposer(
     onSend: () -> Unit,
 ) {
     Surface(
-        color = MaterialTheme.colorScheme.surface,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.30f)),
-        shadowElevation = 2.dp,
+        color = JoharColors.SoftGreen,
+        border = BorderStroke(1.dp, JoharColors.Green.copy(alpha = 0.30f)),
+        shadowElevation = 10.dp,
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .navigationBarsPadding()
                 .imePadding()
-                .padding(horizontal = 12.dp, vertical = 10.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
+                .padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(7.dp),
         ) {
-            OutlinedTextField(
-                value = value,
-                onValueChange = onValueChange,
-                enabled = enabled,
-                modifier = Modifier
-                    .weight(1f)
-                    .testTag(JoharTestTags.CHAT_INPUT),
-                placeholder = { Text("Ask anything about Ranchi…") },
-                maxLines = 4,
-                shape = RoundedCornerShape(24.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedContainerColor = MaterialTheme.colorScheme.background,
-                    focusedContainerColor = MaterialTheme.colorScheme.background,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.55f),
-                    focusedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.80f),
-                ),
+            Text(
+                text = "Ask Johar • local answers, even offline",
+                style = MaterialTheme.typography.labelMedium,
+                color = JoharColors.Forest.copy(alpha = 0.75f),
+                fontWeight = FontWeight.SemiBold,
             )
-            JoharPrimaryButton(
-                label = "Send",
-                modifier = Modifier.testTag(JoharTestTags.SEND_BUTTON),
-                enabled = value.isNotBlank() && enabled,
-                onClick = onSend,
-            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                OutlinedTextField(
+                    value = value,
+                    onValueChange = onValueChange,
+                    enabled = enabled,
+                    modifier = Modifier
+                        .weight(1f)
+                        .testTag(JoharTestTags.CHAT_INPUT),
+                    placeholder = { Text("Ask anything about Ranchi…") },
+                    maxLines = 4,
+                    shape = RoundedCornerShape(22.dp),
+                    textStyle = MaterialTheme.typography.bodyLarge,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedContainerColor = JoharColors.White,
+                        focusedContainerColor = JoharColors.White,
+                        disabledContainerColor = JoharColors.White.copy(alpha = 0.90f),
+                        unfocusedTextColor = JoharColors.Forest,
+                        focusedTextColor = JoharColors.Forest,
+                        disabledTextColor = JoharColors.Forest.copy(alpha = 0.75f),
+                        unfocusedPlaceholderColor = JoharColors.Muted,
+                        focusedPlaceholderColor = JoharColors.Muted,
+                        unfocusedBorderColor = JoharColors.Green.copy(alpha = 0.38f),
+                        focusedBorderColor = JoharColors.Forest,
+                    ),
+                )
+                JoharPrimaryButton(
+                    label = "Send",
+                    modifier = Modifier.testTag(JoharTestTags.SEND_BUTTON),
+                    enabled = value.isNotBlank() && enabled,
+                    onClick = onSend,
+                )
+            }
         }
     }
 }
@@ -274,7 +310,7 @@ private fun UserBubble(content: JoharContent) {
             Text(
                 text = text,
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = JoharColors.Forest,
                 modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
             )
         }
