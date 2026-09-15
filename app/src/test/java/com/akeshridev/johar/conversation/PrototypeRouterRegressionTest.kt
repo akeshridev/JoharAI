@@ -56,12 +56,9 @@ class PrototypeRouterRegressionTest {
 
     @Test
     fun newExplicitCategoryDoesNotConsumeStaleNearbyClarification() {
-        val mainRoad = place("main-road", "Main Road", "PLACE")
         var lastKnowledgeQuery: String? = null
         val router = JoharQueryRouter(
-            resolvePlace = { query ->
-                if (query.equals("main road", ignoreCase = true)) listOf(mainRoad) else emptyList()
-            },
+            resolvePlace = { emptyList() },
             nearby = { _, _ -> emptyList() },
             knowledgeAnswer = {
                 lastKnowledgeQuery = it
