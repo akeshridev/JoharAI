@@ -28,9 +28,9 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun JoharSplashScreen(
     modifier: Modifier = Modifier,
-    title: String = "Johar",
-    subtitle: String = "Ranchi AI",
-    tagline: String = "Ask anything about Ranchi",
+    title: String = "Johar AI",
+    subtitle: String = "Jharkhand in Your Hands",
+    tagline: String = "Local knowledge • Offline-first • Built for Jharkhand",
     compactPreview: Boolean = false,
 ) {
     val outerModifier = if (compactPreview) {
@@ -52,9 +52,9 @@ fun JoharSplashScreen(
                 .background(
                     Brush.verticalGradient(
                         0f to Color(0xFFFFFBF0),
-                        0.36f to Color(0xFFF7EEDB),
-                        0.66f to Color(0xFFE6E9CF),
-                        1f to Color(0xFFBCD09D),
+                        0.32f to Color(0xFFF4F3E5),
+                        0.64f to Color(0xFFDDE9D1),
+                        1f to Color(0xFF9FC6A4),
                     ),
                 ),
         ) {
@@ -64,34 +64,15 @@ fun JoharSplashScreen(
                 modifier = Modifier
                     .align(Alignment.TopCenter)
                     .padding(
-                        top = if (compactPreview) 38.dp else 78.dp,
+                        top = if (compactPreview) 38.dp else 70.dp,
                         start = 28.dp,
                         end = 28.dp,
                     ),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Surface(
-                    shape = RoundedCornerShape(JoharRadius.Pill),
-                    color = JoharColors.Forest.copy(alpha = 0.08f),
-                ) {
-                    Text(
-                        text = "RANCHI AI",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = JoharColors.Forest,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
-                    )
-                }
-
-                Spacer(Modifier.height(14.dp))
-
                 Text(
                     text = title,
-                    style = if (compactPreview) {
-                        MaterialTheme.typography.displaySmall
-                    } else {
-                        MaterialTheme.typography.displayLarge
-                    },
+                    style = if (compactPreview) MaterialTheme.typography.displaySmall else MaterialTheme.typography.displayLarge,
                     color = JoharColors.Forest,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
@@ -102,7 +83,7 @@ fun JoharSplashScreen(
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.titleLarge,
-                    color = JoharColors.Rust,
+                    color = JoharColors.Forest.copy(alpha = 0.82f),
                     fontWeight = FontWeight.SemiBold,
                 )
 
@@ -119,26 +100,27 @@ fun JoharSplashScreen(
             Box(
                 modifier = Modifier
                     .align(Alignment.Center)
-                    .padding(top = if (compactPreview) 84.dp else 118.dp),
+                    .padding(top = if (compactPreview) 82.dp else 108.dp),
                 contentAlignment = Alignment.Center,
             ) {
                 Canvas(modifier = Modifier.fillMaxSize()) {
                     val cx = size.width / 2f
-                    val cy = size.height / 2f + size.height * 0.065f
+                    val cy = size.height / 2f + size.height * 0.06f
                     drawCircle(
-                        color = Color.White.copy(alpha = 0.34f),
-                        radius = size.minDimension * 0.28f,
+                        color = Color.White.copy(alpha = 0.42f),
+                        radius = size.minDimension * 0.30f,
                         center = Offset(cx, cy),
                     )
                     drawCircle(
-                        color = JoharColors.Rust.copy(alpha = 0.05f),
-                        radius = size.minDimension * 0.34f,
+                        color = JoharColors.Forest.copy(alpha = 0.05f),
+                        radius = size.minDimension * 0.36f,
                         center = Offset(cx, cy),
                     )
                 }
 
-                JoharDrummerMascot(
-                    size = if (compactPreview) 150.dp else 196.dp,
+                JoharRanchiSatelliteEmblem(
+                    size = if (compactPreview) 190.dp else 240.dp,
+                    animated = true,
                 )
             }
 
@@ -153,7 +135,7 @@ fun JoharSplashScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    text = "Local knowledge. Grounded answers.",
+                    text = "Ranchi ↔ Satellite • local intelligence in motion",
                     style = MaterialTheme.typography.titleSmall,
                     color = JoharColors.Forest,
                     fontWeight = FontWeight.SemiBold,
@@ -161,7 +143,7 @@ fun JoharSplashScreen(
                 )
                 Spacer(Modifier.height(6.dp))
                 Text(
-                    text = "Built for Ranchi • Works offline-first",
+                    text = "Built for people of Jharkhand",
                     style = MaterialTheme.typography.bodySmall,
                     color = JoharColors.Forest.copy(alpha = 0.66f),
                     textAlign = TextAlign.Center,
