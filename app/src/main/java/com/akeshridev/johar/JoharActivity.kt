@@ -38,7 +38,9 @@ class JoharActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            JoharTheme {
+            // Johar uses a deliberate light-first product palette for the prototype so cards,
+            // maps and the composer keep the same visual identity regardless of device theme.
+            JoharTheme(darkTheme = false) {
                 JoharRoot(
                     viewModel = chatViewModel,
                     autoRunPrototype = isDebuggable,
