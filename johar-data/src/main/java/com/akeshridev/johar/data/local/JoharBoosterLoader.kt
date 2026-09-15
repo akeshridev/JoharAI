@@ -20,6 +20,7 @@ internal object JoharBoosterLoader {
         "johar/johar-booster-2026.09-v3-spatial.json",
         "johar/johar-booster-2026.09-v4-ranchi-essentials.json",
         "johar/johar-booster-2026.09-v5-visitor-essentials.json",
+        "johar/johar-booster-2026.09-v6-prototype-essentials.json",
     )
     private const val MARKER_PREFIX = "asset://johar-booster/"
     private const val TAG = "JoharBooster"
