@@ -37,6 +37,48 @@ class PrototypeRouterRegressionTest {
     }
 
     @Test
+    fun kidsParkRecommendationUsesKidsSpecificCaveat() {
+        val rockGarden = place("rock-garden", "Rock Garden", "PARK")
+        val router = JoharQueryRouter(
+            resolvePlace = { emptyList() },
+            nearby = { _, _ -> emptyList() },
+            discoverPlaces = { types -> if ("PARK" in types) listOf(rockGarden) else emptyList() },
+            knowledgeAnswer = { knowledge(it) },
+        )
+
+        val result = router.answer("Ranchi mein kids ke liye park suggest karo")
+
+        assertTrue(result is JoharQueryResult.Places)
+        result as JoharQueryResult.Places
+        assertTrue(result.intro.contains("Kids-friendly", ignoreCase = true))
+        assertTrue(!result.intro.contains("Peaceful/family", ignoreCase = true))
+    }
+
+    @Test
+    fun newExplicitCategoryDoesNotConsumeStaleNearbyClarification() {
+        val mainRoad = place("main-road", "Main Road", "PLACE")
+        var lastKnowledgeQuery: String? = null
+        val router = JoharQueryRouter(
+            resolvePlace = { query ->
+                if (query.equals("main road", ignoreCase = true)) listOf(mainRoad) else emptyList()
+            },
+            nearby = { _, _ -> emptyList() },
+            knowledgeAnswer = {
+                lastKnowledgeQuery = it
+                knowledge(it)
+            },
+        )
+
+        val clarification = router.answer("Main Road ke paas restaurant batao")
+        assertTrue(clarification is JoharQueryResult.Clarification)
+
+        val emergency = router.answer("Emergency hospital number")
+
+        assertTrue(emergency is JoharQueryResult.Grounded)
+        assertEquals("Emergency hospital number", lastKnowledgeQuery)
+    }
+
+    @Test
     fun namedPlaceInsideSuitabilityQuestionResolvesBeforeGenericFallback() {
         val kankeDam = place("kanke-dam", "Kanke Dam", "TOURIST_ATTRACTION")
         val router = JoharQueryRouter(
