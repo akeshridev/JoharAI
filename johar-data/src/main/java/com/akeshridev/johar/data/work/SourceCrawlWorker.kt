@@ -84,9 +84,9 @@ class SourceCrawlWorker(
             val entityAdapters = buildList {
                 if (target == CrawlTarget.RANCHI) add(ranchiOfficial)
                 add(wikidata)
-                // Ranchi discovery uses the narrower specialized Overpass adapter below. Running
-                // the legacy generic entity crawl for Ranchi is redundant, slow and noisy.
-                if (target == CrawlTarget.DASSAM_FALLS) add(overpass)
+                // Ranchi discovery stays specialized, but the generic OSM source adapter is also
+                // registered so SourceCrawler can resolve exact OSM refs during the Ranchi backfill.
+                if (target == CrawlTarget.RANCHI || target == CrawlTarget.DASSAM_FALLS) add(overpass)
                 add(wikipedia)
                 add(wikivoyage)
                 add(commons)
