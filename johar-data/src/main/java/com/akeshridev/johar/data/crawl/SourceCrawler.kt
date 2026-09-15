@@ -193,7 +193,7 @@ internal class SourceCrawler(
         // Ranchi V1 is a prototype breadth pass. Keep the budget bounded so public sources are
         // treated politely, but large enough that manual crawl runs produce useful coverage.
         private const val RANCHI_ENTITIES_PER_RUN = 12
-        private const val RANCHI_KEYWORDS_PER_RUN = 8
+        private const val RANCHI_KEYWORDS_PER_RUN = 10
         private const val DEFAULT_ENTITIES_PER_RUN = 6
         private const val DEFAULT_KEYWORDS_PER_RUN = 3
 
